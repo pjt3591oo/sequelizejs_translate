@@ -290,4 +290,4 @@ queryInterface.removeIndex('Person', ['firstname', 'lastname'])
 
 # Programmatic use
 
-sequelize는 프로그래밍 방식으로 실행 후 처리, 마이그래이션 작업을 로깅하기 위해 [sister library](https://github.com/sequelize/umzug)을 가지고 있습니다.
+sequelize는 프로그래밍 방식으로 실행 후 처리, 마이그레이션 작업을 로깅하기 위해 [sister library](https://github.com/sequelize/umzug)을 가지고 있습니다.
