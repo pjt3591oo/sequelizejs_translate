@@ -1,62 +1,69 @@
+# working With Legacy tables
 
-상자 밖에서 Sequelize는 독선적인 것은 사소해 보일 수 있고, 테이블 그리고 필드네임으로 정의된(그렇지 않으면 생성된)것을 여러분의 어플리케이션으로 전달해 줄 것입니다.
+Sequelize는 즉시 사용 가능하지만 약간의 의견이있는 것처럼 보이지만 레거시 테이블을 작업하고 테이블과 필드 이름을 정의하여 (다른 방법으로 생성 된) 응용 프로그램을 쉽게 교정 할 수 있습니다.
 
-# Tables
-```.js
-sequelize.define('user', {
-
+## Tables
+```js
+class User extends Model {}
+User.init({
+  // ...
 }, {
-  tableName: 'users'
+  modelName: 'user',
+  tableName: 'users',
+  sequelize,
 });
 ```
 
-# Fields
-```.js
-sequelize.define('modelName', {
+## Fields
+```js
+class MyModel extends Model {}
+MyModel.init({
   userId: {
     type: Sequelize.INTEGER,
     field: 'user_id'
   }
-});
+}, { sequelize });
 ```
 
 
-# Primary keys
+## Primary keys
 
 sequelize는 여러분들의 테이블은 기본적으로 기본 키 속성인 `id`를 가지고 있을 것입니다.
 
 여러분들은 기본 키를 정의 하기위해 다음과 같이하세요.
 
-```.js
-sequelize.define('collection', {
+```js
+class Collection extends Model {}
+Collection.init({
   uid: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true // Automatically gets converted to SERIAL for postgres
   }
-});
+}, { sequelize });
 
-sequelize.define('collection', {
+class Collection extends Model {}
+Collection.init({
   uuid: {
     type: Sequelize.UUID,
     primaryKey: true
   }
-});
+}, { sequelize });
 ```
 
 그리고 여러분들의 모델이 기본키를 전혀 가지고 있지 않는다면 `Model.removeAttribute('id');`을 사용 할 수 있습니다.
 
-# Foreign keys
-```.js
+## Foreign keys
+```js
 // 1:1
-Organization.belongsTo(User, {foreignKey: 'owner_id'});
-User.hasOne(Organization, {foreignKey: 'owner_id'});
+Organization.belongsTo(User, { foreignKey: 'owner_id' });
+User.hasOne(Organization, { foreignKey: 'owner_id' });
 
 // 1:M
-Project.hasMany(Task, {foreignkey: 'tasks_pk'});
-Task.belongsTo(Project, {foreignKey: 'tasks_pk'});
+Project.hasMany(Task, { foreignKey: 'tasks_pk' });
+Task.belongsTo(Project, { foreignKey: 'tasks_pk' });
 
 // N:M
-User.hasMany(Role, {through: 'user_has_roles', foreignKey: 'user_role_user_id'});
-Role.hasMany(User, {through: 'user_has_roles', foreignKey: 'roles_identifier'});
+User.belongsToMany(Role, { through: 'user_has_roles', foreignKey: 'user_role_user_id' });
+Role.belongsToMany(User, { through: 'user_has_roles', foreignKey: 'roles_identifier' });
 ```

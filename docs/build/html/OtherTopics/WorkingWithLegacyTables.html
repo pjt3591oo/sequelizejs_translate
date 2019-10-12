@@ -174,6 +174,72 @@
             
   <div class="section" id="id1">
 <h1>레거시 테이블 작업<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Sequelize는 즉시 사용 가능하지만 약간의 의견이있는 것처럼 보이지만 레거시 테이블을 작업하고 테이블과 필드 이름을 정의하여 (다른 방법으로 생성 된) 응용 프로그램을 쉽게 교정 할 수 있습니다.</p>
+<div class="section" id="tables">
+<h2>Tables<a class="headerlink" href="#tables" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="c1">// ...</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span><span class="p">,</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="fields">
+<h2>Fields<a class="headerlink" href="#fields" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">MyModel</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">MyModel</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">userId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;user_id&#39;</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="primary-keys">
+<h2>Primary keys<a class="headerlink" href="#primary-keys" title="Permalink to this headline">¶</a></h2>
+<p>sequelize는 여러분들의 테이블은 기본적으로 기본 키 속성인 <code class="docutils literal notranslate"><span class="pre">id</span></code>를 가지고 있을 것입니다.</p>
+<p>여러분들은 기본 키를 정의 하기위해 다음과 같이하세요.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Collection</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Collection</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">uid</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="c1">// Automatically gets converted to SERIAL for postgres</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Collection</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Collection</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">uuid</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>그리고 여러분들의 모델이 기본키를 전혀 가지고 있지 않는다면 <code class="docutils literal notranslate"><span class="pre">Model.removeAttribute('id');</span></code>을 사용 할 수 있습니다.</p>
+</div>
+<div class="section" id="foreign-keys">
+<h2>Foreign keys<a class="headerlink" href="#foreign-keys" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// 1:1</span>
+<span class="nx">Organization</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;owner_id&#39;</span> <span class="p">});</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Organization</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;owner_id&#39;</span> <span class="p">});</span>
+
+<span class="c1">// 1:M</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Task</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;tasks_pk&#39;</span> <span class="p">});</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;tasks_pk&#39;</span> <span class="p">});</span>
+
+<span class="c1">// N:M</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Role</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;user_has_roles&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;user_role_user_id&#39;</span> <span class="p">});</span>
+<span class="nx">Role</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;user_has_roles&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;roles_identifier&#39;</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
