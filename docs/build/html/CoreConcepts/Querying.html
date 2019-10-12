@@ -174,6 +174,495 @@
             
   <div class="section" id="id1">
 <h1>쿼리(조회)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>속성<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>특정 속성을 선택하기 위해 <code class="docutils literal notranslate"><span class="pre">attributes</span></code>을 사용할 수 있습니다. 이 옵션은 배열을 전달합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span> <span class="p">...</span>
+</pre></div>
+</div>
+<p>attributes는 내부에 배열을 사용하여 이름을 바꿀 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">]]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span> <span class="k">AS</span> <span class="n">baz</span> <span class="p">...</span>
+</pre></div>
+</div>
+<p>여러분들은 집계를 하기위해 <code class="docutils literal notranslate"><span class="pre">sequelize.fn</span></code>를 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;hats&#39;</span><span class="p">)),</span> <span class="s1">&#39;no_hats&#39;</span><span class="p">]]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">hats</span><span class="p">)</span> <span class="k">AS</span> <span class="n">no_hats</span> <span class="p">...</span>
+</pre></div>
+</div>
+<p>집계함수를 사용 할 때, 여러분들은 해당 모델에서 접근할 수 있는 별명을 전달 해야합니다. 위의 예를 보면 여러분은 hats의 갯수를 <code class="docutils literal notranslate"><span class="pre">instance.get('no_hats')</span></code>를 사용하여 가져올 수 있습니다.</p>
+<p>집계값을 추가 할 때 모델의 모든 속성들을 명시하는 것은 불편 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// This is a tiresome way of getting the number of hats...</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="s1">&#39;baz&#39;</span><span class="p">,</span> <span class="s1">&#39;quz&#39;</span><span class="p">,</span> <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;hats&#39;</span><span class="p">)),</span> <span class="s1">&#39;no_hats&#39;</span><span class="p">]]</span>
+<span class="p">});</span>
+
+<span class="c1">// This is shorter, and less error prone because it still works if you add / remove attributes</span>
+<span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;COUNT&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;hats&#39;</span><span class="p">)),</span> <span class="s1">&#39;no_hats&#39;</span><span class="p">]]</span> <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">,</span> <span class="n">baz</span><span class="p">,</span> <span class="n">quz</span><span class="p">,</span> <span class="k">COUNT</span><span class="p">(</span><span class="n">hats</span><span class="p">)</span> <span class="k">AS</span> <span class="n">no_hats</span> <span class="p">...</span>
+</pre></div>
+</div>
+<p>몇 가지 속성을 제거 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span> <span class="nx">exclude</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;baz&#39;</span><span class="p">]</span> <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="n">id</span><span class="p">,</span> <span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">,</span> <span class="n">quz</span> <span class="p">...</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="where">
+<h2>WHERE<a class="headerlink" href="#where" title="Permalink to this headline">¶</a></h2>
+<p>여러분들은 findAll/find 또는 bulk updates/destorys 쿼리를 보낼때 쿼리를 필터하기 위해 <code class="docutils literal notranslate"><span class="pre">where</span></code> 객체를 보낼 수 있다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">where</span></code>는 일반적으로 속성:값 쌍을 이루는 객체를 가진다, where value는 매칭이 되는 기본적인 값 또는 다양한 연산자 객체를 위한 키가된다.</p>
+<p>그것은 내부적으로 <code class="docutils literal notranslate"><span class="pre">or</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">and</span></code>로 설정된 복잡한 AND/OR 조합이 가능하다</p>
+<div class="section" id="basics">
+<h3>(기본) Basics<a class="headerlink" href="#basics" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span><span class="p">;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">authorId</span><span class="o">:</span> <span class="mi">2</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// SELECT * FROM post WHERE authorId = 2</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">authorId</span><span class="o">:</span> <span class="mi">12</span><span class="p">,</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;active&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// SELECT * FROM post WHERE authorId = 12 AND status = &#39;active&#39;;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[{</span><span class="nx">authorId</span><span class="o">:</span> <span class="mi">12</span><span class="p">},</span> <span class="p">{</span><span class="nx">authorId</span><span class="o">:</span> <span class="mi">13</span><span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// SELECT * FROM post WHERE authorId = 12 OR authorId = 13;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">authorId</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// SELECT * FROM post WHERE authorId = 12 OR authorId = 13;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;inactive&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// DELETE FROM post WHERE status = &#39;inactive&#39;;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
+  <span class="nx">updatedAt</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">deletedAt</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">ne</span><span class="p">]</span><span class="o">:</span> <span class="kc">null</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+<span class="c1">// UPDATE post SET updatedAt = null WHERE deletedAt NOT NULL;</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;char_length&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">)),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="p">});</span>
+<span class="c1">// SELECT * FROM post WHERE char_length(status) = 6;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="operators">
+<h3>(연산자) Operators<a class="headerlink" href="#operators" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span>
+
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">and</span><span class="p">]</span><span class="o">:</span> <span class="p">[{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">5</span><span class="p">},</span> <span class="p">{</span><span class="nx">b</span><span class="o">:</span> <span class="mi">6</span><span class="p">}]</span> <span class="c1">// (a = 5) AND (b = 6)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">5</span><span class="p">},</span> <span class="p">{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">6</span><span class="p">}]</span>  <span class="c1">// (a = 5 OR a = 6)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">6</span><span class="p">,</span>                <span class="c1">// &gt; 6</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gte</span><span class="p">]</span><span class="o">:</span> <span class="mi">6</span><span class="p">,</span>               <span class="c1">// &gt;= 6</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>               <span class="c1">// &lt; 10</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lte</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>              <span class="c1">// &lt;= 10</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">ne</span><span class="p">]</span><span class="o">:</span> <span class="mi">20</span><span class="p">,</span>               <span class="c1">// != 20</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">eq</span><span class="p">]</span><span class="o">:</span> <span class="mi">3</span><span class="p">,</span>                <span class="c1">// = 3</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">is</span><span class="p">]</span><span class="o">:</span> <span class="kc">null</span>              <span class="c1">// IS NULL</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">not</span><span class="p">]</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>            <span class="c1">// IS NOT TRUE</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">between</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>     <span class="c1">// BETWEEN 6 AND 10</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notBetween</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="c1">// NOT BETWEEN 11 AND 15</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="k">in</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>           <span class="c1">// IN [1, 2]</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notIn</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>        <span class="c1">// NOT IN [1, 2]</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span><span class="p">,</span>         <span class="c1">// LIKE &#39;%hat&#39;</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notLike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span>       <span class="c1">// NOT LIKE &#39;%hat&#39;</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">iLike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span>         <span class="c1">// ILIKE &#39;%hat&#39; (case insensitive) (PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notILike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span>      <span class="c1">// NOT ILIKE &#39;%hat&#39;  (PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">startsWith</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;hat&#39;</span>     <span class="c1">// LIKE &#39;hat%&#39;</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">endsWith</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;hat&#39;</span>       <span class="c1">// LIKE &#39;%hat&#39;</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">substring</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;hat&#39;</span>      <span class="c1">// LIKE &#39;%hat%&#39;</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">regexp</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;^[h|a|t]&#39;</span>    <span class="c1">// REGEXP/~ &#39;^[h|a|t]&#39; (MySQL/PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notRegexp</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;^[h|a|t]&#39;</span> <span class="c1">// NOT REGEXP/!~ &#39;^[h|a|t]&#39; (MySQL/PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">iRegexp</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;^[h|a|t]&#39;</span>    <span class="c1">// ~* &#39;^[h|a|t]&#39; (PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notIRegexp</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;^[h|a|t]&#39;</span> <span class="c1">// !~* &#39;^[h|a|t]&#39; (PG only)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">any</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="s1">&#39;hat&#39;</span><span class="p">]}</span>
+                           <span class="c1">// LIKE ANY ARRAY[&#39;cat&#39;, &#39;hat&#39;] - also works for iLike and notLike</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">overlap</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>       <span class="c1">// &amp;&amp; [1, 2] (PG array overlap operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>      <span class="c1">// @&gt; [1, 2] (PG array contains operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contained</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>     <span class="c1">// &lt;@ [1, 2] (PG array contained by operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">any</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>            <span class="c1">// ANY ARRAY[2, 3]::INTEGER (PG only)</span>
+
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">col</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;user.organization_id&#39;</span> <span class="c1">// = &quot;user&quot;.&quot;organization_id&quot;, with dialect specific column identifiers, PG in this example</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">all</span><span class="p">]</span><span class="o">:</span> <span class="nx">literal</span><span class="p">(</span><span class="s1">&#39;SELECT 1&#39;</span><span class="p">)</span> <span class="p">}</span>
+                          <span class="c1">// &gt; ALL (SELECT 1)</span>
+</pre></div>
+</div>
+<div class="section" id="id3">
+<h4>범위 연산자<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>지원되는 모든 연산자를 사용하여 범위 유형을 쿼리 할 수 ​​있습니다.</p>
+<p>명심해야한다. 제공된 범위값은 <a class="reference external" href="https://sequelize.org/master/manual/data-types.html#range-types">바인딩에 포함/제외</a>에 대해서도 정의할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// All the above equality and inequality operators plus the following:</span>
+
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">]</span><span class="o">:</span> <span class="mi">2</span>           <span class="c1">// @&gt; &#39;2&#39;::integer (PG range contains element operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>      <span class="c1">// @&gt; [1, 2) (PG range contains range operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contained</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>     <span class="c1">// &lt;@ [1, 2) (PG range is contained by operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">overlap</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>       <span class="c1">// &amp;&amp; [1, 2) (PG range overlap (have points in common) operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">adjacent</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>      <span class="c1">// -|- [1, 2) (PG range is adjacent to operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">strictLeft</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>    <span class="c1">// &lt;&lt; [1, 2) (PG range strictly left of operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">strictRight</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>   <span class="c1">// &gt;&gt; [1, 2) (PG range strictly right of operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">noExtendRight</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="c1">// &amp;&lt; [1, 2) (PG range does not extend to the right of operator)</span>
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">noExtendLeft</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>  <span class="c1">// &amp;&gt; [1, 2) (PG range does not extend to the left of operator)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="combinations">
+<h4>(조합) Combinations<a class="headerlink" href="#combinations" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span><span class="p">;</span>
+
+<span class="p">{</span>
+  <span class="nx">rank</span><span class="o">:</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">]</span><span class="o">:</span> <span class="mi">1000</span><span class="p">,</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">eq</span><span class="p">]</span><span class="o">:</span> <span class="kc">null</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// rank &lt; 1000 OR rank IS NULL</span>
+
+<span class="p">{</span>
+  <span class="nx">createdAt</span><span class="o">:</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">]</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(),</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="k">new</span> <span class="nb">Date</span><span class="p">()</span> <span class="o">-</span> <span class="mi">24</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// createdAt &lt; [timestamp] AND createdAt &gt; [timestamp]</span>
+
+<span class="p">{</span>
+  <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nx">title</span><span class="o">:</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;Boat%&#39;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="nx">description</span><span class="o">:</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%boat%&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+<span class="c1">// title LIKE &#39;Boat%&#39; OR description LIKE &#39;%boat%&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h4>연산자 별칭<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>Sequelize를 사용하면 특정 문자열을 연산자의 별칭으로 설정할 수 있습니다. v5에서는 사용 중단 경고가 표시됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span><span class="p">;</span>
+<span class="kr">const</span> <span class="nx">operatorsAliases</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">$gt</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span>
+<span class="p">}</span>
+<span class="kr">const</span> <span class="nx">connection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">pass</span><span class="p">,</span> <span class="p">{</span> <span class="nx">operatorsAliases</span> <span class="p">})</span>
+
+<span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">6</span> <span class="c1">// &gt; 6</span>
+<span class="nx">$gt</span><span class="o">:</span> <span class="mi">6</span> <span class="c1">// same as using Op.gt (&gt; 6)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h4>연산자 보안<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>기본적으로 Sequelize는 Symbol 연산자를 사용합니다. 별명없이 Sequelize를 사용하면 보안이 향상됩니다. 문자열 별칭이 없으면 연산자를 주입 할 가능성이 극히 적지 만 항상 사용자 입력의 유효성을 검사해야 합니다.</p>
+<p>일부 프레임워크는 자동으로 사용자 입력을 js 객체로 구문 분석하고 입력 처리하지 못하면 문자열 연산자가 포함 된 객체를 Sequelize에 삽입 할 수 있습니다.</p>
+<p>더 나은 보안을 위해 <code class="docutils literal notranslate"><span class="pre">Op.and</span></code> / <code class="docutils literal notranslate"><span class="pre">Op.or</span></code>와 같은 <code class="docutils literal notranslate"><span class="pre">Sequelize.Op</span></code>의 기호 연산자를 코드에 사용하고 <code class="docutils literal notranslate"><span class="pre">$and</span></code> / <code class="docutils literal notranslate"><span class="pre">$or</span></code>와 같은 문자열 기반 연산자에 전혀 의존하지 않는 것이 좋습니다. <code class="docutils literal notranslate"><span class="pre">OperatorAliases</span></code> 옵션을 설정하여 응용 프로그램에 필요한 별칭을 제한 할 수 있습니다. 특히 사용자 입력을 Sequelize 메서드에 직접 전달할 때 사용자 입력을 이스케이프합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span><span class="p">;</span>
+
+<span class="c1">//use sequelize without any operators aliases</span>
+<span class="kr">const</span> <span class="nx">connection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">pass</span><span class="p">,</span> <span class="p">{</span> <span class="nx">operatorsAliases</span><span class="o">:</span> <span class="kc">false</span> <span class="p">});</span>
+
+<span class="c1">//use sequelize with only alias for $and =&gt; Op.and</span>
+<span class="kr">const</span> <span class="nx">connection2</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">pass</span><span class="p">,</span> <span class="p">{</span> <span class="nx">operatorsAliases</span><span class="o">:</span> <span class="p">{</span> <span class="nx">$and</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">and</span> <span class="p">}</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>경고없이 모든 기본 별칭을 계속 사용할 경우 기본별칭을 사용하고 제한하지 않을 경우 sequlize에서 경고합니다. 다음 연산자를 전달할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Op</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Op</span><span class="p">;</span>
+<span class="kr">const</span> <span class="nx">operatorsAliases</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">$eq</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">eq</span><span class="p">,</span>
+  <span class="nx">$ne</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">ne</span><span class="p">,</span>
+  <span class="nx">$gte</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">gte</span><span class="p">,</span>
+  <span class="nx">$gt</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">,</span>
+  <span class="nx">$lte</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">lte</span><span class="p">,</span>
+  <span class="nx">$lt</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">,</span>
+  <span class="nx">$not</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">not</span><span class="p">,</span>
+  <span class="nx">$in</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="k">in</span><span class="p">,</span>
+  <span class="nx">$notIn</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notIn</span><span class="p">,</span>
+  <span class="nx">$is</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">is</span><span class="p">,</span>
+  <span class="nx">$like</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">,</span>
+  <span class="nx">$notLike</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notLike</span><span class="p">,</span>
+  <span class="nx">$iLike</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">iLike</span><span class="p">,</span>
+  <span class="nx">$notILike</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notILike</span><span class="p">,</span>
+  <span class="nx">$regexp</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">regexp</span><span class="p">,</span>
+  <span class="nx">$notRegexp</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notRegexp</span><span class="p">,</span>
+  <span class="nx">$iRegexp</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">iRegexp</span><span class="p">,</span>
+  <span class="nx">$notIRegexp</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notIRegexp</span><span class="p">,</span>
+  <span class="nx">$between</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">between</span><span class="p">,</span>
+  <span class="nx">$notBetween</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">notBetween</span><span class="p">,</span>
+  <span class="nx">$overlap</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">overlap</span><span class="p">,</span>
+  <span class="nx">$contains</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">,</span>
+  <span class="nx">$contained</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">contained</span><span class="p">,</span>
+  <span class="nx">$adjacent</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">adjacent</span><span class="p">,</span>
+  <span class="nx">$strictLeft</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">strictLeft</span><span class="p">,</span>
+  <span class="nx">$strictRight</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">strictRight</span><span class="p">,</span>
+  <span class="nx">$noExtendRight</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">noExtendRight</span><span class="p">,</span>
+  <span class="nx">$noExtendLeft</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">noExtendLeft</span><span class="p">,</span>
+  <span class="nx">$and</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">and</span><span class="p">,</span>
+  <span class="nx">$or</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">,</span>
+  <span class="nx">$any</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">any</span><span class="p">,</span>
+  <span class="nx">$all</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">all</span><span class="p">,</span>
+  <span class="nx">$values</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">values</span><span class="p">,</span>
+  <span class="nx">$col</span><span class="o">:</span> <span class="nx">Op</span><span class="p">.</span><span class="nx">col</span>
+<span class="p">};</span>
+
+<span class="kr">const</span> <span class="nx">connection</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">pass</span><span class="p">,</span> <span class="p">{</span> <span class="nx">operatorsAliases</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="json">
+<h3>JSON<a class="headerlink" href="#json" title="Permalink to this headline">¶</a></h3>
+<p>JSON 데이터 타입은 PostgreSQL, SQLite, MySQL 그리고 MariaDB에서 제공합니다.</p>
+<div class="section" id="postgresql">
+<h4>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h4>
+<p>PostgreSQL의 JSON 데이터 형식은 이진 표현이 아닌 일반 텍스트로 값을 저장합니다. 단순히 JSON 표현을 저장하고 검색하려는 경우 JSON을 사용하면 입력 표현에서 빌드하는 데 필요한 디스크 공간과 시간이 줄어 듭니다. 그러나 JSON 값에 대한 조작을 수행하려면 아래 설명 된 JSONB 데이터 유형을 선호해야합니다.</p>
+</div>
+<div class="section" id="mssql">
+<h4>MSSQL<a class="headerlink" href="#mssql" title="Permalink to this headline">¶</a></h4>
+<p>MSSQL에는 JSON 데이터 형식이 없지만 SQL Server 2016 이후 특정 함수를 통해 문자열로 저장된 JSON을 지원합니다.이 함수를 사용하면 문자열에 저장된 JSON을 쿼리 할 수 ​​있지만 반환 된 값은 모두 필요합니다. 별도로 구문 분석해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// ISJSON - to test if a string contains valid JSON</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;ISJSON&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;userDetails&#39;</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// JSON_VALUE - extract a scalar value from a JSON string</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[[</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;JSON_VALUE&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;userDetails&#39;</span><span class="p">),</span> <span class="s1">&#39;$.address.Line1&#39;</span><span class="p">),</span> <span class="s1">&#39;address line 1&#39;</span><span class="p">]]</span>
+<span class="p">})</span>
+
+<span class="c1">// JSON_VALUE - query a scalar value from a JSON string</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">where</span><span class="p">(</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;JSON_VALUE&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;userDetails&#39;</span><span class="p">),</span> <span class="s1">&#39;$.address.Line1&#39;</span><span class="p">),</span> <span class="s1">&#39;14, Foo Street&#39;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="c1">// JSON_QUERY - extract an object or array</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[[</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;JSON_QUERY&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;userDetails&#39;</span><span class="p">),</span> <span class="s1">&#39;$.address&#39;</span><span class="p">),</span> <span class="s1">&#39;full address&#39;</span><span class="p">]]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="jsonb">
+<h3>JSONB<a class="headerlink" href="#jsonb" title="Permalink to this headline">¶</a></h3>
+<p>JSONB는 3가지 다른방법으로 쿼리를 할 수 있다.</p>
+<div class="section" id="nested-object">
+<h4>Nested object(내부에 객체를 선언)<a class="headerlink" href="#nested-object" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nx">meta</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">video</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">url</span><span class="o">:</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">ne</span><span class="p">]</span><span class="o">:</span> <span class="kc">null</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nested-key">
+<h4>Nested key(내부를 키로 가진다)<a class="headerlink" href="#nested-key" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;meta.audio.length&quot;</span><span class="o">:</span> <span class="p">{</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">20</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="containment">
+<h4>Containment(원천봉쇄)<a class="headerlink" href="#containment" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">Op</span><span class="o">.</span><span class="n">contains</span><span class="p">]:</span> <span class="p">{</span>
+      <span class="n">site</span><span class="p">:</span> <span class="p">{</span>
+        <span class="n">url</span><span class="p">:</span> <span class="s1">&#39;http://google.com&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="relations-associations">
+<h3>Relations / Associations(관계)<a class="headerlink" href="#relations-associations" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Find all projects with a least one task where task.state === project.state</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="nx">Task</span><span class="p">,</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">state</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;project.state&#39;</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="pagination-limiting">
+<h2>Pagination / Limiting(페이지 분할, 제한)<a class="headerlink" href="#pagination-limiting" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Fetch 10 instances/rows</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">limit</span><span class="o">:</span> <span class="mi">10</span> <span class="p">})</span>
+
+<span class="c1">// Skip 8 instances/rows</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">offset</span><span class="o">:</span> <span class="mi">8</span> <span class="p">})</span>
+
+<span class="c1">// Skip 5 instances and fetch the 5 after that</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">offset</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span> <span class="nx">limit</span><span class="o">:</span> <span class="mi">5</span> <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ordering">
+<h2>Ordering<a class="headerlink" href="#ordering" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">order</span></code>은 질의를 순서대로 정렬하기 위해 아이템들을 배열로 가지고 있습니다. 여러분들은 안전한 이스케이핑을 원할 때 튜플/배열을 사용할 것이다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Subtask</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span>
+    <span class="c1">// Will escape title and validate DESC against a list of valid direction parameters</span>
+    <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by max(age)</span>
+    <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)),</span>
+
+    <span class="c1">// Will order by max(age) DESC</span>
+    <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)),</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by  otherfunction(`col1`, 12, &#39;lalala&#39;) DESC</span>
+    <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;otherfunction&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;col1&#39;</span><span class="p">),</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;lalala&#39;</span><span class="p">),</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order an associated model&#39;s created_at using the model name as the association&#39;s name.</span>
+    <span class="p">[</span><span class="nx">Task</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order through an associated model&#39;s created_at using the model names as the associations&#39; names.</span>
+    <span class="p">[</span><span class="nx">Task</span><span class="p">,</span> <span class="nx">Project</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by an associated model&#39;s created_at using the name of the association.</span>
+    <span class="p">[</span><span class="s1">&#39;Task&#39;</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by a nested associated model&#39;s created_at using the names of the associations.</span>
+    <span class="p">[</span><span class="s1">&#39;Task&#39;</span><span class="p">,</span> <span class="s1">&#39;Project&#39;</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by an associated model&#39;s created_at using an association object. (preferred method)</span>
+    <span class="p">[</span><span class="nx">Subtask</span><span class="p">.</span><span class="nx">associations</span><span class="p">.</span><span class="nx">Task</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by a nested associated model&#39;s created_at using association objects. (preferred method)</span>
+    <span class="p">[</span><span class="nx">Subtask</span><span class="p">.</span><span class="nx">associations</span><span class="p">.</span><span class="nx">Task</span><span class="p">,</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">associations</span><span class="p">.</span><span class="nx">Project</span><span class="p">,</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by an associated model&#39;s created_at using a simple association object.</span>
+    <span class="p">[{</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Task</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Task&#39;</span><span class="p">},</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+
+    <span class="c1">// Will order by a nested associated model&#39;s created_at simple association objects.</span>
+    <span class="p">[{</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Task</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Task&#39;</span><span class="p">},</span> <span class="p">{</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Project</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Project&#39;</span><span class="p">},</span> <span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">]</span>
+  <span class="p">]</span>
+
+  <span class="c1">// Will order by max age descending</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">literal</span><span class="p">(</span><span class="s1">&#39;max(age) DESC&#39;</span><span class="p">)</span>
+
+  <span class="c1">// Will order by max age ascending assuming ascending is the default order when direction is omitted</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">))</span>
+
+  <span class="c1">// Will order by age ascending assuming ascending is the default order when direction is omitted</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)</span>
+
+  <span class="c1">// Will order randomly based on the dialect (instead of fn(&#39;RAND&#39;) or fn(&#39;RANDOM&#39;))</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="table-hint">
+<h2>table hint<a class="headerlink" href="#table-hint" title="Permalink to this headline">¶</a></h2>
+<p>mssql을 사용할 때 <code class="docutils literal notranslate"><span class="pre">tableHint</span></code>를 사용하여 테이블 힌트를 선택적으로 전달할 수 있습니다. 힌트는 <code class="docutils literal notranslate"><span class="pre">Sequelize.TableHints</span></code>의 값이어야하며 반드시 필요한 경우에만 사용해야합니다. 쿼리 당 단일 테이블 힌트 만 지원됩니다.</p>
+<p>테이블 힌트는 특정 옵션을 지정하여 mssql 쿼리 최적화 프로그램의 기본 동작을 재정의합니다. 해당 절에서 참조 된 테이블이나 뷰에만 영향을줍니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">TableHints</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TableHints</span><span class="p">;</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="c1">// adding the table hint NOLOCK</span>
+  <span class="nx">tableHint</span><span class="o">:</span> <span class="nx">TableHints</span><span class="p">.</span><span class="nx">NOLOCK</span>
+  <span class="c1">// this will generate the SQL &#39;WITH (NOLOCK)&#39;</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="index-hints">
+<h2>index Hints<a class="headerlink" href="#index-hints" title="Permalink to this headline">¶</a></h2>
+<p>mysql을 사용할 때 <code class="docutils literal notranslate"><span class="pre">indexHints</span></code>를 사용하여 인덱스 힌트를 선택적으로 전달할 수 있습니다. 힌트 유형은 <code class="docutils literal notranslate"><span class="pre">Sequelize.IndexHints</span></code>의 값이어야하며 값은 기존 인덱스를 참조해야합니다.</p>
+<p>인덱스 힌트는 <a class="reference external" href="https://dev.mysql.com/doc/refman/5.7/en/index-hints.html">mysql 쿼리 최적화 프로그램의 기본 동작보다 우선</a>합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">indexHints</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">IndexHints</span><span class="p">.</span><span class="nx">USE</span><span class="p">,</span> <span class="nx">values</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;index_project_on_name&#39;</span><span class="p">]</span> <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">623</span>
+    <span class="p">},</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;Foo %&#39;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>다음과 같이 쿼리문을 생성할 것 입니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">Project</span> <span class="n">USE</span> <span class="k">INDEX</span> <span class="p">(</span><span class="n">index_project_on_name</span><span class="p">)</span> <span class="k">WHERE</span> <span class="n">name</span> <span class="k">LIKE</span> <span class="s1">&#39;FOO %&#39;</span> <span class="k">AND</span> <span class="n">id</span> <span class="o">&gt;</span> <span class="mi">623</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Sequelize.IndexHints</span></code>는 <code class="docutils literal notranslate"><span class="pre">use</span></code>, <code class="docutils literal notranslate"><span class="pre">FORCE</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">IGNORE</span></code>를 포함합니다.</p>
+<p>원래 API 제안에 대해서는 <a class="reference external" href="https://github.com/sequelize/sequelize/issues/9421">Issue #9421</a>을 참조하십시오.</p>
+</div>
 </div>
 
 
