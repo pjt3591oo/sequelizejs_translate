@@ -91,8 +91,6 @@
 <li class="toctree-l1"><a class="reference internal" href="GettingStarted.html">시작하기</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Dialects.html">Dialects</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">데이터 타입</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#id3">데이터 타입 확장</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModelDefinition.html">모델정의</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModelUsage.html">모델사용</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Hooks.html">훅스</a></li>
@@ -319,9 +317,8 @@
 </div>
 </div>
 </div>
-</div>
 <div class="section" id="id3">
-<h1>데이터 타입 확장<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h1>
+<h2>데이터 타입 확장<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
 <p>구현하려는 유형이 이미 <a class="reference external" href="https://sequelize.org/master/manual/data-types.html">DataTypes에</a> 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.</p>
 <p>Sequelize는 데이터베이스에서 새로운 데이터 타입을 생성하지 않습니다. 이 튜토리얼은 새로운 데이터 타입을 인식하도록 하는 방법을 설명하고 해당 새 데이터 타입이 데이터베이스에 이미 생성되 있다고 가장합니다.</p>
 <p>데이터 타입을 확장하기 위해, 인스턴트를 생성하기 전에 해야합니다. 이 예시는 <code class="docutils literal notranslate"><span class="pre">Sequelize.INTEGER(11).ZEROFILL.UNSIGNED</span></code> 타입으로 빌드업 <code class="docutils literal notranslate"><span class="pre">NEWTYPE</span></code>을 생성합니다.</p>
@@ -400,7 +397,7 @@
 <p>새로운 데이터 타입을 생성한 후, 각 데이터베이스에서 데이터 타입을 맵핑하고 조정해야 합니다.</p>
 </div>
 <div class="section" id="postgresql">
-<h1>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h1>
+<h2>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h2>
 <p>postgres 데이터베이스에서 새 데이터 유형의 이름이 <code class="docutils literal notranslate"><span class="pre">pg_new_type</span></code>이라고 가정합니다. 이 이름은 <code class="docutils literal notranslate"><span class="pre">DataTypes.NEWTYPE</span></code>에 매핑되어야합니다. 또한 하위 postgres 관련 데이터 타입을 생성해야합니다.</p>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize-additions.js</span>
 
@@ -442,7 +439,7 @@
 </pre></div>
 </div>
 <div class="section" id="ranges">
-<h2>ranges<a class="headerlink" href="#ranges" title="Permalink to this headline">¶</a></h2>
+<h3>ranges<a class="headerlink" href="#ranges" title="Permalink to this headline">¶</a></h3>
 <p><a class="reference external" href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-DEFINING">postgres</a>에서 새로운 데이터 타입을 정의한 후, 그것을 Sequelize에 추가하는 것은 쉽지 않습니다.</p>
 <p>이 예제에서 postgre range 타입의 이름은 <code class="docutils literal notranslate"><span class="pre">newtype_range</span></code>이고, postgres 데이터 타입 이름은 <code class="docutils literal notranslate"><span class="pre">pg_new_type</span></code> 입니다. <code class="docutils literal notranslate"><span class="pre">subtypes</span></code>와 <code class="docutils literal notranslate"><span class="pre">castTypes</span></code>의 키는 Sequelize 데이터 타입 <code class="docutils literal notranslate"><span class="pre">Sequelize</span> <span class="pre">DataTypes.NEWTYPE.key</span></code>의 키입니다.</p>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize-additions.js</span>
@@ -475,6 +472,7 @@
 </pre></div>
 </div>
 <p>새로운 range는 모델 정의에서 <code class="docutils literal notranslate"><span class="pre">Sequelize.RANGE(Sequelize.NEWTYPE)</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">DataTypes.RANGE(DataTypes.NEWTYPE)</span></code>로 사용될 수 있습니다.</p>
+</div>
 </div>
 </div>
 

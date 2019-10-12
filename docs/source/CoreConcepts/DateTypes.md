@@ -1,4 +1,4 @@
-## 데이터 타입
+# 데이터 타입
 
 아래는 sequelize에서 제공하는 데이터타입입니다. 전체 및 업데이트 된 목록은 [DataTypes](https://sequelize.org/master/variable/index.html#static-variable-DataTypes)을 참조하세요.
 
