@@ -40,6 +40,7 @@
     CoreConcepts/Hooks.md
     CoreConcepts/Querying.md
     CoreConcepts/Instances.md
+    CoreConcepts/Associations.md
     CoreConcepts/RawQueries.md
 
 .. toctree::
