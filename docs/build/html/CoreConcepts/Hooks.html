@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>훅스 &mdash; Sequelize Of Node.js translate V5 5 documentation</title>
+  <title>훅스(후크) &mdash; Sequelize Of Node.js translate V5 5 documentation</title>
   
 
   
@@ -93,7 +93,7 @@
 <li class="toctree-l1"><a class="reference internal" href="DateTypes.html">데이터 타입</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModelDefinition.html">모델정의</a></li>
 <li class="toctree-l1"><a class="reference internal" href="ModelUsage.html">모델사용</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">훅스</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">훅스(후크)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Querying.html">쿼리(조회)</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Instances.html">인스턴스</a></li>
 <li class="toctree-l1"><a class="reference internal" href="RawQueries.html">저수준 쿼리</a></li>
@@ -153,7 +153,7 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>훅스</li>
+      <li>훅스(후크)</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -173,7 +173,366 @@
            <div itemprop="articleBody">
             
   <div class="section" id="id1">
-<h1>훅스<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<h1>훅스(후크)<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>(콜백 또는 이벤트의 주기로 알려진)후크은 sequelize가 실행되기 전후에 호출되는 함수이다. 예를들어 만약에 여러분들이 모델에 저장되기 이전에 값을 설정하고 싶다면 여러분들은 <code class="docutils literal notranslate"><span class="pre">beforeUpdate</span></code> 훅을 사용 할 수 있다.</p>
+<p><strong>참고</strong>: 인스턴스와 함께 후크를 사용할 수 없습니다. 후쿠는 모델과 함께 사용됩니다.</p>
+<p>#후크의 전체 목록을 보기위해 <a class="reference external" href="https://github.com/sequelize/sequelize/blob/master/lib/hooks.js#L7">후크 API</a>를 참조하세요</p>
+<div class="section" id="order-of-operations">
+<h2>Order of Operations(운영명령)<a class="headerlink" href="#order-of-operations" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="nx">beforeBulkCreate</span><span class="p">(</span><span class="nx">instances</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeBulkDestroy</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeBulkUpdate</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="nx">beforeValidate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+<span class="p">(</span><span class="o">-</span><span class="p">)</span>
+  <span class="nx">validate</span>
+<span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+  <span class="nx">afterValidate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="o">-</span> <span class="nx">or</span> <span class="o">-</span>
+  <span class="nx">validationFailed</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="nx">error</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+  <span class="nx">beforeCreate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeDestroy</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeUpdate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeSave</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">beforeUpsert</span><span class="p">(</span><span class="nx">values</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+<span class="p">(</span><span class="o">-</span><span class="p">)</span>
+  <span class="nx">create</span>
+  <span class="nx">destroy</span>
+  <span class="nx">update</span>
+<span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+  <span class="nx">afterCreate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterDestroy</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterUpdate</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterSave</span><span class="p">(</span><span class="nx">instance</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterUpsert</span><span class="p">(</span><span class="nx">created</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+<span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+  <span class="nx">afterBulkCreate</span><span class="p">(</span><span class="nx">instances</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterBulkDestroy</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+  <span class="nx">afterBulkUpdate</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="declaring-hooks">
+<h2>Declaring Hooks(후크 선언)<a class="headerlink" href="#declaring-hooks" title="Permalink to this headline">¶</a></h2>
+<p>후크에 사용되는 인자들은 참조에 의해 전달된다. 이것은 여러분이 값을 바꿔지는것, 삽입/업데이트 상태가 반영되는것을 의미한다. 후크는 비동기 액션을 가지고 있다. 이 경우 해당 함수는 promise를 반환해야만 한다.</p>
+<p>후크를 추가하는 방법은 현재 세 가지가 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Method 1 via the .init() method</span>
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">username</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">mood</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">ENUM</span><span class="p">,</span>
+    <span class="nx">values</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;happy&#39;</span><span class="p">,</span> <span class="s1">&#39;sad&#39;</span><span class="p">,</span> <span class="s1">&#39;neutral&#39;</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">hooks</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">beforeValidate</span><span class="o">:</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="nx">user</span><span class="p">.</span><span class="nx">mood</span> <span class="o">=</span> <span class="s1">&#39;happy&#39;</span><span class="p">;</span>
+    <span class="p">},</span>
+    <span class="nx">afterValidate</span><span class="o">:</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="nx">user</span><span class="p">.</span><span class="nx">username</span> <span class="o">=</span> <span class="s1">&#39;Toni&#39;</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">sequelize</span>
+<span class="p">});</span>
+
+<span class="c1">// Method 2 via the .addHook() method</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="s1">&#39;beforeValidate&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">user</span><span class="p">.</span><span class="nx">mood</span> <span class="o">=</span> <span class="s1">&#39;happy&#39;</span><span class="p">;</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="s1">&#39;afterValidate&#39;</span><span class="p">,</span> <span class="s1">&#39;someCustomName&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;I&#39;m afraid I can&#39;t let you do that!&quot;</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="c1">// Method 3 via the direct method</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">beforeCreate</span><span class="p">((</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">hashPassword</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">password</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">hashedPw</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">user</span><span class="p">.</span><span class="nx">password</span> <span class="o">=</span> <span class="nx">hashedPw</span><span class="p">;</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">afterValidate</span><span class="p">(</span><span class="s1">&#39;myHookAfter&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">user</span><span class="p">.</span><span class="nx">username</span> <span class="o">=</span> <span class="s1">&#39;Toni&#39;</span><span class="p">;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="removing-hooks">
+<h2>Removing Hooks(후크 삭제)<a class="headerlink" href="#removing-hooks" title="Permalink to this headline">¶</a></h2>
+<p>오직 이름 파라미터가 있는 후크만 지울 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Book</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Book</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="nx">Book</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="s1">&#39;afterCreate&#39;</span><span class="p">,</span> <span class="s1">&#39;notifyUsers&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">book</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">});</span>
+
+<span class="nx">Book</span><span class="p">.</span><span class="nx">removeHook</span><span class="p">(</span><span class="s1">&#39;afterCreate&#39;</span><span class="p">,</span> <span class="s1">&#39;notifyUsers&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>같은 이름과 함께 후크를 가질 수 있습니다. <code class="docutils literal notranslate"><span class="pre">removeHook()</span></code> 호출하는 것은 그것들을 모두 제거할 수 있습니다.</p>
+</div>
+<div class="section" id="global-universal-hooks">
+<h2>Global/ universal hooks (전역, 만능 후크)<a class="headerlink" href="#global-universal-hooks" title="Permalink to this headline">¶</a></h2>
+<p>전역 후크는 모든 모델을 위해 실행되는 후크입니다. 개발자들은 모든 모델에 대해 원하는 행동을 정의 할 수 있고, 특히 플러그인에 유용하다. 그들은 약간은 다른 의미가 있는 두가지의 방법을 통해 정의를 할 수 있습니다.</p>
+<div class="section" id="default-hooks-sequelize-options-define">
+<h3>Default Hooks (Sequelize.options.define)<a class="headerlink" href="#default-hooks-sequelize-options-define" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(...,</span> <span class="p">{</span>
+    <span class="nx">define</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">hooks</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">beforeCreate</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+              <span class="c1">// Do stuff</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>이것은 실행됬을 떄 모델이 <code class="docutils literal notranslate"><span class="pre">beforeCreate</span></code> 후크를 가지고 있지 않은 모든 모델에 후크를 추가합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span>
+    <span class="nx">hooks</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">beforeCreate</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// Do other stuff</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">sequelize</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">()</span> <span class="c1">// Runs the global hook</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">create</span><span class="p">()</span> <span class="c1">// Runs its own hook (because the global hook is overwritten)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="permanent-hooks-sequelize-addhook">
+<h3>Permanent Hooks (Sequelize.addHook)<a class="headerlink" href="#permanent-hooks-sequelize-addhook" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="s1">&#39;beforeCreate&#39;</span><span class="p">,</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// Do stuff</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>이 후크는 모델이 <code class="docutils literal notranslate"><span class="pre">beforeCreate</span></code> 지정 여부에 관계없이 항상 생성되기 이전에 실행됩니다. 로컬 후크는 항상 글로벌 후크보다 먼저 실행합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span>
+    <span class="nx">hooks</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">beforeCreate</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// Do other stuff</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">sequelize</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">()</span> <span class="c1">// Runs the global hook</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">create</span><span class="p">()</span> <span class="c1">// Runs its own hook, followed by the global hook</span>
+</pre></div>
+</div>
+<p>영구 후크는 <code class="docutils literal notranslate"><span class="pre">Sequelize.options</span></code> 에서도 정의 될 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(...,</span> <span class="p">{</span>
+    <span class="nx">hooks</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">beforeCreate</span><span class="o">:</span> <span class="p">()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="c1">// do stuff</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="connection-hooks">
+<h3>Connection Hooks<a class="headerlink" href="#connection-hooks" title="Permalink to this headline">¶</a></h3>
+<p>Sequelize는 데이터베이스 연결을 얻거나 해제하기 직전과 직후에 실행되는 네 가지 후크를 제공합니다.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">beforeConnect</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="n">afterConnect</span><span class="p">(</span><span class="n">connection</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+<span class="n">beforeDisconnect</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+<span class="n">afterDisconnect</span><span class="p">(</span><span class="n">connection</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>이 후크는 데이터베이스 정보를 비동기 적으로 확보해야하거나 저수준 데이터베이스 연결이 작성된 후 직접 액세스해야하는 경우 유용 할 수 있습니다.</p>
+<p>예를 들어, 토큰 저장소에서 데이터베이스 비밀번호를 비동기 적으로 얻을 수 있으며 새로운 자격 증명으로 Sequelize의 구성 객체를 변경할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">beforeConnect</span><span class="p">((</span><span class="nx">config</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">getAuthToken</span><span class="p">()</span>
+        <span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">token</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+             <span class="nx">config</span><span class="p">.</span><span class="nx">password</span> <span class="o">=</span> <span class="nx">token</span><span class="p">;</span>
+         <span class="p">});</span>
+    <span class="p">});</span>
+</pre></div>
+</div>
+<p>연결 풀은 모든 모델에서 공유되므로 이러한 후크는 영구 전역 후크로만 선언 될 수 잇습니다.</p>
+</div>
+</div>
+<div class="section" id="instance-hooks">
+<h2>Instance hooks<a class="headerlink" href="#instance-hooks" title="Permalink to this headline">¶</a></h2>
+<p>단일 객체를 수정 할 때마다 다음과 같은 후크가 방출된다.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">beforeValidate</span>
+<span class="n">afterValidate</span> <span class="ow">or</span> <span class="n">validationFailed</span>
+<span class="n">beforeCreate</span> <span class="o">/</span> <span class="n">beforeUpdate</span> <span class="o">/</span> <span class="n">beforeSave</span>  <span class="o">/</span> <span class="n">beforeDestroy</span>
+<span class="n">afterCreate</span> <span class="o">/</span> <span class="n">afterUpdate</span> <span class="o">/</span> <span class="n">afterSave</span> <span class="o">/</span> <span class="n">afterDestroy</span>
+</pre></div>
+</div>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// ...define ...</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">beforeCreate</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">accessLevel</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="o">&amp;&amp;</span> <span class="nx">user</span><span class="p">.</span><span class="nx">username</span> <span class="o">!==</span> <span class="s2">&quot;Boss&quot;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;You can&#39;t grant this user an access level above 10!&quot;</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>해당 예제는 에러를 반환한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Not a Boss&#39;</span><span class="p">,</span> <span class="nx">accessLevel</span><span class="o">:</span> <span class="mi">20</span><span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span> <span class="c1">// You can&#39;t grant this user an access level above 10!</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>다음의 예제는 성공적으로 반환을 한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Boss&#39;</span><span class="p">,</span> <span class="nx">accessLevel</span><span class="o">:</span> <span class="mi">20</span><span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">user</span><span class="p">);</span> <span class="c1">// user object with username as Boss and accessLevel of 20</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="section" id="model-hooks">
+<h3>Model Hooks<a class="headerlink" href="#model-hooks" title="Permalink to this headline">¶</a></h3>
+<p>떄떄로 여러분은 해당 모델이 가지고 있는 <code class="docutils literal notranslate"><span class="pre">bulkCreate,</span> <span class="pre">update,</span> <span class="pre">destoy</span></code>함수를 활용되어 두개 이상이 수정이 될 것이다. 다음중 하나를 사용할 경우 다음과 같이 표시가 됩니다.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">beforeBulkCreate</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+<span class="n">beforeBulkUpdate</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+<span class="n">beforeBulkDestroy</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+<span class="n">afterBulkCreate</span><span class="p">(</span><span class="n">instances</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+<span class="n">afterBulkUpdate</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+<span class="n">afterBulkDestroy</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>만약 여러분들은 각각의 레코드의 후크가 실행되기를 원한다면, 여러개의 후크와 함꼐 <code class="docutils literal notranslate"><span class="pre">individualHooks</span> <span class="pre">:true</span></code>를 전달할 수 있습니다.</p>
+<p>경고: 개별 후크를 사용하는 경우 후크가 호출되기 전에 업데이트되거나 제거 된 모든 인스턴스가 메모리에로드됩니다. Sequelize가 개별 후크로 처리 할 수있는 인스턴스 수는 사용 가능한 메모리에 의해 제한됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">accessLevel</span><span class="o">:</span> <span class="mi">0</span><span class="p">},</span> <span class="nx">individualHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<span class="c1">// Will select all records that are about to be deleted and emit before- + after- Destroy on each instance</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Toni&#39;</span><span class="p">},</span> <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">accessLevel</span><span class="o">:</span> <span class="mi">0</span><span class="p">},</span> <span class="nx">individualHooks</span><span class="o">:</span> <span class="kc">true</span><span class="p">});</span>
+<span class="c1">// Will select all records that are about to be updated and emit before- + after- Update on each instance</span>
+</pre></div>
+</div>
+<p>hook 메소드의 <code class="docutils literal notranslate"><span class="pre">option</span></code> 인자는 해당 메소드 또는 복제 및 확장 버전에 제공된 두 번째 인수입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Model</span><span class="p">.</span><span class="nx">beforeBulkCreate</span><span class="p">((</span><span class="nx">records</span><span class="p">,</span> <span class="p">{</span><span class="nx">fields</span><span class="p">})</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// records = the first argument sent to .bulkCreate</span>
+  <span class="c1">// fields = one of the second argument fields sent to .bulkCreate</span>
+<span class="p">})</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+    <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Toni&#39;</span><span class="p">},</span> <span class="c1">// part of records argument</span>
+    <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Tobi&#39;</span><span class="p">}</span> <span class="c1">// part of records argument</span>
+  <span class="p">],</span> <span class="p">{</span><span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]}</span> <span class="c1">// options parameter</span>
+<span class="p">)</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">beforeBulkUpdate</span><span class="p">(({</span><span class="nx">attributes</span><span class="p">,</span> <span class="nx">where</span><span class="p">})</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// where - in one of the fields of the clone of second argument sent to .update</span>
+  <span class="c1">// attributes - is one of the fields that the clone of second argument of .update would be extended with</span>
+<span class="p">})</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span><span class="nx">gender</span><span class="o">:</span> <span class="s1">&#39;Male&#39;</span><span class="p">}</span> <span class="cm">/*attributes argument*/</span><span class="p">,</span> <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Tom&#39;</span><span class="p">}}</span> <span class="cm">/*where argument*/</span><span class="p">)</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">beforeBulkDestroy</span><span class="p">(({</span><span class="nx">where</span><span class="p">,</span> <span class="nx">individualHooks</span><span class="p">})</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// individualHooks - default of overridden value of extended clone of second argument sent to Model.destroy</span>
+  <span class="c1">// where - in one of the fields of the clone of second argument sent to Model.destroy</span>
+<span class="p">})</span>
+
+<span class="nx">Model</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;Tom&#39;</span><span class="p">}}</span> <span class="cm">/*where argument*/</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>만약 여러분들이  <code class="docutils literal notranslate"><span class="pre">updatesOnDuplicate</span></code> 옵션과 함께 <code class="docutils literal notranslate"><span class="pre">Model.bulkCreate(...)</span></code>을 사용한다면, updateOnDuplicate 배열에서 포함되지 않은 필드에 대한 후크의 변경은 데이터 베이스에 적용되지 않습니다. 그러나 여러분이 원한다면 후크 내부에서 updatesOnDuplicate옵션을 바꾸는 것이 가능합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Bulk updating existing users with updateOnDuplicate option</span>
+<span class="nx">Users</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">isMember</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nx">isMember</span><span class="o">:</span> <span class="kc">false</span> <span class="p">}</span>
+<span class="p">],</span> <span class="p">{</span>
+  <span class="nx">updateOnDuplicate</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;isMember&#39;</span><span class="p">]</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">beforeBulkCreate</span><span class="p">((</span><span class="nx">users</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kr">const</span> <span class="nx">user</span> <span class="k">of</span> <span class="nx">users</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">isMember</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">user</span><span class="p">.</span><span class="nx">memberSince</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Add memberSince to updateOnDuplicate otherwise the memberSince date wont be</span>
+  <span class="c1">// saved to the database</span>
+  <span class="nx">options</span><span class="p">.</span><span class="nx">updateOnDuplicate</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="s1">&#39;memberSince&#39;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="associations">
+<h2>Associations<a class="headerlink" href="#associations" title="Permalink to this headline">¶</a></h2>
+<p>대부분의 후크는 몇 가지 점을 제외하면 연관된 인스턴스에 대해 동일한 작용을 할 것입니다.</p>
+<ol class="simple">
+<li><p>add/set 함수를 사용하면 beforeUpdate / afterUpdate 후크가 실행됩니다.</p></li>
+<li><p>beforeDestroy/afterDestroy후크를 호출하는 방법은 <code class="docutils literal notranslate"><span class="pre">onDelete:</span> <span class="pre">'cascade'</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">hooks:</span> <span class="pre">true</span></code>옵션과 함께 관계를 가집니다.</p></li>
+</ol>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Projects</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Projects</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Tasks</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Tasks</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="nx">Projects</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Tasks</span><span class="p">,</span> <span class="p">{</span> <span class="nx">onDelete</span><span class="o">:</span> <span class="s1">&#39;cascade&#39;</span><span class="p">,</span> <span class="nx">hooks</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+<span class="nx">Tasks</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Projects</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>이 코드는 Tasks 테이블에서 beforeDestroy/afterDestroy이 실행 될 것 입니다. sequelize는 기본적으로 쿼리문을 최대한 최적화하려고 시도를 합니다. delete에서 cascade를 호출 할 때, sequelize는 간단하게 다음과 같이 실행을 할 것입니다.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>DELETE FROM `table` WHERE associatedIdentifier = associatedIdentifier.primaryKey
+</pre></div>
+</div>
+<p>그러나 <code class="docutils literal notranslate"><span class="pre">hooks:</span> <span class="pre">true</span></code>를 명시적으로 추가하는 것은 최적화가 여러분들의 관심사가 아닌, 관계를 가진 각각의 객체들의 <code class="docutils literal notranslate"><span class="pre">select</span></code> 성능 그리고 올바른 매개 변수와 함께 호출된 하나의 후크에 의해 생성된 각각의 인스턴스가 삭제되는 성능이 관심사라고 말합니다.</p>
+<p>만약에 여러분들은 <code class="docutils literal notranslate"><span class="pre">m:m</span></code>의 관계를 가진다면, 여러분들은 <code class="docutils literal notranslate"><span class="pre">remove</span></code> 호출 하는 모델을 통해 후크를 제거하는 것에 관심을 가질 것 입니다. 내부적으로, sequelize는 <code class="docutils literal notranslate"><span class="pre">model.destroy</span></code>을 사용하여 각각의 인스턴스를 통해 <code class="docutils literal notranslate"><span class="pre">before/afterDestory</span></code> 후크 대신에 <code class="docutils literal notranslate"><span class="pre">bulkDestroy</span></code> 호출합니다.</p>
+<p>이것은 <code class="docutils literal notranslate"><span class="pre">remove</span></code>를 호출하기 위해 <code class="docutils literal notranslate"><span class="pre">{individualHooks:</span> <span class="pre">true}</span></code>을 전달하여 간단하게 해결 할 수 있습니다. 각각의 인스턴스들을 통해 각각의 인스턴스에서 remove를 호출하는 후크의 결과를 가집니다.</p>
+</div>
+<div class="section" id="a-note-about-transactions">
+<h2>A Note About Transactions<a class="headerlink" href="#a-note-about-transactions" title="Permalink to this headline">¶</a></h2>
+<p>sequelize의 많은 연산을 통해 메소드의 옵션 매개 변수에 트랜잭션을 지정할 수 있습니다. 기존의 호출에서 트랜젝션이 지정되어있다면, 후크 함수에 옵션 매개변수에 보여집니다. 예를 들어 하나의 예를 고려해보자.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Here we use the promise-style of async hooks rather than</span>
+<span class="c1">// the callback.</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">addHook</span><span class="p">(</span><span class="s1">&#39;afterCreate&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">user</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// &#39;transaction&#39; will be available in options.transaction</span>
+
+  <span class="c1">// This operation will be part of the same transaction as the</span>
+  <span class="c1">// original User.create call.</span>
+  <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
+    <span class="nx">mood</span><span class="o">:</span> <span class="s1">&#39;sad&#39;</span>
+  <span class="p">},</span> <span class="p">{</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">id</span><span class="o">:</span> <span class="nx">user</span><span class="p">.</span><span class="nx">id</span>
+    <span class="p">},</span>
+    <span class="nx">transaction</span><span class="o">:</span> <span class="nx">options</span><span class="p">.</span><span class="nx">transaction</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">transaction</span><span class="p">(</span><span class="nx">transaction</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;someguy&#39;</span><span class="p">,</span>
+    <span class="nx">mood</span><span class="o">:</span> <span class="s1">&#39;happy&#39;</span><span class="p">,</span>
+    <span class="nx">transaction</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>만약에 여러분들이 <code class="docutils literal notranslate"><span class="pre">User.update</span></code>를 호출했을 때 트랜젝션 옵션을 설정하지 않았다면, 커밋이 될때까지 데이터 베이스에 데이터가 존재하지 않을 것입니다.</p>
+<div class="section" id="internal-transactions">
+<h3>Internal Transactions<a class="headerlink" href="#internal-transactions" title="Permalink to this headline">¶</a></h3>
+<p>트랜젝션은 <code class="docutils literal notranslate"><span class="pre">Model.findOrCreate</span></code>와 같은 특정 작업을 위해 연산자들 사용하게 만들것을 인지하는 것이 매우 중요합니다.. 만약 여러분들의 후크가 데이터베이스의 객체에 의존하여 읽기/쓰기 연산을 실행 한다면, 또는 앞의 예제와 같이 오브젝트의 저장된 값을 수정할때, 여러분들은 항상 <code class="docutils literal notranslate"><span class="pre">transaction</span> <span class="pre">:</span> <span class="pre">options.transaction}</span></code> 요소를 사용해야 합니다.</p>
+<p>만약 트랜젝션 연산중에 후크가 실행 된다면, 여러분들의 읽기/쓰기가 트랜젝션에 의존적인지 확인을 할 것이다. 여러분들은 <code class="docutils literal notranslate"><span class="pre">{transaction</span> <span class="pre">:</span> <span class="pre">null}</span></code>을 사용하여 간단하게 트랜젝션이 아닌 후크를 가질 수 있고, 이를통해 기본적인 행동을 기대 할 수 있을것입니다.</p>
+</div>
+</div>
 </div>
 
 

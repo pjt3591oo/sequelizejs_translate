@@ -1,50 +1,58 @@
+# 훅스(후크)
 
 (콜백 또는 이벤트의 주기로 알려진)후크은 sequelize가 실행되기 전후에 호출되는 함수이다. 예를들어 만약에 여러분들이 모델에 저장되기 이전에 값을 설정하고 싶다면 여러분들은 `beforeUpdate` 훅을 사용 할 수 있다.
 
-후크의 전체 목록을 보기위해 [후크 API](http://docs.sequelizejs.com/en/v3/api/hooks)를 참조하세요
+**참고**: 인스턴스와 함께 후크를 사용할 수 없습니다. 후쿠는 모델과 함께 사용됩니다.
 
-# Order of Operations(운영명령)
+#후크의 전체 목록을 보기위해 [후크 API](https://github.com/sequelize/sequelize/blob/master/lib/hooks.js#L7)를 참조하세요
+
+## Order of Operations(운영명령)
 
 ```js
 (1)
-  beforeBulkCreate(instances, options, fn)
-  beforeBulkDestroy(options, fn)
-  beforeBulkUpdate(options, fn)
+  beforeBulkCreate(instances, options)
+  beforeBulkDestroy(options)
+  beforeBulkUpdate(options)
 (2)
-  beforeValidate(instance, options, fn)
+  beforeValidate(instance, options)
 (-)
   validate
 (3)
-  afterValidate(instance, options, fn)
+  afterValidate(instance, options)
   - or -
-  validationFailed(instance, options, error, fn)
+  validationFailed(instance, options, error)
 (4)
-  beforeCreate(instance, options, fn)
-  beforeDestroy(instance, options, fn)
-  beforeUpdate(instance, options, fn)
+  beforeCreate(instance, options)
+  beforeDestroy(instance, options)
+  beforeUpdate(instance, options)
+  beforeSave(instance, options)
+  beforeUpsert(values, options)
 (-)
   create
   destroy
   update
 (5)
-  afterCreate(instance, options, fn)
-  afterDestroy(instance, options, fn)
-  afterUpdate(instance, options, fn)
+  afterCreate(instance, options)
+  afterDestroy(instance, options)
+  afterUpdate(instance, options)
+  afterSave(instance, options)
+  afterUpsert(created, options)
 (6)
-  afterBulkCreate(instances, options, fn)
-  afterBulkDestroy(options, fn)
-  afterBulkUpdate(options, fn)
+  afterBulkCreate(instances, options)
+  afterBulkDestroy(options)
+  afterBulkUpdate(options)
 ```
 
-# Declaring Hooks(후크 선언)
+## Declaring Hooks(후크 선언)
 
 후크에 사용되는 인자들은 참조에 의해 전달된다. 이것은 여러분이 값을 바꿔지는것, 삽입/업데이트 상태가 반영되는것을 의미한다. 후크는 비동기 액션을 가지고 있다. 이 경우 해당 함수는 promise를 반환해야만 한다.
 
 후크를 추가하는 방법은 현재 세 가지가 있습니다.
 
 ```js
-// 첫번째 방법 .define() 함수를 통한 방법
-var User = sequelize.define('user', {
+// Method 1 via the .init() method
+class User extends Model {}
+User.init({
   username: DataTypes.STRING,
   mood: {
     type: DataTypes.ENUM,
@@ -52,67 +60,69 @@ var User = sequelize.define('user', {
   }
 }, {
   hooks: {
-    beforeValidate: function(user, options) {
-      user.mood = 'happy'
+    beforeValidate: (user, options) => {
+      user.mood = 'happy';
     },
-    afterValidate: function(user, options) {
-      user.username = 'Toni'
+    afterValidate: (user, options) => {
+      user.username = 'Toni';
     }
-  }
-})
+  },
+  sequelize
+});
 
-// 두번째 방법 .hook() 함수를 통한 방법
-User.hook('beforeValidate', function(user, options) {
-  user.mood = 'happy'
-})
+// Method 2 via the .addHook() method
+User.addHook('beforeValidate', (user, options) => {
+  user.mood = 'happy';
+});
 
-User.hook('afterValidate', function(user, options) {
-  return sequelize.Promise.reject("I'm afraid I can't let you do that!")
-})
+User.addHook('afterValidate', 'someCustomName', (user, options) => {
+  return Promise.reject(new Error("I'm afraid I can't let you do that!"));
+});
 
-// 세번째 방법 direct 함수를 통한 방법
-User.beforeCreate(function(user, options) {
-  return hashPassword(user.password).then(function (hashedPw) {
+// Method 3 via the direct method
+User.beforeCreate((user, options) => {
+  return hashPassword(user.password).then(hashedPw => {
     user.password = hashedPw;
   });
-})
+});
 
-User.afterValidate('myHookAfter', function(user, options, fn) {
-  user.username = 'Toni'
-})
+User.afterValidate('myHookAfter', (user, options) => {
+  user.username = 'Toni';
+});
 ```
 
 
-# Removing Hooks(후크 삭제)
+## Removing Hooks(후크 삭제)
 
 오직 이름 파라미터가 있는 후크만 지울 수 있습니다.
 
 ```js
-var Book = sequelize.define('book', {
+class Book extends Model {}
+Book.init({
   title: DataTypes.STRING
-})
+}, { sequelize });
 
-Book.addHook('afterCreate', 'notifyUsers', function(book, options) {
+Book.addHook('afterCreate', 'notifyUsers', (book, options) => {
   // ...
-})
+});
 
-Book.removeHook('afterCreate', 'notifyUsers')
+Book.removeHook('afterCreate', 'notifyUsers');
 ```
 
+같은 이름과 함께 후크를 가질 수 있습니다. `removeHook()` 호출하는 것은 그것들을 모두 제거할 수 있습니다.
 
-# Global/ universal hooks (전역, 만능 후크)
+## Global/ universal hooks (전역, 만능 후크)
 
 전역 후크는 모든 모델을 위해 실행되는 후크입니다. 개발자들은 모든 모델에 대해 원하는 행동을 정의 할 수 있고, 특히 플러그인에 유용하다. 그들은 약간은 다른 의미가 있는 두가지의 방법을 통해 정의를 할 수 있습니다.
 
-
-## Sequelize.options.define (default hook)
+### Default Hooks (Sequelize.options.define)
 
 ```js
-var sequelize = new Sequelize(..., {
+const sequelize = new Sequelize(..., {
     define: {
         hooks: {
-            beforeCreate: function () {
-                // Do stuff
+            beforeCreate: () => {
+              // Do stuff
             }
         }
     }
@@ -122,45 +132,85 @@ var sequelize = new Sequelize(..., {
 이것은 실행됬을 떄 모델이 `beforeCreate` 후크를 가지고 있지 않은 모든 모델에 후크를 추가합니다.
 
 ```js
-var User = sequelize.define('user');
-var Project = sequelize.define('project', {}, {
+class User extends Model {}
+User.init({}, { sequelize });
+class Project extends Model {}
+Project.init({}, {
     hooks: {
-        beforeCreate: function () {
+        beforeCreate: () => {
             // Do other stuff
         }
-    }
+    },
+    sequelize
 });
 
-User.create() // 전역 후크 실행
-Project.create() // 전역 후크가 덮어쓰고 있기때문에 자기 자신의 후크 실행
+User.create() // Runs the global hook
+Project.create() // Runs its own hook (because the global hook is overwritten)
 ```
 
-## Sequelize.addHook (permanent hook)
+### Permanent Hooks (Sequelize.addHook)
 
 ```js
-sequelize.addHook('beforeCreate', function () {
+sequelize.addHook('beforeCreate', () => {
     // Do stuff
 });
 ```
 
-이 후크는 모델이 `beforeCreate` 지정 여부에 관계없이 항상 생성되기 이전에 실행됩니다..
+이 후크는 모델이 `beforeCreate` 지정 여부에 관계없이 항상 생성되기 이전에 실행됩니다. 로컬 후크는 항상 글로벌 후크보다 먼저 실행합니다.
 
 ```js
-var User = sequelize.define('user');
-var Project = sequelize.define('project', {}, {
+User.init({}, { sequelize });
+class Project extends Model {}
+Project.init({}, {
     hooks: {
-        beforeCreate: function () {
+        beforeCreate: () => {
             // Do other stuff
         }
-    }
+    },
+    sequelize
 });
 
 User.create() // Runs the global hook
 Project.create() // Runs its own hook, followed by the global hook
 ```
 
-지역 후크는 한상 전역 후크 이전에 실행됩니다.
+영구 후크는 `Sequelize.options` 에서도 정의 될 수 있습니다.
 
+```js
+new Sequelize(..., {
+    hooks: {
+        beforeCreate: () => {
+            // do stuff
+        }
+    }
+});
+```
+
+### Connection Hooks
+
+Sequelize는 데이터베이스 연결을 얻거나 해제하기 직전과 직후에 실행되는 네 가지 후크를 제공합니다.
+
+```
+beforeConnect(config)
+afterConnect(connection, config)
+beforeDisconnect(connection)
+afterDisconnect(connection)
+```
+
+이 후크는 데이터베이스 정보를 비동기 적으로 확보해야하거나 저수준 데이터베이스 연결이 작성된 후 직접 액세스해야하는 경우 유용 할 수 있습니다.
+
+예를 들어, 토큰 저장소에서 데이터베이스 비밀번호를 비동기 적으로 얻을 수 있으며 새로운 자격 증명으로 Sequelize의 구성 객체를 변경할 수 있습니다.
+
+```js
+sequelize.beforeConnect((config) => {
+    return getAuthToken()
+        .then((token) => {
+             config.password = token;
+         });
+    });
+```
+
+연결 풀은 모든 모델에서 공유되므로 이러한 후크는 영구 전역 후크로만 선언 될 수 잇습니다.
 
 ## Instance hooks
 
@@ -169,13 +219,13 @@ Project.create() // Runs its own hook, followed by the global hook
 ```
 beforeValidate
 afterValidate or validationFailed
-beforeCreate / beforeUpdate  / beforeDestroy
-afterCreate / afterUpdate / afterDestroy
+beforeCreate / beforeUpdate / beforeSave  / beforeDestroy
+afterCreate / afterUpdate / afterSave / afterDestroy
 ```
 
 ```js
 // ...define ...
-User.beforeCreate(function(user) {
+User.beforeCreate(user => {
   if (user.accessLevel > 10 && user.username !== "Boss") {
     throw new Error("You can't grant this user an access level above 10!")
   }
@@ -185,89 +235,100 @@ User.beforeCreate(function(user) {
 해당 예제는 에러를 반환한다.
 
 ```js
-User.create({username: 'Not a Boss', accessLevel: 20}).catch(function(err) {
-  console.log(err) // 여러분은 이 유저에게 accessLevel을 10을 줄 수 없다.
-})
+User.create({username: 'Not a Boss', accessLevel: 20}).catch(err => {
+  console.log(err); // You can't grant this user an access level above 10!
+});
 ```
 
 다음의 예제는 성공적으로 반환을 한다.
 
 ```js
-User.create({username: 'Boss', accessLevel: 20}).then(function(user) {
-  console.log(user) // user 객체는 username이 Bost이고 accessLevel이 20
-})
+User.create({username: 'Boss', accessLevel: 20}).then(user => {
+  console.log(user); // user object with username as Boss and accessLevel of 20
+});
 ```
 
 
-## Model Hooks
+### Model Hooks
 
 떄떄로 여러분은 해당 모델이 가지고 있는 `bulkCreate, update, destoy`함수를 활용되어 두개 이상이 수정이 될 것이다. 다음중 하나를 사용할 경우 다음과 같이 표시가 됩니다.
 
 ```
-beforeBulkCreate / beforeBulkUpdate / beforeBulkDestroy
-afterBulkCreate / afterBulkUpdate / afterBulkDestroy
+beforeBulkCreate(instances, options)
+beforeBulkUpdate(options)
+beforeBulkDestroy(options)
+afterBulkCreate(instances, options)
+afterBulkUpdate(options)
+afterBulkDestroy(options)
 ```
 
 만약 여러분들은 각각의 레코드의 후크가 실행되기를 원한다면, 여러개의 후크와 함꼐 `individualHooks :true`를 전달할 수 있습니다.
 
-```js
-Model.destroy({ where: {accessLevel: 0}, individualHooks: true})
-// 선택 된 레코드들 은 제거가 되고, 제거된 각각의 인스턴스들에 대해 beforeDestory, afterDestory가 발생할 것입니다.
+경고: 개별 후크를 사용하는 경우 후크가 호출되기 전에 업데이트되거나 제거 된 모든 인스턴스가 메모리에로드됩니다. Sequelize가 개별 후크로 처리 할 수있는 인스턴스 수는 사용 가능한 메모리에 의해 제한됩니다.
 
-Model.update({username: 'Toni'}, { where: {accessLevel: 0}, individualHooks: true})
-// 선택 된 레코드들 은 수정이 되고, 수정된 각각의 인스턴스들에 대해 beforeDestory, afterDestory가 발생할 것입니다.
+```js
+Model.destroy({ where: {accessLevel: 0}, individualHooks: true});
+// Will select all records that are about to be deleted and emit before- + after- Destroy on each instance
+
+Model.update({username: 'Toni'}, { where: {accessLevel: 0}, individualHooks: true});
+// Will select all records that are about to be updated and emit before- + after- Update on each instance
 ```
 
-일부 모델 후크에는 유형에 따라 각 후크로 보내지는 두개 또는 세개의 매개 변수가 있습니다.
+hook 메소드의 `option` 인자는 해당 메소드 또는 복제 및 확장 버전에 제공된 두 번째 인수입니다.
 
 ```js
-Model.beforeBulkCreate(function(records, fields) {
-  // records = .bulkCreate의 첫번째 인자로 전달됩니다
-  // fields = .bulkCreate의 두번째 인자로 전달됩니다
+Model.beforeBulkCreate((records, {fields}) => {
+  // records = the first argument sent to .bulkCreate
+  // fields = one of the second argument fields sent to .bulkCreate
 })
 
 Model.bulkCreate([
-  {username: 'Toni'}, // 레코드 인자의 일부
-  {username: 'Tobi'} // 레코드 인자의 일부
-], ['username'] /* 필드인자의 일부 */)
+    {username: 'Toni'}, // part of records argument
+    {username: 'Tobi'} // part of records argument
+  ], {fields: ['username']} // options parameter
+)
 
-Model.beforeBulkUpdate(function(attributes, where) {
-  // attributes = Model.update의 첫번째 인자로 전달
-  // where = Model.update의 두번째 인자로 전달
+Model.beforeBulkUpdate(({attributes, where}) => {
+  // where - in one of the fields of the clone of second argument sent to .update
+  // attributes - is one of the fields that the clone of second argument of .update would be extended with
 })
 
-Model.update({gender: 'Male'} /*attributes 인자*/, { where: {username: 'Tom'}} /*where 인자*/)
+Model.update({gender: 'Male'} /*attributes argument*/, { where: {username: 'Tom'}} /*where argument*/)
 
-Model.beforeBulkDestroy(function(whereClause) {
-  // whereClause = Model.destroy의 첫번째 인자로 전달
+Model.beforeBulkDestroy(({where, individualHooks}) => {
+  // individualHooks - default of overridden value of extended clone of second argument sent to Model.destroy
+  // where - in one of the fields of the clone of second argument sent to Model.destroy
 })
 
-Model.destroy({ where: {username: 'Tom'}} /*whereClause argument*/)
+Model.destroy({ where: {username: 'Tom'}} /*where argument*/)
 ```
 
 만약 여러분들이  `updatesOnDuplicate` 옵션과 함께 `Model.bulkCreate(...)`을 사용한다면, updateOnDuplicate 배열에서 포함되지 않은 필드에 대한 후크의 변경은 데이터 베이스에 적용되지 않습니다. 그러나 여러분이 원한다면 후크 내부에서 updatesOnDuplicate옵션을 바꾸는 것이 가능합니다.
 
 ```js
-// updatesOnDuplicate과 함께 존재하는 유저의 수정
-Users.bulkCreate([{ id: 1, isMemeber: true},
-                 { id: 2, isMember: false}],
-                 { updatesOnDuplicate: ['isMember']})
+// Bulk updating existing users with updateOnDuplicate option
+Users.bulkCreate([
+  { id: 1, isMember: true },
+  { id: 2, isMember: false }
+], {
+  updateOnDuplicate: ['isMember']
+});
 
-User.beforeBulkCreate(function (users, options) {
-  users.forEach(function (user) {
+User.beforeBulkCreate((users, options) => {
+  for (const user of users) {
     if (user.isMember) {
-      user.memberSince = new Date()
+      user.memberSince = new Date();
     }
-  })
+  }
 
-  // updatesOnDuplicate로 존재하지 않는 memberSince를 memberSince로 덮어씌어라
-  // 데이터 베이스에 저장된
-  options.updatesOnDuplicate.push('memberSince')
-})
+  // Add memberSince to updateOnDuplicate otherwise the memberSince date wont be
+  // saved to the database
+  options.updateOnDuplicate.push('memberSince');
+});
 ```
 
 
-# Associations
+## Associations
 
 대부분의 후크는 몇 가지 점을 제외하면 연관된 인스턴스에 대해 동일한 작용을 할 것입니다.
 
@@ -275,15 +336,18 @@ User.beforeBulkCreate(function (users, options) {
 2. beforeDestroy/afterDestroy후크를 호출하는 방법은 `onDelete: 'cascade'` 그리고 `hooks: true`옵션과 함께 관계를 가집니다.
 
 ```js
-var Projects = sequelize.define('projects', {
+class Projects extends Model {}
+Projects.init({
   title: DataTypes.STRING
-})
+}, { sequelize });
 
-var Tasks = sequelize.define('tasks', {
+class Tasks extends Model {}
+Tasks.init({
   title: DataTypes.STRING
-})
+}, { sequelize });
 
-Projects.hasMany(Tasks, { o
+Projects.hasMany(Tasks, { onDelete: 'cascade', hooks: true });
+Tasks.belongsTo(Projects);
 ```
 
 이 코드는 Tasks 테이블에서 beforeDestroy/afterDestroy이 실행 될 것 입니다. sequelize는 기본적으로 쿼리문을 최대한 최적화하려고 시도를 합니다. delete에서 cascade를 호출 할 때, sequelize는 간단하게 다음과 같이 실행을 할 것입니다.
@@ -299,18 +363,18 @@ DELETE FROM `table` WHERE associatedIdentifier = associatedIdentifier.primaryKey
 이것은 `remove`를 호출하기 위해 `{individualHooks: true}`을 전달하여 간단하게 해결 할 수 있습니다. 각각의 인스턴스들을 통해 각각의 인스턴스에서 remove를 호출하는 후크의 결과를 가집니다.
 
 
-# A Note About Transactions
+## A Note About Transactions
 
 sequelize의 많은 연산을 통해 메소드의 옵션 매개 변수에 트랜잭션을 지정할 수 있습니다. 기존의 호출에서 트랜젝션이 지정되어있다면, 후크 함수에 옵션 매개변수에 보여집니다. 예를 들어 하나의 예를 고려해보자.
 
 ```js
-// 우리는 비동기식 후크의 promise 스타일을 사용한다.
-// 콜백.
-User.hook('afterCreate', function(user, options) {
-  // 'transaction'은 options.transaction에서 사용 가능하다.
+// Here we use the promise-style of async hooks rather than
+// the callback.
+User.addHook('afterCreate', (user, options) => {
+  // 'transaction' will be available in options.transaction
 
-  // 이 연산자는 같은 트랜젝션의 일부.
-  // 원래 User.create를 호출
+  // This operation will be part of the same transaction as the
+  // original User.create call.
   return User.update({
     mood: 'sad'
   }, {
@@ -322,11 +386,11 @@ User.hook('afterCreate', function(user, options) {
 });
 
 
-sequelize.transaction(function(t) {
+sequelize.transaction(transaction => {
   User.create({
     username: 'someguy',
     mood: 'happy',
-    transaction: t
+    transaction
   });
 });
 ```
@@ -334,7 +398,7 @@ sequelize.transaction(function(t) {
 만약에 여러분들이 `User.update`를 호출했을 때 트랜젝션 옵션을 설정하지 않았다면, 커밋이 될때까지 데이터 베이스에 데이터가 존재하지 않을 것입니다.
 
 
-## Internal Transactions
+### Internal Transactions
 
 트랜젝션은 `Model.findOrCreate`와 같은 특정 작업을 위해 연산자들 사용하게 만들것을 인지하는 것이 매우 중요합니다.. 만약 여러분들의 후크가 데이터베이스의 객체에 의존하여 읽기/쓰기 연산을 실행 한다면, 또는 앞의 예제와 같이 오브젝트의 저장된 값을 수정할때, 여러분들은 항상 `transaction : options.transaction}` 요소를 사용해야 합니다.
 
