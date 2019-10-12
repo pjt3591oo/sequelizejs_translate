@@ -174,6 +174,710 @@
             
   <div class="section" id="id1">
 <h1>모델사용<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>데이터 검색/ 발견<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>발견하는 함수들은 데이터 베이스로부터 데이터를 조회하기 위한 함수이다. 그들은 객체를 반한하지 않는 대신에 모델 인스턴스를 반환한다. 발견하는 함수는 모델 인스턴스를 반환하기 때문에, 여러분들은 어느 모델의 인스턴스에서 <a class="reference external" href="http://docs.sequelizejs.com/en/latest/docs/instances/">instances</a> 문서에 설명된 함수를 호출할 수 있습니다.</p>
+<p>이 문서는 발견하는 함수들이 무엇을 할 수 있는지 설명을 할것이다.</p>
+<div class="section" id="find-database">
+<h3>find - database에서 특정 요소 하나를 검색<a class="headerlink" href="#find-database" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// search for known ids</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">123</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">project</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// project will be an instance of Project and stores the content of the table entry</span>
+  <span class="c1">// with id 123. if such an entry is not defined you will get null</span>
+<span class="p">})</span>
+
+<span class="c1">// search for attributes</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;aProject&#39;</span><span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">project</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// project will be the first entry of the Projects table with the title &#39;aProject&#39; || null</span>
+<span class="p">})</span>
+
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;aProject&#39;</span><span class="p">},</span>
+  <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">]]</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">project</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// project will be the first entry of the Projects table with the title &#39;aProject&#39; || null</span>
+  <span class="c1">// project.get(&#39;title&#39;) will contain the name of the project</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="findorcreate">
+<h3>findOrCreate - 특정 요소를 검색한다 만약 그것이 존재하지 않는다면 생성을 한다.<a class="headerlink" href="#findorcreate" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">findOrCreate</span></code> 함수는 데이터베이스에 해당 요소가 이미 포함이 되어있는지 확인하는데 사용될 수 있다. 이 경우 각각의 인스턴스의 결과를 가지는 함수가 된다. 만약 해당 요소가 존재하지 않는다면 새로 만들것이다.</p>
+<p>우리는 <code class="docutils literal notranslate"><span class="pre">username</span></code>과 하나의 <code class="docutils literal notranslate"><span class="pre">job</span></code>을 가지고 있는<code class="docutils literal notranslate"><span class="pre">user</span></code>모델과 함께 빈 데이터 베이스를 가지고 있다고 가정을 해보자.</p>
+<p><code class="docutils literal notranslate"><span class="pre">where</span></code> 옵션은 작성을 위해 기본값 작성을 위해 <code class="docutils literal notranslate"><span class="pre">defaults</span></code>을 추가합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span>
+  <span class="p">.</span><span class="nx">findOrCreate</span><span class="p">({</span><span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;sdepold&#39;</span><span class="p">},</span> <span class="nx">defaults</span><span class="o">:</span> <span class="p">{</span><span class="nx">job</span><span class="o">:</span> <span class="s1">&#39;Technical Lead JavaScript&#39;</span><span class="p">}})</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(([</span><span class="nx">user</span><span class="p">,</span> <span class="nx">created</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">({</span>
+      <span class="nx">plain</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}))</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">created</span><span class="p">)</span>
+
+    <span class="cm">/*</span>
+<span class="cm">     findOrCreate returns an array containing the object that was found or created and a boolean that</span>
+<span class="cm">     will be true if a new object was created and false if not, like so:</span>
+
+<span class="cm">    [ {</span>
+<span class="cm">        username: &#39;sdepold&#39;,</span>
+<span class="cm">        job: &#39;Technical Lead JavaScript&#39;,</span>
+<span class="cm">        id: 1,</span>
+<span class="cm">        createdAt: Fri Mar 22 2013 21: 28: 34 GMT + 0100(CET),</span>
+<span class="cm">        updatedAt: Fri Mar 22 2013 21: 28: 34 GMT + 0100(CET)</span>
+<span class="cm">      },</span>
+<span class="cm">      true ]</span>
+
+<span class="cm"> In the example above, the array spread on line 3 divides the array into its 2 parts and passes them</span>
+<span class="cm">  as arguments to the callback function defined beginning at line 39, which treats them as &quot;user&quot; and</span>
+<span class="cm">  &quot;created&quot; in this case. (So &quot;user&quot; will be the object from index 0 of the returned array and</span>
+<span class="cm">  &quot;created&quot; will equal &quot;true&quot;.)</span>
+<span class="cm">    */</span>
+  <span class="p">})</span>
+</pre></div>
+</div>
+<p>우리가 이미 인스턴스를 가지고 있을 때, 코드는 새로운 인스턴스를 생성했다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;fnord&#39;</span><span class="p">,</span> <span class="nx">job</span><span class="o">:</span> <span class="s1">&#39;omnomnom&#39;</span> <span class="p">})</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findOrCreate</span><span class="p">({</span><span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;fnord&#39;</span><span class="p">},</span> <span class="nx">defaults</span><span class="o">:</span> <span class="p">{</span><span class="nx">job</span><span class="o">:</span> <span class="s1">&#39;something else&#39;</span><span class="p">}}))</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(([</span><span class="nx">user</span><span class="p">,</span> <span class="nx">created</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">({</span>
+      <span class="nx">plain</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}))</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">created</span><span class="p">)</span>
+
+    <span class="cm">/*</span>
+<span class="cm">    In this example, findOrCreate returns an array like this:</span>
+<span class="cm">    [ {</span>
+<span class="cm">        username: &#39;fnord&#39;,</span>
+<span class="cm">        job: &#39;omnomnom&#39;,</span>
+<span class="cm">        id: 2,</span>
+<span class="cm">        createdAt: Fri Mar 22 2013 21: 28: 34 GMT + 0100(CET),</span>
+<span class="cm">        updatedAt: Fri Mar 22 2013 21: 28: 34 GMT + 0100(CET)</span>
+<span class="cm">      },</span>
+<span class="cm">      false</span>
+<span class="cm">    ]</span>
+<span class="cm">    The array returned by findOrCreate gets spread into its 2 parts by the array spread on line 3, and</span>
+<span class="cm">    the parts will be passed as 2 arguments to the callback function beginning on line 69, which will</span>
+<span class="cm">    then treat them as &quot;user&quot; and &quot;created&quot; in this case. (So &quot;user&quot; will be the object from index 0</span>
+<span class="cm">    of the returned array and &quot;created&quot; will equal &quot;false&quot;.)</span>
+<span class="cm">    */</span>
+  <span class="p">})</span>
+</pre></div>
+</div>
+<p>… 존재하는 엔트리(인스턴스)는 변경되지 않습니다. 두번째 유저의 job을 보면 created가 false임을 확인해라.</p>
+</div>
+<div class="section" id="findandcountall">
+<h3>findAndCountAll - 데이터 베이스에서 여러 요소 검색, 데이터와 전체 갯수 반환<a class="headerlink" href="#findandcountall" title="Permalink to this headline">¶</a></h3>
+<p>이것은<code class="docutils literal notranslate"> <span class="pre">findAll</span></code>과 <code class="docutils literal notranslate"><span class="pre">count</span></code>가 조합된 편의를 위한 함수이다. 이것은 여러분들이 <code class="docutils literal notranslate"><span class="pre">limit</span></code>과 <code class="docutils literal notranslate"><span class="pre">offset</span></code>을 사용하여 pagination을 하기위해 검색을 할 때 사용된다. 그러나 검색결과 총 레코드 수를 알아야 한다.</p>
+<blockquote>
+<div><p>pagenation이란 데이터가 너무 많아 분할하는것을 말한다.</p>
+</div></blockquote>
+<p>findAndCountAll을 성공한 핸들러는 한상 2개의 프로퍼티로 구성된 객체를 받을것이다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">count</span></code> - 정수형, where조건에 맞는 레코드 수</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">rows</span></code> - 객체의 배열, where조건과 <code class="docutils literal notranslate"><span class="pre">limit</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">offset</span></code> 범위에 맞는 레코드들</p></li>
+</ul>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span>
+  <span class="p">.</span><span class="nx">findAndCountAll</span><span class="p">({</span>
+     <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">title</span><span class="o">:</span> <span class="p">{</span>
+          <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;foo%&#39;</span>
+        <span class="p">}</span>
+     <span class="p">},</span>
+     <span class="nx">offset</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>
+     <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">count</span><span class="p">);</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">.</span><span class="nx">rows</span><span class="p">);</span>
+  <span class="p">});</span>
+</pre></div>
+</div>
+<p>또한 <code class="docutils literal notranslate"><span class="pre">findAndCountAll</span></code>는 다양한 요소들을 포함한다. <code class="docutils literal notranslate"><span class="pre">required</span></code>가 포함되는 것은 포함된 항목만 개수 부분에 추가될 것이다.</p>
+<p>여러분들은 profile에 소속된 모든 유저를 발견한다고 가정을 해보자.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAndCountAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span>
+     <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Profile</span><span class="p">,</span> <span class="nx">required</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nx">limit</span><span class="o">:</span> <span class="mi">3</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Profile</span></code>은 inner join으로 설정된 <code class="docutils literal notranslate"><span class="pre">required</span></code>를 가지고 있다. 그리고 <code class="docutils literal notranslate"><span class="pre">User</span></code>는 오직 <code class="docutils literal notranslate"><span class="pre">profile</span></code>에 존재하는 유저만 카운트 된다. 만약 include에 <code class="docutils literal notranslate"><span class="pre">required</span></code>가 없다면, 유저는 카운트 된다. <code class="docutils literal notranslate"><span class="pre">where</span></code>절을 추가하면 필수항목이 됩니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span>User.findAndCountAll({
+  include: [
+     { model: Profile, where: { active: true }}
+  ],
+  limit: 3
+});
+</pre></div>
+</div>
+<p>위의 쿼리는 오직 profile의 active가 true인 유저들만 카운트 된다. 왜냐하면 <code class="docutils literal notranslate"><span class="pre">required</span> </code>는 여러분이 include에 where절을 추가할 떄 암시적으로 설정이 된다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">findAndCountAll</span></code>에 전달되는 옵션 객체들은 <code class="docutils literal notranslate"><span class="pre">findAll</span></code>과 같다(아래에 기술 됨)</p>
+</div>
+<div class="section" id="findall">
+<h3>findAll - 데이터 베이스의 여러 요소 검색<a class="headerlink" href="#findall" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// find multiple entries</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">projects</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// projects will be an array of all Project instances</span>
+<span class="p">})</span>
+
+<span class="c1">// search for specific attributes - hash usage</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;A Project&#39;</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">projects</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// projects will be an array of Project instances with the specified name</span>
+<span class="p">})</span>
+
+<span class="c1">// search within a specific range</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">projects</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// projects will be an array of Projects having the id 1, 2 or 3</span>
+  <span class="c1">// this is actually doing an IN query</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">and</span><span class="p">]</span><span class="o">:</span> <span class="p">{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">5</span><span class="p">},</span>           <span class="c1">// AND (a = 5)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">5</span><span class="p">},</span> <span class="p">{</span><span class="nx">a</span><span class="o">:</span> <span class="mi">6</span><span class="p">}],</span>  <span class="c1">// (a = 5 OR a = 6)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">6</span><span class="p">,</span>                <span class="c1">// id &gt; 6</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gte</span><span class="p">]</span><span class="o">:</span> <span class="mi">6</span><span class="p">,</span>               <span class="c1">// id &gt;= 6</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>               <span class="c1">// id &lt; 10</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lte</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>              <span class="c1">// id &lt;= 10</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">ne</span><span class="p">]</span><span class="o">:</span> <span class="mi">20</span><span class="p">,</span>               <span class="c1">// id != 20</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">between</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">6</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span>     <span class="c1">// BETWEEN 6 AND 10</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notBetween</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">],</span> <span class="c1">// NOT BETWEEN 11 AND 15</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="k">in</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>           <span class="c1">// IN [1, 2]</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notIn</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>        <span class="c1">// NOT IN [1, 2]</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span><span class="p">,</span>         <span class="c1">// LIKE &#39;%hat&#39;</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notLike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span><span class="p">,</span>       <span class="c1">// NOT LIKE &#39;%hat&#39;</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">iLike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span><span class="p">,</span>         <span class="c1">// ILIKE &#39;%hat&#39; (case insensitive)  (PG only)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">notILike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%hat&#39;</span><span class="p">,</span>      <span class="c1">// NOT ILIKE &#39;%hat&#39;  (PG only)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">overlap</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>       <span class="c1">// &amp;&amp; [1, 2] (PG array overlap operator)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>      <span class="c1">// @&gt; [1, 2] (PG array contains operator)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contained</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>     <span class="c1">// &lt;@ [1, 2] (PG array contained by operator)</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">any</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>            <span class="c1">// ANY ARRAY[2, 3]::INTEGER (PG only)</span>
+    <span class="p">},</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">not</span><span class="p">]</span><span class="o">:</span> <span class="kc">false</span>           <span class="c1">// status NOT FALSE</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="or-and-complex-filtering-or-not-queries">
+<h3>(복잡한 필터링, OR, AND 쿼리) Complex filtering / OR / NOT queries<a class="headerlink" href="#or-and-complex-filtering-or-not-queries" title="Permalink to this headline">¶</a></h3>
+<p>AND, OR, NOT 조건이 포함된 복잡한 where이 사용가능 하다. 여러분들은 <code class="docutils literal notranslate"><span class="pre">$or</span></code>, <code class="docutils literal notranslate"><span class="pre">$and</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">$not</span></code>을 사용할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;a project&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;a project&#39;</span><span class="p">,</span>
+    <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+      <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">or</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">],</span>
+        <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">10</span> <span class="p">}</span>
+      <span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>코드의 조각들은 다음과 같이 코드를 만들어 낸다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="o">`</span><span class="n">Projects</span><span class="o">`</span>
+<span class="k">WHERE</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="o">=</span> <span class="s1">&#39;a project&#39;</span>
+   <span class="k">AND</span> <span class="p">(</span><span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="k">IN</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="k">OR</span> <span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">$not</span></code> 예시</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;a project&#39;</span><span class="p">,</span>
+    <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">not</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">array</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">contains</span><span class="p">]</span><span class="o">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>다음과 같이 만들어 낸다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span>
+<span class="k">FROM</span> <span class="o">`</span><span class="n">Projects</span><span class="o">`</span>
+<span class="k">WHERE</span> <span class="p">(</span>
+  <span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">name</span><span class="o">`</span> <span class="o">=</span> <span class="s1">&#39;a project&#39;</span>
+   <span class="k">AND</span> <span class="k">NOT</span> <span class="p">(</span><span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="k">IN</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">)</span> <span class="k">OR</span> <span class="o">`</span><span class="n">Projects</span><span class="o">`</span><span class="p">.</span><span class="o">`</span><span class="nb">array</span><span class="o">`</span> <span class="o">@&gt;</span> <span class="nb">ARRAY</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">]::</span><span class="nb">INTEGER</span><span class="p">[])</span>
+<span class="p">)</span>
+<span class="k">LIMIT</span> <span class="mi">1</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="limit-offset-order-group">
+<h3>데이터베이스를 조작하는 것 limit, offset, order, group<a class="headerlink" href="#limit-offset-order-group" title="Permalink to this headline">¶</a></h3>
+<p>더 다양한 데이터 검색을 하기위해, 여러분들은  limit, offset, order 그리고 group을 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// limit the results of the query</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">limit</span><span class="o">:</span> <span class="mi">10</span> <span class="p">})</span>
+
+<span class="c1">// step over the first 10 elements</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">offset</span><span class="o">:</span> <span class="mi">10</span> <span class="p">})</span>
+
+<span class="c1">// step over the first 10 elements, and take 2</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">offset</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span> <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p>grouping과 order 문법은 같다. 아래에는 group와 order를 위한 하나의 예시와 함께 설명이 되어있다. 아래에 보이는 것을 그룹을 위해 사용 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span><span class="nx">order</span><span class="o">:</span> <span class="p">[[</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">]]})</span>
+<span class="c1">// yields ORDER BY title DESC</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span><span class="nx">group</span><span class="o">:</span> <span class="s1">&#39;name&#39;</span><span class="p">})</span>
+<span class="c1">// yields GROUP BY name</span>
+</pre></div>
+</div>
+<p>위의 두개의 예제에서, 문자열은 쿼리 내부에 삽입된다. 또한 컬럼 이름은 이스케이핑 되지 않는다. 여러분들이 order/group에 문자열을 제공할 때, 컬럼 이름에 이스케이핑을 하지 않는다. 만약에 여러분들중 컬럼이름에 이스케이핑을 원한다면 여러분들은 해당 인자들의 리스트들을 제공해야만 한다. 심지어 하나의 컬럼에 한해서만이라도 리스트로 제공되어야 한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">something</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span>
+    <span class="c1">// will return `name`</span>
+    <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+    <span class="c1">// will return `username` DESC</span>
+    <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+    <span class="c1">// will return max(`age`)</span>
+    <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)),</span>
+    <span class="c1">// will return max(`age`) DESC</span>
+    <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;max&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">)),</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+    <span class="c1">// will return otherfunction(`col1`, 12, &#39;lalala&#39;) DESC</span>
+    <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;otherfunction&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;col1&#39;</span><span class="p">),</span> <span class="mi">12</span><span class="p">,</span> <span class="s1">&#39;lalala&#39;</span><span class="p">),</span> <span class="s1">&#39;DESC&#39;</span><span class="p">],</span>
+    <span class="c1">// will return otherfunction(awesomefunction(`col`)) DESC, This nesting is potentially infinite!</span>
+    <span class="p">[</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;otherfunction&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="s1">&#39;awesomefunction&#39;</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">col</span><span class="p">(</span><span class="s1">&#39;col&#39;</span><span class="p">))),</span> <span class="s1">&#39;DESC&#39;</span><span class="p">]</span>
+  <span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>마지막으로 다시한번 더 설명을 하면, order/group의 요소 배열은 다음과 같다.</p>
+<ul class="simple">
+<li><p>String - ‘’일 것이다.</p></li>
+<li><p>Array - 첫 번째 요소는 인용되고 두 번째 요소는 그대로 추가됩니다.</p></li>
+<li><p>Object -</p>
+<ul>
+<li><p>Raw는 ‘’없이 포함된다.</p></li>
+<li><p>나머지는 무시되고 만약 raw를 설정하지 않았다면, 그 쿼리는 실패한다.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Sequelize.fn</span></code> 와 <code class="docutils literal notranslate"><span class="pre">Sequelize.col</span></code>는 함수를 반환한다.</p></li>
+</ul>
+</div>
+<div class="section" id="raw-queries">
+<h3>Raw queries<a class="headerlink" href="#raw-queries" title="Permalink to this headline">¶</a></h3>
+<p>여러분들은 종종 조작에 대한 정보 없이 화면에 출력되는 데이터 셋을 기대할 것이다. 여러분이 조회한 각 행에 대해서 sequelize는 update, delete, 관계에 대한 함수와 함께 인스턴스를 생성한다. 만약 여러분들이 수천개의 행을 가지고 있다면, 이것은 상당한 시간이 소요 될 것 이다. 만약 여러분들이 순수한 데이터만 필요로 하다면, 업데이트에 대해서 아무것도 원하지 않는다면 여러분들은 순수한 데이터 셋을 얻기위해 다음과 같이 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Are you expecting a massive dataset from the DB,</span>
+<span class="c1">// and don&#39;t want to spend the time building DAOs for each entry?</span>
+<span class="c1">// You can pass an extra query option to get the raw data instead:</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="p">...</span> <span class="p">},</span> <span class="nx">raw</span><span class="o">:</span> <span class="kc">true</span> <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="count">
+<h3>count - 데이터 베이스로부터 요소의 발생 갯수<a class="headerlink" href="#count" title="Permalink to this headline">¶</a></h3>
+<p>데이터 베이스 객체를 카운팅 하기위한 함수</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">count</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">c</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;There are &quot;</span> <span class="o">+</span> <span class="nx">c</span> <span class="o">+</span> <span class="s2">&quot; projects!&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">count</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="s1">&#39;id&#39;</span><span class="o">:</span> <span class="p">{[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">25</span><span class="p">}}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">c</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;There are &quot;</span> <span class="o">+</span> <span class="nx">c</span> <span class="o">+</span> <span class="s2">&quot; projects with an id greater than 25.&quot;</span><span class="p">)</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="max">
+<h3>max - 속성의 값중에서 최대값을 얻기<a class="headerlink" href="#max" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm">  Let&#39;s assume 3 person objects with an attribute age.</span>
+<span class="cm">  The first one is 10 years old,</span>
+<span class="cm">  the second one is 5 years old,</span>
+<span class="cm">  the third one is 40 years old.</span>
+<span class="cm">*/</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">max</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// this will return 40</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">age</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">lt</span><span class="p">]</span><span class="o">:</span> <span class="mi">20</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">max</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// will be 10</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="min">
+<h3>min - 특정 테이블 내의 특정 속성의 값중 가장 작은 값을 얻기<a class="headerlink" href="#min" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm">  Let&#39;s assume 3 person objects with an attribute age.</span>
+<span class="cm">  The first one is 10 years old,</span>
+<span class="cm">  the second one is 5 years old,</span>
+<span class="cm">  the third one is 40 years old.</span>
+<span class="cm">*/</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">min</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// this will return 5</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">age</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">5</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">min</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// will be 10</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sum">
+<h3>sum - 특정 속성의 값의 합<a class="headerlink" href="#sum" title="Permalink to this headline">¶</a></h3>
+<p>한 테이블에서 특정 속성들의 합을 계산하기 위해서 여러분들은 <code class="docutils literal notranslate"><span class="pre">sum</span></code> 함수를 사용 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="cm">/*</span>
+<span class="cm">  Let&#39;s assume 3 person objects with an attribute age.</span>
+<span class="cm">  The first one is 10 years old,</span>
+<span class="cm">  the second one is 5 years old,</span>
+<span class="cm">  the third one is 40 years old.</span>
+<span class="cm">*/</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">sum</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">sum</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// this will return 55</span>
+<span class="p">})</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">sum</span><span class="p">(</span><span class="s1">&#39;age&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">age</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">5</span> <span class="p">}</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">sum</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// will be 50</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="eager-loading">
+<h2>Eager loading<a class="headerlink" href="#eager-loading" title="Permalink to this headline">¶</a></h2>
+<p>데이터베이스에서 데이터를 검색 할 때 동일한 쿼리와의 연관성을 얻으려 할때, 이것을 eager loding이라고 부른다. 그것의 근본적인 아이디어는 <code class="docutils literal notranslate"><span class="pre">find</span></code> 혹은 <code class="docutils literal notranslate"><span class="pre">findAll</span></code>을 호출할 때 <code class="docutils literal notranslate"><span class="pre">include</span></code> 속성을 사용한다. 다음과 같이 설정을 해보자.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Task</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Tool</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Tool</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;tool&#39;</span> <span class="p">})</span>
+
+<span class="nx">Task</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">)</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Task</span><span class="p">)</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Tool</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span> <span class="p">})</span>
+
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">sync</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// this is where we continue ...</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>됬다. 첫번째로 user와 관련된 작업들을 전부 로드를하자.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">User</span> <span class="p">]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">tasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">tasks</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;A Task&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:40.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:40.000Z&quot;,</span>
+<span class="cm">      &quot;userId&quot;: 1,</span>
+<span class="cm">      &quot;user&quot;: {</span>
+<span class="cm">        &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;</span>
+<span class="cm">      }</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>여기서 주목되는 접근자(인스턴스 결과의 <code class="docutils literal notranslate"><span class="pre">Tasks</span></code>의 정보)은 일대일 관계이기 때문에 단수형태이다.</p>
+<p>다음으로 다대일의 관계로부터 데이터를 로딩하자</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Task</span> <span class="p">]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;tasks&quot;: [{</span>
+<span class="cm">        &quot;name&quot;: &quot;A Task&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:40.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:40.000Z&quot;,</span>
+<span class="cm">        &quot;userId&quot;: 1</span>
+<span class="cm">      }]</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>여기서 주목되는 접근자(인스턴스 결과의 <code class="docutils literal notranslate"><span class="pre">Tasks</span></code>의 정보)은 일대다 관계이기 때문에 복수형태이다.</p>
+<p>만약 관계에서 별명을 주었다면(<code class="docutils literal notranslate"><span class="pre">as</span></code> 옵션을 사용하는 것), 여러분들은 모델을 포함 할 때 해당 별명을 명시해야만 한다. user의 <code class="docutils literal notranslate"><span class="pre">Tool</span></code>은 <code class="docutils literal notranslate"><span class="pre">Instruments</span></code>와 같이 별칭이 되었다. 여러분들은 별칭을 사용하여 데이터를 불러오기 원한다면 모델을 명시해야만 한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span> <span class="p">}]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;Instruments&quot;: [{</span>
+<span class="cm">        &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: null,</span>
+<span class="cm">        &quot;updatedAt&quot;: null,</span>
+<span class="cm">        &quot;userId&quot;: 1</span>
+<span class="cm">      }]</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>연관 별명과 일치하는 문자열을 지정하여 별명으로 이름을 포함 할 수도 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Instruments&#39;</span><span class="p">]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;Instruments&quot;: [{</span>
+<span class="cm">        &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: null,</span>
+<span class="cm">        &quot;updatedAt&quot;: null,</span>
+<span class="cm">        &quot;userId&quot;: 1</span>
+<span class="cm">      }]</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span> <span class="nx">association</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span> <span class="p">}]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;Instruments&quot;: [{</span>
+<span class="cm">        &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: null,</span>
+<span class="cm">        &quot;updatedAt&quot;: null,</span>
+<span class="cm">        &quot;userId&quot;: 1</span>
+<span class="cm">      }]</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>우리는 eager loding할 때  <code class="docutils literal notranslate"><span class="pre">where</span></code>을 사용하여 관계되어있는 모델을 필터링을 할 수 있다. 이것은 <code class="docutils literal notranslate"><span class="pre">tool</span></code>모델에서 매칭된 행의 <code class="docutils literal notranslate"><span class="pre">user</span></code>를 반활 할 것이다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span>
+        <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span><span class="p">,</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%ooth%&#39;</span> <span class="p">}</span> <span class="p">}</span>
+    <span class="p">}]</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+    <span class="cm">/*</span>
+<span class="cm">      [{</span>
+<span class="cm">        &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;Instruments&quot;: [{</span>
+<span class="cm">          &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">          &quot;id&quot;: 1,</span>
+<span class="cm">          &quot;createdAt&quot;: null,</span>
+<span class="cm">          &quot;updatedAt&quot;: null,</span>
+<span class="cm">          &quot;userId&quot;: 1</span>
+<span class="cm">        }]</span>
+<span class="cm">      }],</span>
+
+<span class="cm">      [{</span>
+<span class="cm">        &quot;name&quot;: &quot;John Smith&quot;,</span>
+<span class="cm">        &quot;id&quot;: 2,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;Instruments&quot;: [{</span>
+<span class="cm">          &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">          &quot;id&quot;: 1,</span>
+<span class="cm">          &quot;createdAt&quot;: null,</span>
+<span class="cm">          &quot;updatedAt&quot;: null,</span>
+<span class="cm">          &quot;userId&quot;: 1</span>
+<span class="cm">        }]</span>
+<span class="cm">      }],</span>
+<span class="cm">    */</span>
+  <span class="p">})</span>
+</pre></div>
+</div>
+<p>eager lodeing된 모델이 <code class="docutils literal notranslate"><span class="pre">include.where</span></code> 사용하여 필터링 된다면 <code class="docutils literal notranslate"><span class="pre">include.required</span></code>은 암묵적으로 <code class="docutils literal notranslate"><span class="pre">true</span></code>로 설정이 된다. 이것은 하위 항목이 존재하는 상위 모델을 반환하는 내부 조인임을 의미한다.</p>
+<div class="section" id="top-level-where-with-eagerly-loaded-models">
+<h3>top level where with eagerly loaded models<a class="headerlink" href="#top-level-where-with-eagerly-loaded-models" title="Permalink to this headline">¶</a></h3>
+<p>포함된 모델의 위치 조건을 <code class="docutils literal notranslate"><span class="pre">ON</span></code> 조건에서 최상위 수준으로 이동하려면 <code class="docutils literal notranslate"><span class="pre">'$nested.column$'</span></code> 구문을 이용하세요.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;$Instruments.name$&#39;</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">iLike</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%ooth%&#39;</span> <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span>
+        <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span>
+    <span class="p">}]</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">));</span>
+
+    <span class="cm">/*</span>
+<span class="cm">      [{</span>
+<span class="cm">        &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;Instruments&quot;: [{</span>
+<span class="cm">          &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">          &quot;id&quot;: 1,</span>
+<span class="cm">          &quot;createdAt&quot;: null,</span>
+<span class="cm">          &quot;updatedAt&quot;: null,</span>
+<span class="cm">          &quot;userId&quot;: 1</span>
+<span class="cm">        }]</span>
+<span class="cm">      }],</span>
+
+<span class="cm">      [{</span>
+<span class="cm">        &quot;name&quot;: &quot;John Smith&quot;,</span>
+<span class="cm">        &quot;id&quot;: 2,</span>
+<span class="cm">        &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">        &quot;Instruments&quot;: [{</span>
+<span class="cm">          &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">          &quot;id&quot;: 1,</span>
+<span class="cm">          &quot;createdAt&quot;: null,</span>
+<span class="cm">          &quot;updatedAt&quot;: null,</span>
+<span class="cm">          &quot;userId&quot;: 1</span>
+<span class="cm">        }]</span>
+<span class="cm">      }],</span>
+<span class="cm">    */</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="includeing-everthing">
+<h3>includeing everthing<a class="headerlink" href="#includeing-everthing" title="Permalink to this headline">¶</a></h3>
+<p>모든 속성을 포함하기 위해, 여러분들은 <code class="docutils literal notranslate"><span class="pre">all</span> <span class="pre">:</span> <span class="pre">true</span></code>와 함께 객체를 전달 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span> <span class="nx">all</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}]});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="include-soft-deleted-records">
+<h3>include soft deleted records<a class="headerlink" href="#include-soft-deleted-records" title="Permalink to this headline">¶</a></h3>
+<p>이경우는 여러분들이 레코드 항목에 삭제가 된 eager loding을 원할때 여러분들은 <code class="docutils literal notranslate"><span class="pre">include.paranoid</span></code>를 <code class="docutils literal notranslate"><span class="pre">true</span></code>로 설정 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="p">{</span> <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">like</span><span class="p">]</span><span class="o">:</span> <span class="s1">&#39;%ooth%&#39;</span> <span class="p">}</span> <span class="p">},</span>
+        <span class="nx">paranoid</span><span class="o">:</span> <span class="kc">false</span> <span class="c1">// query and loads the soft deleted records</span>
+    <span class="p">}]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="ordering-eager-loaded-associations">
+<h3>ordering Eager Loaded Associations<a class="headerlink" href="#ordering-eager-loaded-associations" title="Permalink to this headline">¶</a></h3>
+<p>일대다 관계에 해당한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Division</span> <span class="p">],</span> <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="nx">Division</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span> <span class="p">]</span> <span class="p">]</span> <span class="p">});</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Division</span> <span class="p">],</span> <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="nx">Division</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span> <span class="p">]</span> <span class="p">]</span> <span class="p">});</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Div&#39;</span> <span class="p">}</span> <span class="p">],</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Div&#39;</span> <span class="p">},</span> <span class="s1">&#39;name&#39;</span> <span class="p">]</span> <span class="p">]</span>
+<span class="p">});</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Div&#39;</span> <span class="p">}</span> <span class="p">],</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Div&#39;</span> <span class="p">},</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;DESC&#39;</span> <span class="p">]</span> <span class="p">]</span>
+<span class="p">});</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Department</span> <span class="p">]</span> <span class="p">}</span> <span class="p">],</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">Department</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span> <span class="p">]</span> <span class="p">]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>다대다 조인의 경우, 여러분들은 테이블에서 속성을 통해 정렬을 할 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Company</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Department</span> <span class="p">]</span> <span class="p">}</span> <span class="p">],</span>
+  <span class="nx">order</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span> <span class="nx">Division</span><span class="p">,</span> <span class="nx">DepartmentDivision</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span> <span class="p">]</span> <span class="p">]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="nested-eager-loading">
+<h3>Nested eager loading<a class="headerlink" href="#nested-eager-loading" title="Permalink to this headline">¶</a></h3>
+<p>여러분들은 중첩된 eager loding을 사용하여 연관된 모든 모델을 불러올 수 있다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span><span class="p">,</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span><span class="nx">model</span><span class="o">:</span> <span class="nx">Teacher</span><span class="p">,</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="cm">/* etc */</span><span class="p">]}</span>
+    <span class="p">]}</span>
+  <span class="p">]</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">))</span>
+
+  <span class="cm">/*</span>
+<span class="cm">    [{</span>
+<span class="cm">      &quot;name&quot;: &quot;John Doe&quot;,</span>
+<span class="cm">      &quot;id&quot;: 1,</span>
+<span class="cm">      &quot;createdAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;updatedAt&quot;: &quot;2013-03-20T20:31:45.000Z&quot;,</span>
+<span class="cm">      &quot;Instruments&quot;: [{ // 1:M and N:M association</span>
+<span class="cm">        &quot;name&quot;: &quot;Toothpick&quot;,</span>
+<span class="cm">        &quot;id&quot;: 1,</span>
+<span class="cm">        &quot;createdAt&quot;: null,</span>
+<span class="cm">        &quot;updatedAt&quot;: null,</span>
+<span class="cm">        &quot;userId&quot;: 1,</span>
+<span class="cm">        &quot;Teacher&quot;: { // 1:1 association</span>
+<span class="cm">          &quot;name&quot;: &quot;Jimi Hendrix&quot;</span>
+<span class="cm">        }</span>
+<span class="cm">      }]</span>
+<span class="cm">    }]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>이것은 외부조인을 제공한다. 그러나 하위 모델의 <code class="docutils literal notranslate"><span class="pre">where</span></code>절은 내부조인을 사용한다. 그리고 서브모델과 일치하는 인스턴스를 반환한다. 만약 모든 부모의 인스턴스를 반환하고 싶다면 여러분들은 <code class="docutils literal notranslate"><span class="pre">required:</span> <span class="pre">false</span></code>를 추가해야한다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="nx">Tool</span><span class="p">,</span>
+    <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Instruments&#39;</span><span class="p">,</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="nx">Teacher</span><span class="p">,</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">school</span><span class="o">:</span> <span class="s2">&quot;Woodstock Music School&quot;</span>
+      <span class="p">},</span>
+      <span class="nx">required</span><span class="o">:</span> <span class="kc">false</span>
+    <span class="p">}]</span>
+  <span class="p">}]</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="cm">/* ... */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>위의 쿼리는 모든 유저들과 모든 악기들을 반환을 한다. 그러나 <code class="docutils literal notranslate"><span class="pre">Woodstock</span> <span class="pre">Music</span> <span class="pre">School</span></code>을 가지고 있는 선생님들과 관계된 인스턴스들만 반환을 한다.</p>
+<p>all을 포함하면 중첩로드도 지원이 가능하다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span> <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span> <span class="nx">all</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">nested</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}]});</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
