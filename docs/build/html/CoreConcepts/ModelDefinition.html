@@ -174,6 +174,659 @@
             
   <div class="section" id="id1">
 <h1>모델정의<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>모델과 테이블 맵핑을 정의하기 위해 <code class="docutils literal notranslate"><span class="pre">define</span></code> 메서드를 사용합니다. 각 컬럼은 데이터 타입을 가지고 있으며 <a class="reference external" href="https://sequelize.org/master/manual/data-types.html">데이터 타입</a>에서 확인가능합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Task</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span><span class="p">,</span>
+  <span class="nx">deadline</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p>데이터 타입 이외에도 설정할 수 있는 옵션이 많습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Foo</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+ <span class="c1">// instantiating will automatically set the flag to true if not set</span>
+ <span class="nx">flag</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BOOLEAN</span><span class="p">,</span> <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span> <span class="nx">defaultValue</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+
+ <span class="c1">// default values for dates =&gt; current time</span>
+ <span class="nx">myDate</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">,</span> <span class="nx">defaultValue</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">NOW</span> <span class="p">},</span>
+
+ <span class="c1">// setting allowNull to false will add NOT NULL to the column, which means an error will be</span>
+ <span class="c1">// thrown from the DB when the query is executed if the column is null. If you want to check that a value</span>
+ <span class="c1">// is not null before querying the DB, look at the validations section below.</span>
+ <span class="nx">title</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span> <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span> <span class="p">},</span>
+
+ <span class="c1">// Creating two objects with the same value will throw an error. The unique property can be either a</span>
+ <span class="c1">// boolean, or a string. If you provide the same string for multiple columns, they will form a</span>
+ <span class="c1">// composite unique key.</span>
+ <span class="nx">uniqueOne</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>  <span class="nx">unique</span><span class="o">:</span> <span class="s1">&#39;compositeIndex&#39;</span> <span class="p">},</span>
+ <span class="nx">uniqueTwo</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span> <span class="nx">unique</span><span class="o">:</span> <span class="s1">&#39;compositeIndex&#39;</span> <span class="p">},</span>
+
+ <span class="c1">// The unique property is simply a shorthand to create a unique constraint.</span>
+ <span class="nx">someUnique</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span> <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+
+ <span class="c1">// It&#39;s exactly the same as creating the index in the model&#39;s options.</span>
+ <span class="p">{</span> <span class="nx">someUnique</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">}</span> <span class="p">},</span>
+ <span class="p">{</span> <span class="nx">indexes</span><span class="o">:</span> <span class="p">[</span> <span class="p">{</span> <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;someUnique&#39;</span> <span class="p">]</span> <span class="p">}</span> <span class="p">]</span> <span class="p">},</span>
+
+ <span class="c1">// Go on reading for further information about primary keys</span>
+ <span class="nx">identifier</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span> <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+
+ <span class="c1">// autoIncrement can be used to create auto_incrementing integer columns</span>
+ <span class="nx">incrementMe</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span> <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+
+ <span class="c1">// You can specify a custom column name via the &#39;field&#39; attribute:</span>
+ <span class="nx">fieldWithUnderscores</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span> <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;field_with_underscores&#39;</span> <span class="p">},</span>
+
+ <span class="c1">// It is possible to create foreign keys:</span>
+ <span class="nx">bar_id</span><span class="o">:</span> <span class="p">{</span>
+   <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+
+   <span class="nx">references</span><span class="o">:</span> <span class="p">{</span>
+     <span class="c1">// This is a reference to another model</span>
+     <span class="nx">model</span><span class="o">:</span> <span class="nx">Bar</span><span class="p">,</span>
+
+     <span class="c1">// This is the column name of the referenced model</span>
+     <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span>
+
+     <span class="c1">// This declares when to check the foreign key constraint. PostgreSQL only.</span>
+     <span class="nx">deferrable</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Deferrable</span><span class="p">.</span><span class="nx">INITIALLY_IMMEDIATE</span>
+   <span class="p">}</span>
+ <span class="p">},</span>
+
+ <span class="c1">// It is possible to add comments on columns for MySQL, PostgreSQL and MSSQL only</span>
+ <span class="nx">commentMe</span><span class="o">:</span> <span class="p">{</span>
+   <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+
+   <span class="nx">comment</span><span class="o">:</span> <span class="s1">&#39;This is a column name that has a comment&#39;</span>
+ <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>주석 옵션은 테이블에서도 사용할 수 있습니다. <a class="reference external" href="https://sequelize.org/master/manual/models-definition.html#configuration">모델 설정</a>을 참조하세요.</p>
+<div class="section" id="id2">
+<h2>타임스탬프<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>기본적으로 Sequelize는 <code class="docutils literal notranslate"><span class="pre">createdAt</span></code> 및 <code class="docutils literal notranslate"><span class="pre">updatedAt</span></code> 속성을 모델에 추가하여, 데이터의 추가/갱신 시점을 알 수 있습니다.</p>
+<p>Sequelize 마이그레이션을 사용할 경우 <code class="docutils literal notranslate"><span class="pre">createdAt</span></code> 및 <code class="docutils literal notranslate"><span class="pre">updatedAt</span></code> 필드를 마이그레이션 정의에 추가해야 합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">up</span><span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">createTable</span><span class="p">(</span><span class="s1">&#39;my-table&#39;</span><span class="p">,</span> <span class="p">{</span>
+      <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+        <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="p">},</span>
+
+      <span class="c1">// Timestamps</span>
+      <span class="nx">createdAt</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">,</span>
+      <span class="nx">updatedAt</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">,</span>
+    <span class="p">})</span>
+  <span class="p">},</span>
+  <span class="nx">down</span><span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">dropTable</span><span class="p">(</span><span class="s1">&#39;my-table&#39;</span><span class="p">);</span>
+  <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>만약 타임스탬프를 사용하지 않기를 원한다면, 타임스탬프만 원하거나 열 이름이 다른 기존 데이터베이스를 사용하는 경우 <a class="reference external" href="https://sequelize.org/master/manual/models-definition.html#configuration">설정방법</a>으로 이동하여 해당 방법을 확인할 수 있습니다.</p>
+</div>
+<div class="section" id="id3">
+<h2>지연<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>외래키 열을 지정하면 PostgreSQL에서 연기 가능한 타입을 선언할 수 있습니다. 다음과 같은 옵션을 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Defer all foreign key constraint check to the end of a transaction</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Deferrable</span><span class="p">.</span><span class="nx">INITIALLY_DEFERRED</span>
+
+<span class="c1">// Immediately check the foreign key constraints</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Deferrable</span><span class="p">.</span><span class="nx">INITIALLY_IMMEDIATE</span>
+
+<span class="c1">// Don&#39;t defer the checks at all</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Deferrable</span><span class="p">.</span><span class="nx">NOT</span>
+</pre></div>
+</div>
+<p>마지막 옵션은 PostgreSQL에서 기본값 입니다. 그리고 트랜잭션에서 규칙을 동적으로 바꿀 수 없습니다. 더 자세한 정보는 <a class="reference external" href="https://sequelize.org/master/manual/transactions.html#options">트랜잭션 섹션</a>에서 확인가능 합니다.</p>
+</div>
+<div class="section" id="getter-setter">
+<h2>getter &amp; setter<a class="headerlink" href="#getter-setter" title="Permalink to this headline">¶</a></h2>
+<p>이것은 모델안에 ‘객체속성’ getters와 setter를 정의할 수 있습니다. 이것들은 데이터베이스 필드에 매핑되는 ‘보호’ 속성과 ‘의사(인위적인)’ 속성 정의에 모두 사용할 수 있습니다.</p>
+<p>getters와 setters는 2가지 방법으로 정의할 수 있습니다</p>
+<ul class="simple">
+<li><p>단일 속성 정의의 일부</p></li>
+<li><p>한 모델 옵션의 일부</p></li>
+</ul>
+<blockquote>
+<div><p>N.B: getter 또는 setter가 두 위치에 모두 정의되 있으면 속성 정의에 있는 함수가 항상 우선합니다.</p>
+</div></blockquote>
+<div class="section" id="id4">
+<h3>단일 속성의 일부 정의<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Employee</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Employee</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">get</span><span class="p">()</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">title</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDataValue</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">);</span>
+      <span class="c1">// &#39;this&#39; allows you to access attributes of the instance</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDataValue</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39; (&#39;</span> <span class="o">+</span> <span class="nx">title</span> <span class="o">+</span> <span class="s1">&#39;)&#39;</span><span class="p">;</span>
+    <span class="p">},</span>
+  <span class="p">},</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">set</span><span class="p">(</span><span class="nx">val</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nx">val</span><span class="p">.</span><span class="nx">toUpperCase</span><span class="p">());</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;employee&#39;</span> <span class="p">});</span>
+
+<span class="nx">Employee</span>
+  <span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;John Doe&#39;</span><span class="p">,</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;senior engineer&#39;</span> <span class="p">})</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">employee</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">));</span> <span class="c1">// John Doe (SENIOR ENGINEER)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">employee</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">));</span> <span class="c1">// SENIOR ENGINEER</span>
+  <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h3>모델 옵션 일부 정의<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>아래는 모델 옵션에서 getter와 setter를 정의한 예시입니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">fullName</span></code> getter는 모델에서 인위적으로 속성을 정의하는 방법의 예시입니다. - 실제로 데이터 베이스의 부분이 아닌 속성입니다. 사실, <code class="docutils literal notranslate"><span class="pre">fullName</span></code>과 같이 인위적으로 만든 속성은 두 가지 방법으로 정의할 수 있습니다. 모델 getther를 사용하는 방법과 <a class="reference external" href="#">가상 데이터타입</a>과 함께 컬럼을 사용하는 방법입니다. 가상 데이터 타입은 유효성 검사가 가능하지만 가상 속성에 대한 getther는 유효성 검사가 불가능 합니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">fullName</span></code> getter 함수에서 <code class="docutils literal notranslate"><span class="pre">this.firstname</span></code>과 <code class="docutils literal notranslate"><span class="pre">this.lastname</span></code> 참조는 getter 함수에 대한 호출을 트리거 합니다. 만약 이를 원치않는다면 <code class="docutils literal notranslate"><span class="pre">getDataValue()</span></code> 메서드를 사용하여 로우값에 접근할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Foo</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="nx">get</span> <span class="nx">fullName</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">firstname</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastname</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="nx">set</span> <span class="nx">fullName</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">));</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;lastname&#39;</span><span class="p">,</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">));</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">firstname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">lastname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span>
+<span class="p">});</span>
+
+<span class="c1">// Or with `sequelize.define`</span>
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;Foo&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">firstname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">lastname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">getterMethods</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">fullName</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">firstname</span> <span class="o">+</span> <span class="s1">&#39; &#39;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastname</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+  <span class="nx">setterMethods</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">fullName</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kr">const</span> <span class="nx">names</span> <span class="o">=</span> <span class="nx">value</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
+
+      <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;firstname&#39;</span><span class="p">,</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">));</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;lastname&#39;</span><span class="p">,</span> <span class="nx">names</span><span class="p">.</span><span class="nx">slice</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">).</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">));</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>getter와 setter 정의된 내부에서 사용을 위한 헬퍼함수<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>기본 속성값 가져오기 - 항상 <code class="docutils literal notranslate"><span class="pre">this.getDataValue()</span></code> 사용</p></li>
+</ul>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="cm">/* a getter for &#39;title&#39; property */</span>
+<span class="nx">get</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">getDataValue</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>기본 속성값 설정 - 항상 <code class="docutils literal notranslate"><span class="pre">this.setDataValue()</span></code> 사용</p></li>
+</ul>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="cm">/* a setter for &#39;title&#39; property */</span>
+<span class="nx">set</span><span class="p">(</span><span class="nx">title</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">this</span><span class="p">.</span><span class="nx">setDataValue</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nx">title</span><span class="p">.</span><span class="nx">toString</span><span class="p">().</span><span class="nx">toLowerCase</span><span class="p">());</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>N.B</strong>: <code class="docutils literal notranslate"><span class="pre">setDataValue()</span></code>와 <code class="docutils literal notranslate"><span class="pre">getDataValue()</span></code>를 사용하는 것은 중요합니다(기본 ‘데이터 값’ 속성에 직접 접근하는 것과 다름). - 그렇게하면 사용자 정의 getter와 setter가 기본 모델 구현의 변경으로부터 보호합니다.</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>검증<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>모델 검증을 통해 모델의 각 속성에 대한 형식/컨텐츠/상속 검증을 지정할 수 있습니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">create</span></code>, <code class="docutils literal notranslate"><span class="pre">update</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">save</span></code>시 검증은 자동으로 실행합니다. <code class="docutils literal notranslate"><span class="pre">validate()</span></code>를 호출하여 인스턴스를 수동으로 호출할 수 있습니다.</p>
+<div class="section" id="id8">
+<h3>속성별 검증<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>아래와 같이 사용자 정의 검증을 정의하거나, <a class="reference external" href="https://github.com/validatorjs/validator.js">validator.js</a>로 구현된 여러 내장 유효성 검사를 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">ValidateMe</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">ValidateMe</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">bar</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">is</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;^[a-z]+$&quot;</span><span class="p">,</span><span class="s1">&#39;i&#39;</span><span class="p">],</span>     <span class="c1">// will only allow letters</span>
+      <span class="nx">is</span><span class="o">:</span> <span class="sr">/^[a-z]+$/i</span><span class="p">,</span>          <span class="c1">// same as the previous example using real RegExp</span>
+      <span class="nx">not</span><span class="o">:</span> <span class="p">[</span><span class="s2">&quot;[a-z]&quot;</span><span class="p">,</span><span class="s1">&#39;i&#39;</span><span class="p">],</span>       <span class="c1">// will not allow letters</span>
+      <span class="nx">isEmail</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>            <span class="c1">// checks for email format (foo@bar.com)</span>
+      <span class="nx">isUrl</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>              <span class="c1">// checks for url format (http://foo.com)</span>
+      <span class="nx">isIP</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>               <span class="c1">// checks for IPv4 (129.89.23.1) or IPv6 format</span>
+      <span class="nx">isIPv4</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>             <span class="c1">// checks for IPv4 (129.89.23.1)</span>
+      <span class="nx">isIPv6</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>             <span class="c1">// checks for IPv6 format</span>
+      <span class="nx">isAlpha</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>            <span class="c1">// will only allow letters</span>
+      <span class="nx">isAlphanumeric</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>     <span class="c1">// will only allow alphanumeric characters, so &quot;_abc&quot; will fail</span>
+      <span class="nx">isNumeric</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>          <span class="c1">// will only allow numbers</span>
+      <span class="nx">isInt</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>              <span class="c1">// checks for valid integers</span>
+      <span class="nx">isFloat</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>            <span class="c1">// checks for valid floating point numbers</span>
+      <span class="nx">isDecimal</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>          <span class="c1">// checks for any numbers</span>
+      <span class="nx">isLowercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>        <span class="c1">// checks for lowercase</span>
+      <span class="nx">isUppercase</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>        <span class="c1">// checks for uppercase</span>
+      <span class="nx">notNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>            <span class="c1">// won&#39;t allow null</span>
+      <span class="nx">isNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>             <span class="c1">// only allows null</span>
+      <span class="nx">notEmpty</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>           <span class="c1">// don&#39;t allow empty strings</span>
+      <span class="nx">equals</span><span class="o">:</span> <span class="s1">&#39;specific value&#39;</span><span class="p">,</span> <span class="c1">// only allow a specific value</span>
+      <span class="nx">contains</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span>          <span class="c1">// force specific substrings</span>
+      <span class="nx">notIn</span><span class="o">:</span> <span class="p">[[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]],</span>  <span class="c1">// check the value is not one of these</span>
+      <span class="nx">isIn</span><span class="o">:</span> <span class="p">[[</span><span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="s1">&#39;bar&#39;</span><span class="p">]],</span>   <span class="c1">// check the value is one of these</span>
+      <span class="nx">notContains</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span>       <span class="c1">// don&#39;t allow specific substrings</span>
+      <span class="nx">len</span><span class="o">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">10</span><span class="p">],</span>              <span class="c1">// only allow values with length between 2 and 10</span>
+      <span class="nx">isUUID</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span>                <span class="c1">// only allow uuids</span>
+      <span class="nx">isDate</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>             <span class="c1">// only allow date strings</span>
+      <span class="nx">isAfter</span><span class="o">:</span> <span class="s2">&quot;2011-11-05&quot;</span><span class="p">,</span>    <span class="c1">// only allow date strings after a specific date</span>
+      <span class="nx">isBefore</span><span class="o">:</span> <span class="s2">&quot;2011-11-05&quot;</span><span class="p">,</span>   <span class="c1">// only allow date strings before a specific date</span>
+      <span class="nx">max</span><span class="o">:</span> <span class="mi">23</span><span class="p">,</span>                  <span class="c1">// only allow values &lt;= 23</span>
+      <span class="nx">min</span><span class="o">:</span> <span class="mi">23</span><span class="p">,</span>                  <span class="c1">// only allow values &gt;= 23</span>
+      <span class="nx">isCreditCard</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>       <span class="c1">// check for valid credit card numbers</span>
+
+      <span class="c1">// Examples of custom validators:</span>
+      <span class="nx">isEven</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Only even values are allowed!&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="nx">isGreaterThanOtherField</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">otherField</span><span class="p">))</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Bar must be greater than otherField.&#39;</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>내장된 유효성 검사함수에 여러 인자를 전달해야 하는경우, 배열 형태로 전달합니다. 그러나 하나의 어레이 형태(예: <code class="docutils literal notranslate"><span class="pre">isIn</span></code>에 허용되는 문자열 배열)로 전달되면 하나의 배열대신 여러 문자열 인자로 해석합니다. 이 문제를 해결하려면 위에 표시된대로 <code class="docutils literal notranslate"><span class="pre">[['one',</span> <span class="pre">'two']]</span></code>와 같은 단일 길이의 인수 배열을 전달합니다.</p>
+<p>사용자 정의 에러를 사용하기 위해 <a class="reference external" href="https://github.com/validatorjs/validator.js">validator.js</a>에 의해 제공되는 것 대신, 일반값 또는 배열 인자 대신 객체를 사용합니다. 예를들어 인자가 필요없는 검증은 다음과 같이 메시지를 줄 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">isInt</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Must be an integer number of pennies&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>또는 인자가 필요하다면 <code class="docutils literal notranslate"><span class="pre">args</span></code> 속성을 이용하여 전달할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">isIn</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">args</span><span class="o">:</span> <span class="p">[[</span><span class="s1">&#39;en&#39;</span><span class="p">,</span> <span class="s1">&#39;zh&#39;</span><span class="p">]],</span>
+  <span class="nx">msg</span><span class="o">:</span> <span class="s2">&quot;Must be English or Chinese&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>사용자 정의 에러 메시지 함수를 사용할 때 오류 메시지는 throw된 <code class="docutils literal notranslate"><span class="pre">Error</span></code> 객체에 포함 된 모든 메시지입니다.</p>
+<p>내장된 검증 메서드를 더 자세히 알아보려면 <a class="reference external" href="https://github.com/validatorjs/validator.js">validators.js 프로젝트</a>를 확인하세요.</p>
+<p><strong>힌트</strong>: 로깅을 위해 사용자 정의 함수를 만들 수 있습니다. 그냥 함수를 전달합니다. 첫 번째 인자로 로그정보 문자열을 전달합니다.</p>
+</div>
+<div class="section" id="allownull">
+<h3>속성별 유효선 검사 및 allowNull<a class="headerlink" href="#allownull" title="Permalink to this headline">¶</a></h3>
+<p>모델의 특정 필드가 null을 허용하지 않도록 설정되고(<code class="docutils literal notranslate"><span class="pre">allowNull:</span> <span class="pre">false</span></code>) 해당 값이 null로 설정된 경우 모든 유효성 검사기가 건너뛰고 <code class="docutils literal notranslate"><span class="pre">ValidationError</span></code>를 발생합니다.</p>
+<p>반면에, null을 허용하고(<code class="docutils literal notranslate"><span class="pre">allow:</span> <span class="pre">true</span></code>) 해당 값이 <code class="docutils literal notranslate"><span class="pre">null</span></code>이라면 내장 유효성 검사는 사용자 정의 유효성 검사가 동작되는동안 건너뜁니다.</p>
+<p>예를들어 길이가 5 ~ 10자 사이인지 확인하지만 <code class="docutils literal notranslate"><span class="pre">null</span></code>도 허용하는 문자열 필드를 가질 수 있습니다 (값이 <code class="docutils literal notranslate"><span class="pre">null</span></code>인 경우 길이 검사는 자동으로 건너뜁니다):</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">username</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">len</span><span class="o">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>건너 뛰지않고 사용자 정의 유효성 검사를 사용하여 null 값을 허용하는지 조건 검사를 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">age</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">customValidator</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nx">value</span> <span class="o">===</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="k">this</span><span class="p">.</span><span class="nx">age</span> <span class="o">!==</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+          <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;name can&#39;t be null unless age is 10&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+      <span class="p">})</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">notNull</span></code> 유효성 검사 셋팅을 통해 <code class="docutils literal notranslate"><span class="pre">allowNull</span></code> 에러 메시지를 사용자 정의할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">notNull</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">msg</span><span class="o">:</span> <span class="s1">&#39;Please enter your name&#39;</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>모델 전체 검증<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<p>필드별 유효성 검사 후 모델을 확인하기 위해 유효성 검사를 정의할 수 있습니다. 이것을 사용하면 위도 및 경도가 설정되어 있고 둘 중 하나만 설정되어 있으면 실패 할 수 있습니다.</p>
+<p>모델 유효성 검사 메서드들은 모델 객체의 컨텍스트와 함께 호출되며, 오류가 발생하면 실패한 것으로 간주하고 그렇지 않으면 전달합니다. 이것은 사용자 정의된 필드별 유효성 검사와 동일합니다.</p>
+<p>수집된 에러 메시지는 필드 유효성 검사 오류와 유효성 검사 결과 객체에 있으며, 유효성 검사 옵션 객체에서 유효성이 검사되지 않은 방법의 키 이름이 지정된 키와 함께 나타납니다. 한 번에 각 모델 유효성 검사 방법에 대해 하나의 오류 메시지 만있을 수 있지만 필드 오류와의 일관성을 최대화하기 위해 배열에서 단일 문자열 오류로 표시됩니다.</p>
+<p>예시:</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Pub</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Pub</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span>
+  <span class="nx">address</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span>
+  <span class="nx">latitude</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span> <span class="nx">min</span><span class="o">:</span> <span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="nx">max</span><span class="o">:</span> <span class="mi">90</span> <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">longitude</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span> <span class="nx">min</span><span class="o">:</span> <span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="nx">max</span><span class="o">:</span> <span class="mi">180</span> <span class="p">}</span>
+  <span class="p">},</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">bothCoordsOrNone</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">((</span><span class="k">this</span><span class="p">.</span><span class="nx">latitude</span> <span class="o">===</span> <span class="kc">null</span><span class="p">)</span> <span class="o">!==</span> <span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">longitude</span> <span class="o">===</span> <span class="kc">null</span><span class="p">))</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s1">&#39;Require either both latitude and longitude or neither&#39;</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>이 예시의 경우 위도와 경도를 제공하지만 둘 다가 아닌경우 객체 유효성 검사는 실패합니다. 만약, 위도의 값은 범위를 넘거나 경도가 없다면 <code class="docutils literal notranslate"><span class="pre">raging_bullock_arms.validate()</span></code>가 반환될 것 입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s1">&#39;latitude&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Invalid number: latitude&#39;</span><span class="p">],</span>
+  <span class="s1">&#39;bothCoordsOrNone&#39;</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;Require either both latitude and longitude or neither&#39;</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이러한 유효성 검사는 하나의 속성에 정의된 사용자 지정 유효성 검사로 수행할 수 있지만 모델은 광범위한 검증 방법이 간결합니다.</p>
+</div>
+</div>
+<div class="section" id="id10">
+<h2>설정<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize가 열 이름을 처리하는 방법이 영향을 줄 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Bar</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Bar</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* bla */</span> <span class="p">},</span> <span class="p">{</span>
+  <span class="c1">// The name of the model. The model will be stored in `sequelize.models` under this name.</span>
+  <span class="c1">// This defaults to class name i.e. Bar in this case. This will control name of auto-generated</span>
+  <span class="c1">// foreignKey and association naming</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+
+  <span class="c1">// don&#39;t add the timestamp attributes (updatedAt, createdAt)</span>
+  <span class="nx">timestamps</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+  <span class="c1">// don&#39;t delete database entries but set the newly added attribute deletedAt</span>
+  <span class="c1">// to the current date (when deletion was done). paranoid will only work if</span>
+  <span class="c1">// timestamps are enabled</span>
+  <span class="nx">paranoid</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="c1">// Will automatically set field option for all attributes to snake cased name.</span>
+  <span class="c1">// Does not override attribute with field option already defined</span>
+  <span class="nx">underscored</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="c1">// disable the modification of table names; By default, sequelize will automatically</span>
+  <span class="c1">// transform all passed model names (first parameter of define) into plural.</span>
+  <span class="c1">// if you don&#39;t want that, set the following</span>
+  <span class="nx">freezeTableName</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="c1">// define the table&#39;s name</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;my_very_custom_table_name&#39;</span><span class="p">,</span>
+
+  <span class="c1">// Enable optimistic locking.  When enabled, sequelize will add a version count attribute</span>
+  <span class="c1">// to the model and throw an OptimisticLockingError error when stale instances are saved.</span>
+  <span class="c1">// Set to true or a string with the attribute name you want to use to enable.</span>
+  <span class="nx">version</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="c1">// Sequelize instance</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>sequelize가 타임스탬프를 서치하고 싶지만 그 중 일부만 원하거나 타임스탬프를 다른 것으로 호출하기 위해 각 열을 개별적으로 재정의할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Foo</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* bla */</span> <span class="p">},</span> <span class="p">{</span>
+  <span class="c1">// don&#39;t forget to enable timestamps!</span>
+  <span class="nx">timestamps</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="c1">// I don&#39;t want createdAt</span>
+  <span class="nx">createdAt</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+
+  <span class="c1">// I want updatedAt to actually be called updateTimestamp</span>
+  <span class="nx">updatedAt</span><span class="o">:</span> <span class="s1">&#39;updateTimestamp&#39;</span><span class="p">,</span>
+
+  <span class="c1">// And deletedAt to be called destroyTime (remember to enable paranoid for this to work)</span>
+  <span class="nx">deletedAt</span><span class="o">:</span> <span class="s1">&#39;destroyTime&#39;</span><span class="p">,</span>
+  <span class="nx">paranoid</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+
+  <span class="nx">sequelize</span><span class="p">,</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>데이터베이스 엔진도 바꿀 수 있습니다. InnoDB는 기본값 입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Person</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* attributes */</span> <span class="p">},</span> <span class="p">{</span>
+  <span class="nx">engine</span><span class="o">:</span> <span class="s1">&#39;MYISAM&#39;</span><span class="p">,</span>
+  <span class="nx">sequelize</span>
+<span class="p">})</span>
+
+<span class="c1">// or globally</span>
+<span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">db</span><span class="p">,</span> <span class="nx">user</span><span class="p">,</span> <span class="nx">pw</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">define</span><span class="o">:</span> <span class="p">{</span> <span class="nx">engine</span><span class="o">:</span> <span class="s1">&#39;MYISAM&#39;</span> <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>마지막으로 MySQL 및 PG에서 테이블에 주석을 지정할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Person</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* attributes */</span> <span class="p">},</span> <span class="p">{</span>
+  <span class="nx">comment</span><span class="o">:</span> <span class="s2">&quot;I&#39;m a table comment!&quot;</span><span class="p">,</span>
+  <span class="nx">sequelize</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id11">
+<h2>임포트<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">import</span></code> 메서드를 사용하여 모델 정의를 단일 파일에 저장할 수 있습니다. 반환된 객체는 가져온 파일 함수에 정의된 것과 정확하게 같습니다. <code class="docutils literal notranslate"><span class="pre">V1:5.0</span></code>에서 임포트는 캐시가 되므로 두 번이상 자주 호출할 때 문제가 발생하지 않습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// in your server file - e.g. app.js</span>
+<span class="kr">const</span> <span class="nx">Project</span> <span class="o">=</span> <span class="nx">sequelize</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s2">&quot;/path/to/models/project&quot;</span><span class="p">)</span>
+
+<span class="c1">// The model definition is done in /path/to/models/project.js</span>
+<span class="c1">// As you might notice, the DataTypes are the very same as explained above</span>
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">(</span><span class="nx">sequelize</span><span class="p">,</span> <span class="nx">DataTypes</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">Model</span> <span class="p">{</span> <span class="p">}</span>
+  <span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">description</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">TEXT</span>
+  <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+  <span class="k">return</span> <span class="nx">Project</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">import</span></code> 메서드는 콜백을 인자로 받을 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">sequelize</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="p">(</span><span class="nx">sequelize</span><span class="p">,</span> <span class="nx">DataTypes</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">Model</span> <span class="p">{}</span>
+  <span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">description</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">TEXT</span>
+  <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">})</span>
+  <span class="k">return</span> <span class="nx">Project</span><span class="p">;</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>이 추가 기능은 다음과 같은 경우에 유용합니다. 예를들어 <code class="docutils literal notranslate"><span class="pre">/path/to/models/project</span></code>가 옳바른 경로처럼 보이지만 <code class="docutils literal notranslate"><span class="pre">Error:</span> <span class="pre">cannot</span> <span class="pre">find</span> <span class="pre">module</span></code> 에러가 발생할 때 유용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nb">Error</span><span class="o">:</span> <span class="nx">Cannot</span> <span class="nx">find</span> <span class="nx">module</span> <span class="s1">&#39;/home/you/meteorApp/.meteor/local/build/programs/server/app/path/to/models/project.js&#39;</span>
+</pre></div>
+</div>
+<p>이것은 Meteor의 require 버전 전달에의해 해결할 수 있습니다. 따라서 이것이 실패하는 동안…</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">AuthorModel</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s1">&#39;./path/to/models/project&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>… 이것은 성공해야 합니다….</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">AuthorModel</span> <span class="o">=</span> <span class="nx">db</span><span class="p">.</span><span class="kr">import</span><span class="p">(</span><span class="s1">&#39;project&#39;</span><span class="p">,</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./path/to/models/project&#39;</span><span class="p">));</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="optimistic-locking">
+<h2>Optimistic Locking<a class="headerlink" href="#optimistic-locking" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize는 모델 인스턴스 버전 수를 통해 <code class="docutils literal notranslate"><span class="pre">Optimistic</span> <span class="pre">Lock</span></code>을 기본적으로 지원합니다. <code class="docutils literal notranslate"><span class="pre">Optimistic</span> <span class="pre">locking</span></code>은 기본적으로 비활성화고 특정 모델 정의 또는 저역 모델 구성에서 버전 속성을 true로 설정하여 활성화 할 수 있습니다. 더 자세한 정보는 <a class="reference external" href="https://sequelize.org/master/manual/models-definition.html#configuration">모델설정</a>을 보세요.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Optimistic</span> <span class="pre">Locking</span></code>은 편집을 위해 모델 레코드를 동시에 접근할 수 있으며 충돌로 인해 데이터를 덮어 쓰지 않습니다. 다른 프로세스가 읽은 이후 레코드를 변경했는지 확인하여 충돌을 감지하면 <code class="docutils literal notranslate"><span class="pre">OptimisticLockError</span></code>를 발생합니다.</p>
+</div>
+<div class="section" id="id12">
+<h2>데이터베이스 동기화<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p>새 프로젝트를 시작할 때 데이터베이스 구조가 없고 Sequelize를 사용할 필요가 없습니다. 무델 구조를 지정하고 라이브러리에서 나머지 작업을 수행하세요. 현재 테이블 작성 및 삭제를 지원합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Create the tables:</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">sync</span><span class="p">()</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">sync</span><span class="p">()</span>
+
+<span class="c1">// Force the creation!</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">sync</span><span class="p">({</span><span class="nx">force</span><span class="o">:</span> <span class="kc">true</span><span class="p">})</span> <span class="c1">// this will drop the table first and re-create it afterwards</span>
+
+<span class="c1">// drop the tables:</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">drop</span><span class="p">()</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">drop</span><span class="p">()</span>
+
+<span class="c1">// event handling:</span>
+<span class="nx">Project</span><span class="p">.[</span><span class="nx">sync</span><span class="o">|</span><span class="nx">drop</span><span class="p">]().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// ok ... everything is nice!</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">error</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// oooh, did you enter wrong database credentials?</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>모든 테이블을 동기화 및 삭제하면 많은 행을 쓸 수 있으므로 Sequelize가 작업을 수행하도록 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Sync all models that aren&#39;t already in the database</span>
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">sync</span><span class="p">()</span>
+
+<span class="c1">// Force sync all models</span>
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">sync</span><span class="p">({</span><span class="nx">force</span><span class="o">:</span> <span class="kc">true</span><span class="p">})</span>
+
+<span class="c1">// Drop all tables</span>
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">drop</span><span class="p">()</span>
+
+<span class="c1">// emit handling:</span>
+<span class="nx">sequelize</span><span class="p">.[</span><span class="nx">sync</span><span class="o">|</span><span class="nx">drop</span><span class="p">]().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// woot woot</span>
+<span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">error</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// whooops</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">.sync({force:</span> <span class="pre">true})</span></code>는 파괴적인 작업이므로 일치 옵션을 추가하여 안전한 검사로 사용할 수 있습니다. match 옵션은 동기화하기 전에 데이터베이스 이름과 정규식을 일치 시키도록 sequelize에 지시합니다. <code class="docutils literal notranslate"><span class="pre">force:true</span></code>는 테스트에 사용되지만 라이브 코드는 사용되지 않는 경우에 대한 안전검사 합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// This will run .sync() only if database name ends with &#39;_test&#39;</span>
+<span class="nx">sequelize</span><span class="p">.</span><span class="nx">sync</span><span class="p">({</span> <span class="nx">force</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">match</span><span class="o">:</span> <span class="sr">/_test$/</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h2>모델확장<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize 모델은 ES6 클래스입니다. 사용자 정의 인스턴스 또는 클래스 레벨 메서드를 쉽게 추가할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="c1">// Adding a class level method</span>
+  <span class="kr">static</span> <span class="nx">classLevelMethod</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">&#39;foo&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+
+  <span class="c1">// Adding an instance level method</span>
+  <span class="nx">instanceLevelMethod</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="s1">&#39;bar&#39;</span><span class="p">;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">firstname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>물론 인스턴스 데이터에 접근하여 가상 getter를 생성할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="nx">getFullname</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="k">this</span><span class="p">.</span><span class="nx">firstname</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">lastname</span><span class="p">].</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">firstname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span> <span class="nx">lastname</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="c1">// Example:</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">build</span><span class="p">({</span> <span class="nx">firstname</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">lastname</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span> <span class="p">}).</span><span class="nx">getFullname</span><span class="p">()</span> <span class="c1">// &#39;foo bar&#39;</span>
+</pre></div>
+</div>
+<div class="section" id="indexes">
+<h3>indexes<a class="headerlink" href="#indexes" title="Permalink to this headline">¶</a></h3>
+<p>Sequelize는 <code class="docutils literal notranslate"><span class="pre">Model.sync()</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">sequelize.sync</span></code>에서 생성될 모델 정의에서 인덱스 추가를 제공합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span>
+  <span class="nx">indexes</span><span class="o">:</span> <span class="p">[</span>
+    <span class="c1">// Create a unique index on email</span>
+    <span class="p">{</span>
+      <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span>
+    <span class="p">},</span>
+
+    <span class="c1">// Creates a gin index on data with the jsonb_path_ops operator</span>
+    <span class="p">{</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">],</span>
+      <span class="nx">using</span><span class="o">:</span> <span class="s1">&#39;gin&#39;</span><span class="p">,</span>
+      <span class="nx">operator</span><span class="o">:</span> <span class="s1">&#39;jsonb_path_ops&#39;</span>
+    <span class="p">},</span>
+
+    <span class="c1">// By default index name will be [table]_[fields]</span>
+    <span class="c1">// Creates a multi column partial index</span>
+    <span class="p">{</span>
+      <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;public_by_author&#39;</span><span class="p">,</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="s1">&#39;status&#39;</span><span class="p">],</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;public&#39;</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+
+    <span class="c1">// A BTREE index with an ordered field</span>
+    <span class="p">{</span>
+      <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;title_index&#39;</span><span class="p">,</span>
+      <span class="nx">using</span><span class="o">:</span> <span class="s1">&#39;BTREE&#39;</span><span class="p">,</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;author&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">attribute</span><span class="o">:</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="nx">collate</span><span class="o">:</span> <span class="s1">&#39;en_US&#39;</span><span class="p">,</span> <span class="nx">order</span><span class="o">:</span> <span class="s1">&#39;DESC&#39;</span><span class="p">,</span> <span class="nx">length</span><span class="o">:</span> <span class="mi">5</span><span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">],</span>
+  <span class="nx">sequelize</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
 </div>
 
 
