@@ -1,6 +1,8 @@
 
 # Sequelize
 
+해당 목차는 이전버전입니다.
+
 ## 목차
 
 1. [HOME](https://github.com/pjt3591oo/sequelizejs/wiki)
