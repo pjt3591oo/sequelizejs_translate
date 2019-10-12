@@ -1,0 +1,530 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>데이터 타입 &mdash; Sequelize Of Node.js translate V5 5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="모델정의" href="ModelDefinition.html" />
+    <link rel="prev" title="Dialects" href="Dialects.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sequelize Of Node.js translate V5
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Home</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Home.html">Home</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Core Concepts</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="GettingStarted.html">시작하기</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dialects.html">Dialects</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">데이터 타입</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#id3">데이터 타입 확장</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#postgresql">PostgreSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModelDefinition.html">모델정의</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModelUsage.html">모델사용</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Hooks.html">훅스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Querying.html">쿼리(조회)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Instances.html">인스턴스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RawQueries.html">저수준 쿼리</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other Topic</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Transactions.html">트랜잭션</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Scopes.html">범위</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/ReadReplication.html">대체 읽기</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Migrations.html">마이그레이션</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Resources.html">리소스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/TypeScript.html">타입스크립트</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/UpgradeToV5.html">5버전 업그레이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/WorkingWithLegacyTables.html">레거시 테이블 작업</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sequelize Of Node.js translate V5</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>데이터 타입</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/CoreConcepts/DateTypes.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>데이터 타입<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>아래는 sequelize에서 제공하는 데이터타입입니다. 전체 및 업데이트 된 목록은 <a class="reference external" href="https://sequelize.org/master/variable/index.html#static-variable-DataTypes">DataTypes</a>을 참조하세요.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>                      <span class="c1">// VARCHAR(255)</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>                <span class="c1">// VARCHAR(1234)</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">.</span><span class="nx">BINARY</span>               <span class="c1">// VARCHAR BINARY</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span>                        <span class="c1">// TEXT</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span><span class="p">(</span><span class="s1">&#39;tiny&#39;</span><span class="p">)</span>                <span class="c1">// TINYTEXT</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">CITEXT</span>                      <span class="c1">// CITEXT      PostgreSQL and SQLite only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span>                     <span class="c1">// INTEGER</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BIGINT</span>                      <span class="c1">// BIGINT</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BIGINT</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>                  <span class="c1">// BIGINT(11)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">FLOAT</span>                       <span class="c1">// FLOAT</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">FLOAT</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>                   <span class="c1">// FLOAT(11)</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">FLOAT</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>               <span class="c1">// FLOAT(11,10)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">REAL</span>                        <span class="c1">// REAL        PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">REAL</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>                    <span class="c1">// REAL(11)    PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">REAL</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>                <span class="c1">// REAL(11,12) PostgreSQL only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DOUBLE</span>                      <span class="c1">// DOUBLE</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DOUBLE</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span>                  <span class="c1">// DOUBLE(11)</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DOUBLE</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>              <span class="c1">// DOUBLE(11,10)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DECIMAL</span>                     <span class="c1">// DECIMAL</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DECIMAL</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>              <span class="c1">// DECIMAL(10,2)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span>                        <span class="c1">// DATETIME for mysql / sqlite, TIMESTAMP WITH TIME ZONE for postgres</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>                     <span class="c1">// DATETIME(6) for mysql 5.6.4+. Fractional seconds support with up to 6 digits of precision</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATEONLY</span>                    <span class="c1">// DATE without time.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BOOLEAN</span>                     <span class="c1">// TINYINT(1)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ENUM</span><span class="p">(</span><span class="s1">&#39;value 1&#39;</span><span class="p">,</span> <span class="s1">&#39;value 2&#39;</span><span class="p">)</span>  <span class="c1">// An ENUM with allowed values &#39;value 1&#39; and &#39;value 2&#39;</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ARRAY</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span><span class="p">)</span>       <span class="c1">// Defines an array. PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ARRAY</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ENUM</span><span class="p">)</span>       <span class="c1">// Defines an array of ENUM. PostgreSQL only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">JSON</span>                        <span class="c1">// JSON column. PostgreSQL, SQLite and MySQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">JSONB</span>                       <span class="c1">// JSONB column. PostgreSQL only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BLOB</span>                        <span class="c1">// BLOB (bytea for PostgreSQL)</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BLOB</span><span class="p">(</span><span class="s1">&#39;tiny&#39;</span><span class="p">)</span>                <span class="c1">// TINYBLOB (bytea for PostgreSQL. Other options are medium and long)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">UUID</span>                        <span class="c1">// UUID datatype for PostgreSQL and SQLite, CHAR(36) BINARY for MySQL (use defaultValue: Sequelize.UUIDV1 or Sequelize.UUIDV4 to make sequelize generate the ids automatically)</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">CIDR</span>                        <span class="c1">// CIDR datatype for PostgreSQL</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INET</span>                        <span class="c1">// INET datatype for PostgreSQL</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">MACADDR</span>                     <span class="c1">// MACADDR datatype for PostgreSQL</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">)</span>    <span class="c1">// Defines int4range range. PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BIGINT</span><span class="p">)</span>     <span class="c1">// Defined int8range range. PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">)</span>       <span class="c1">// Defines tstzrange range. PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATEONLY</span><span class="p">)</span>   <span class="c1">// Defines daterange range. PostgreSQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DECIMAL</span><span class="p">)</span>    <span class="c1">// Defines numrange range. PostgreSQL only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ARRAY</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span><span class="p">))</span> <span class="c1">// Defines array of tstzrange ranges. PostgreSQL only.</span>
+
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">GEOMETRY</span>                    <span class="c1">// Spatial column.  PostgreSQL (with PostGIS) or MySQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">GEOMETRY</span><span class="p">(</span><span class="s1">&#39;POINT&#39;</span><span class="p">)</span>           <span class="c1">// Spatial column with geometry type. PostgreSQL (with PostGIS) or MySQL only.</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">GEOMETRY</span><span class="p">(</span><span class="s1">&#39;POINT&#39;</span><span class="p">,</span> <span class="mi">4326</span><span class="p">)</span>     <span class="c1">// Spatial column with geometry type and SRID.  PostgreSQL (with PostGIS) or MySQL only.</span>
+</pre></div>
+</div>
+<p><strong>BLOB</strong> 타입은 문자열 또는 버퍼로 생성된 데이터의 추가를 허용합니다. BLOB 컬럼을 가진 모델에서 find 또는 findAl을 할 때 데이터는 항상 버퍼형태로 반환합니다.</p>
+<p>시간대없이 PostgreSQL TIMESTAMP를 사용하여 다른 시간대로 구문 분석해야하는 경우 pg 라이브러리의 자체 구문 분석기를 사용하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">require</span><span class="p">(</span><span class="s1">&#39;pg&#39;</span><span class="p">).</span><span class="nx">types</span><span class="p">.</span><span class="nx">setTypeParser</span><span class="p">(</span><span class="mi">1114</span><span class="p">,</span> <span class="nx">stringValue</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nx">stringValue</span> <span class="o">+</span> <span class="s1">&#39;+0000&#39;</span><span class="p">);</span>
+  <span class="c1">// e.g., UTC offset. Use any offset that you would like.</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>위에서 언급한 코드 이외에, integer, bigint, float 그리고 double은 부호없는 속성과 zerofill 속성을 지원하며 어떤 순서로든 조합할 수 잇습니다. PostgreSQL는 지원하지 않습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span>              <span class="c1">// INTEGER UNSIGNED</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">(</span><span class="mi">11</span><span class="p">).</span><span class="nx">UNSIGNED</span>          <span class="c1">// INTEGER(11) UNSIGNED</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">(</span><span class="mi">11</span><span class="p">).</span><span class="nx">ZEROFILL</span>          <span class="c1">// INTEGER(11) ZEROFILL</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">(</span><span class="mi">11</span><span class="p">).</span><span class="nx">ZEROFILL</span><span class="p">.</span><span class="nx">UNSIGNED</span> <span class="c1">// INTEGER(11) UNSIGNED ZEROFILL</span>
+<span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">(</span><span class="mi">11</span><span class="p">).</span><span class="nx">UNSIGNED</span><span class="p">.</span><span class="nx">ZEROFILL</span> <span class="c1">// INTEGER(11) UNSIGNED ZEROFILL</span>
+</pre></div>
+</div>
+<p>*오직 integer 예시입니다. 그러나 bigint와 float에서도 사용법은 동일합니다. *</p>
+<p>객체표기 사용방법:</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// for enums:</span>
+<span class="kr">class</span> <span class="nx">MyModel</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">MyModel</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">states</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">ENUM</span><span class="p">,</span>
+    <span class="nx">values</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="s1">&#39;pending&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted&#39;</span><span class="p">]</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">})</span>
+</pre></div>
+</div>
+<div class="section" id="array-enum">
+<h2>Array(ENUM)<a class="headerlink" href="#array-enum" title="Permalink to this headline">¶</a></h2>
+<p>이것은 오직 PostgreSQL에서만 지원합니다.</p>
+<p>Array(Enum) 타입은 특정한 취급방법을 요구한다. Sequelize는 데이터베이스와 통신할 때마다 ENUM 이름으로 배열값의 유형을 변경해야 합니다.</p>
+<p>이 unum 이름은 <code class="docutils literal notranslate"><span class="pre">enum_&lt;table_name&gt;</span></code> 패턴을 따라야 합니다. <code class="docutils literal notranslate"><span class="pre">sync</span></code>를 사용한다면, 자동으로 옳바른 이름을 생성합니다.</p>
+</div>
+<div class="section" id="range">
+<h2>range 타입들<a class="headerlink" href="#range" title="Permalink to this headline">¶</a></h2>
+<p>range 타입은 바인딩 포함/제외에 대한 추가 정보가 있으므로 튜플을 사용하여 자바스크립트로 표시하는 것은 매우 간단하지 않습니다.</p>
+<p>범위를 값으로 제공할 땐 다음과 같이 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// defaults to &#39;[&quot;2016-01-01 00:00:00+00:00&quot;, &quot;2016-02-01 00:00:00+00:00&quot;)&#39;</span>
+<span class="c1">// inclusive lower bound, exclusive upper bound</span>
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span><span class="o">:</span> <span class="p">[</span><span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span> <span class="p">});</span>
+
+<span class="c1">// control inclusion</span>
+<span class="kr">const</span> <span class="nx">range</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">value</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="nx">inclusive</span><span class="o">:</span> <span class="kc">false</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">value</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="nx">inclusive</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+<span class="p">];</span>
+<span class="c1">// &#39;(&quot;2016-01-01 00:00:00+00:00&quot;, &quot;2016-02-01 00:00:00+00:00&quot;]&#39;</span>
+
+<span class="c1">// composite form</span>
+<span class="kr">const</span> <span class="nx">range</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="p">{</span> <span class="nx">value</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="nx">inclusive</span><span class="o">:</span> <span class="kc">false</span> <span class="p">},</span>
+  <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+<span class="p">];</span>
+<span class="c1">// &#39;(&quot;2016-01-01 00:00:00+00:00&quot;, &quot;2016-02-01 00:00:00+00:00&quot;)&#39;</span>
+
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>그러나, 범위의 값을 다시 가져올 떄마다 다음을 받습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// stored value: (&quot;2016-01-01 00:00:00+00:00&quot;, &quot;2016-02-01 00:00:00+00:00&quot;]</span>
+<span class="nx">range</span> <span class="c1">// [{ value: Date, inclusive: false }, { value: Date, inclusive: true }]</span>
+</pre></div>
+</div>
+<p>range 타입으로 인스턴트를 업데이트한 후 range 타입 사용 또는 <code class="docutils literal notranslate"><span class="pre">returning:</span> <span class="pre">true</span></code> 옵션을 사용하여 reload를 호출해야 합니다.</p>
+<div class="section" id="id2">
+<h3>특별한 케이스<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// empty range:</span>
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span><span class="o">:</span> <span class="p">[]</span> <span class="p">});</span> <span class="c1">// range = &#39;empty&#39;</span>
+
+<span class="c1">// Unbounded range:</span>
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span><span class="o">:</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span> <span class="p">});</span> <span class="c1">// range = &#39;[,)&#39;</span>
+<span class="c1">// range = &#39;[,&quot;2016-01-01 00:00:00+00:00&quot;)&#39;</span>
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span><span class="o">:</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span> <span class="p">});</span>
+
+<span class="c1">// Infinite range:</span>
+<span class="c1">// range = &#39;[-infinity,&quot;2016-01-01 00:00:00+00:00&quot;)&#39;</span>
+<span class="nx">Timeline</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">range</span><span class="o">:</span> <span class="p">[</span><span class="o">-</span><span class="kc">Infinity</span><span class="p">,</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(</span><span class="nb">Date</span><span class="p">.</span><span class="nx">UTC</span><span class="p">(</span><span class="mi">2016</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))]</span> <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="id3">
+<h1>데이터 타입 확장<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h1>
+<p>구현하려는 유형이 이미 <a class="reference external" href="https://sequelize.org/master/manual/data-types.html">DataTypes에</a> 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.</p>
+<p>Sequelize는 데이터베이스에서 새로운 데이터 타입을 생성하지 않습니다. 이 튜토리얼은 새로운 데이터 타입을 인식하도록 하는 방법을 설명하고 해당 새 데이터 타입이 데이터베이스에 이미 생성되 있다고 가장합니다.</p>
+<p>데이터 타입을 확장하기 위해, 인스턴트를 생성하기 전에 해야합니다. 이 예시는 <code class="docutils literal notranslate"><span class="pre">Sequelize.INTEGER(11).ZEROFILL.UNSIGNED</span></code> 타입으로 빌드업 <code class="docutils literal notranslate"><span class="pre">NEWTYPE</span></code>을 생성합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize.js</span>
+
+<span class="kr">const</span> <span class="nx">Sequelize</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;Sequelize&#39;</span><span class="p">);</span>
+<span class="kr">const</span> <span class="nx">sequelizeConfig</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../config/sequelize&#39;</span><span class="p">)</span>
+<span class="kr">const</span> <span class="nx">sequelizeAdditions</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;./sequelize-additions&#39;</span><span class="p">)</span>
+
+<span class="c1">// Function that adds new datatypes</span>
+<span class="nx">sequelizeAdditions</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">)</span>
+
+<span class="c1">// In this exmaple a Sequelize instance is created and exported</span>
+<span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">sequelizeConfig</span><span class="p">)</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">sequelize</span>
+</pre></div>
+</div>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize-additions.js</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">sequelizeAdditions</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="nx">DataTypes</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DataTypes</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Create new types</span>
+<span class="cm">   */</span>
+  <span class="kr">class</span> <span class="nx">NEWTYPE</span> <span class="kr">extends</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">ABSTRACT</span> <span class="p">{</span>
+    <span class="c1">// Mandatory, complete definition of the new type in the database</span>
+    <span class="nx">toSql</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="s1">&#39;INTEGER(11) UNSIGNED ZEROFILL&#39;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Optional, validator function</span>
+    <span class="nx">validate</span><span class="p">(</span><span class="nx">value</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">(</span><span class="k">typeof</span> <span class="nx">value</span> <span class="o">===</span> <span class="s1">&#39;number&#39;</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="o">!</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">isNaN</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Optional, sanitizer</span>
+    <span class="nx">_sanitize</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="c1">// Force all numbers to be positive</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">value</span> <span class="o">=</span> <span class="mi">0</span>
+      <span class="p">}</span>
+
+      <span class="k">return</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">round</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Optional, value stringifier before sending to database</span>
+    <span class="nx">_stringify</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">value</span><span class="p">.</span><span class="nx">toString</span><span class="p">()</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Optional, parser for values received from the database</span>
+    <span class="kr">static</span> <span class="nx">parse</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nb">Number</span><span class="p">.</span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">value</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span> <span class="o">=</span> <span class="nx">NEWTYPE</span><span class="p">;</span>
+
+  <span class="c1">// Mandatory, set key</span>
+  <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">key</span> <span class="o">=</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">key</span> <span class="o">=</span> <span class="s1">&#39;NEWTYPE&#39;</span>
+
+  <span class="c1">// Optional, disable escaping after stringifier. Not recommended.</span>
+  <span class="c1">// Warning: disables Sequelize protection against SQL injections</span>
+  <span class="c1">// DataTypes.NEWTYPE.escape = false</span>
+
+  <span class="c1">// For convenience</span>
+  <span class="c1">// `classToInvokable` allows you to use the datatype without `new`</span>
+  <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">NEWTYPE</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Utils</span><span class="p">.</span><span class="nx">classToInvokable</span><span class="p">(</span><span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">)</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>새로운 데이터 타입을 생성한 후, 각 데이터베이스에서 데이터 타입을 맵핑하고 조정해야 합니다.</p>
+</div>
+<div class="section" id="postgresql">
+<h1>PostgreSQL<a class="headerlink" href="#postgresql" title="Permalink to this headline">¶</a></h1>
+<p>postgres 데이터베이스에서 새 데이터 유형의 이름이 <code class="docutils literal notranslate"><span class="pre">pg_new_type</span></code>이라고 가정합니다. 이 이름은 <code class="docutils literal notranslate"><span class="pre">DataTypes.NEWTYPE</span></code>에 매핑되어야합니다. 또한 하위 postgres 관련 데이터 타입을 생성해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize-additions.js</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">sequelizeAdditions</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="nx">DataTypes</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DataTypes</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Create new types</span>
+<span class="cm">   */</span>
+
+  <span class="p">...</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Map new types</span>
+<span class="cm">   */</span>
+
+  <span class="c1">// Mandatory, map postgres datatype name</span>
+  <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">types</span><span class="p">.</span><span class="nx">postgres</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pg_new_type&#39;</span><span class="p">]</span>
+
+  <span class="c1">// Mandatory, create a postgres-specific child datatype with its own parse</span>
+  <span class="c1">// method. The parser will be dynamically mapped to the OID of pg_new_type.</span>
+  <span class="nx">PgTypes</span> <span class="o">=</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">postgres</span>
+
+  <span class="nx">PgTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">NEWTYPE</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="k">this</span> <span class="k">instanceof</span> <span class="nx">PgTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">))</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">PgTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">();</span>
+    <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+  <span class="p">}</span>
+  <span class="nx">inherits</span><span class="p">(</span><span class="nx">PgTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">,</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">);</span>
+
+  <span class="c1">// Mandatory, create, override or reassign a postgres-specific parser</span>
+  <span class="c1">//PgTypes.NEWTYPE.parse = value =&gt; value;</span>
+  <span class="nx">PgTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">parse</span> <span class="o">=</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">NEWTYPE</span><span class="p">.</span><span class="nx">parse</span><span class="p">;</span>
+
+  <span class="c1">// Optional, add or override methods of the postgres-specific datatype</span>
+  <span class="c1">// like toSql, escape, validate, _stringify, _sanitize...</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="section" id="ranges">
+<h2>ranges<a class="headerlink" href="#ranges" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://www.postgresql.org/docs/current/rangetypes.html#RANGETYPES-DEFINING">postgres</a>에서 새로운 데이터 타입을 정의한 후, 그것을 Sequelize에 추가하는 것은 쉽지 않습니다.</p>
+<p>이 예제에서 postgre range 타입의 이름은 <code class="docutils literal notranslate"><span class="pre">newtype_range</span></code>이고, postgres 데이터 타입 이름은 <code class="docutils literal notranslate"><span class="pre">pg_new_type</span></code> 입니다. <code class="docutils literal notranslate"><span class="pre">subtypes</span></code>와 <code class="docutils literal notranslate"><span class="pre">castTypes</span></code>의 키는 Sequelize 데이터 타입 <code class="docutils literal notranslate"><span class="pre">Sequelize</span> <span class="pre">DataTypes.NEWTYPE.key</span></code>의 키입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize-additions.js</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="kd">function</span> <span class="nx">sequelizeAdditions</span><span class="p">(</span><span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+
+  <span class="nx">DataTypes</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DataTypes</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Create new types</span>
+<span class="cm">   */</span>
+
+  <span class="p">...</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Map new types</span>
+<span class="cm">   */</span>
+
+  <span class="p">...</span>
+
+  <span class="cm">/*</span>
+<span class="cm">   * Add suport for ranges</span>
+<span class="cm">   */</span>
+
+  <span class="c1">// Add postgresql range, newtype comes from DataType.NEWTYPE.key in lower case</span>
+  <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">.</span><span class="nx">types</span><span class="p">.</span><span class="nx">postgres</span><span class="p">.</span><span class="nx">subtypes</span><span class="p">.</span><span class="nx">newtype</span> <span class="o">=</span> <span class="s1">&#39;newtype_range&#39;</span><span class="p">;</span>
+  <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">RANGE</span><span class="p">.</span><span class="nx">types</span><span class="p">.</span><span class="nx">postgres</span><span class="p">.</span><span class="nx">castTypes</span><span class="p">.</span><span class="nx">newtype</span> <span class="o">=</span> <span class="s1">&#39;pg_new_type&#39;</span><span class="p">;</span>
+
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>새로운 range는 모델 정의에서 <code class="docutils literal notranslate"><span class="pre">Sequelize.RANGE(Sequelize.NEWTYPE)</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">DataTypes.RANGE(DataTypes.NEWTYPE)</span></code>로 사용될 수 있습니다.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="ModelDefinition.html" class="btn btn-neutral float-right" title="모델정의" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="Dialects.html" class="btn btn-neutral float-left" title="Dialects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, pjt3591oo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

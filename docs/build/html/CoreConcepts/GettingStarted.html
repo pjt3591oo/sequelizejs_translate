@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>시작하기 &mdash; Sequelize Of Node.js translate V5 5 documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Dialects" href="Dialects.html" />
+    <link rel="prev" title="Home" href="../Home.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Sequelize Of Node.js translate V5
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Home</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Home.html">Home</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Core Concepts</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">시작하기</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Dialects.html">Dialects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DateTypes.html">데이터 타입</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DateTypes.html#id3">데이터 타입 확장</a></li>
+<li class="toctree-l1"><a class="reference internal" href="DateTypes.html#postgresql">PostgreSQL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModelDefinition.html">모델정의</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ModelUsage.html">모델사용</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Hooks.html">훅스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Querying.html">쿼리(조회)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Instances.html">인스턴스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RawQueries.html">저수준 쿼리</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Other Topic</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Transactions.html">트랜잭션</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Scopes.html">범위</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/ReadReplication.html">대체 읽기</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Migrations.html">마이그레이션</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/Resources.html">리소스</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/TypeScript.html">타입스크립트</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/UpgradeToV5.html">5버전 업그레이드</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../OtherTopics/WorkingWithLegacyTables.html">레거시 테이블 작업</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Sequelize Of Node.js translate V5</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>시작하기</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/CoreConcepts/GettingStarted.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="id1">
+<h1>시작하기<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>이 튜토리얼에서 기본을 배우기 위해 Sequelize를 간단하게 설정하는 방법을 배웁니다.</p>
+<div class="section" id="id2">
+<h2>설치<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize는 NPM 또는 yarn을 이용하여 사용할 수 있습니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm install --save sequelize
+</pre></div>
+</div>
+<p>또한 선택한 데이터베이스를 사용하기 위해 드라이버를 설치해야 합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1">## 다음 중 하나를 실행(사용하는 디비에 맞게 설치)</span>
+$ npm install --save pg pg-hstore <span class="c1"># Postgres</span>
+$ npm install --save mysql2 
+$ npm install --save mariadb 
+$ npm install --save sqlite3
+$ npm install --save tedious <span class="c1"># Microsoft SQL Server</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>연결 설정<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>데이터베이스를 생성하기 위해, 당신은 Sequelize 인스턴스를 생성해야 합니다. 생성자에게 하나의 연결 URI를 전달하거나 연결 파라미터 변수를 개별적으로 전달하여 Sequelize 인스턴스 생성이 가능합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Sequelize</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;sequelize&#39;</span><span class="p">);</span>
+
+<span class="c1">// Option 1: Passing parameters separately</span>
+<span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;localhost&#39;</span><span class="p">,</span>
+  <span class="nx">dialect</span><span class="o">:</span> <span class="cm">/* one of &#39;mysql&#39; | &#39;mariadb&#39; | &#39;postgres&#39; | &#39;mssql&#39; */</span>
+<span class="p">});</span>
+
+<span class="c1">// Option 2: Passing a connection URI</span>
+<span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="s1">&#39;postgres://user:pass@example.com:5432/dbname&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Sequelize생성자는 <a class="reference external" href="http://sequelize.readthedocs.io/en/latest/api/sequelize/">API 레퍼런스</a>를 통해 사용할 수 있는 다양한 옵션을 확인 할 수 있습니다.</p>
+<div class="section" id="sqlite">
+<h3>참고: SQLite 설정<a class="headerlink" href="#sqlite" title="Permalink to this headline">¶</a></h3>
+<p>만약 SQLite를 사용한다면 다음과 같이 사용하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">({</span>
+  <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">,</span>
+  <span class="nx">storage</span><span class="o">:</span> <span class="s1">&#39;path/to/database.sqlite&#39;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>참고: 커넥션 풀(프로덕션)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>만약 당신이 단일 프로세스로 부터 데이터베이스를 연결한다면, 당신은 오직 하나의 Sequelize 인스턴스를 생성해야 합니다. Sequelize는 초기화할 때 커넥션 풀을 설정할 수 있습니다. 커넥션 풀은 생성자의 <code class="docutils literal notranslate"><span class="pre">옵션</span></code> 파라미터(<code class="docutils literal notranslate"><span class="pre">options.pool</span></code> 사용)를 통해 설정되고, 이것은 다음과 같이 예시를 따릅니다</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">,</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  <span class="nx">pool</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">max</span><span class="o">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="nx">min</span><span class="o">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nx">acquire</span><span class="o">:</span> <span class="mi">30000</span><span class="p">,</span>
+    <span class="nx">idle</span><span class="o">:</span> <span class="mi">10000</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><a class="reference external" href="https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor">API Reference for the Sequelize constructor</a>에서 더 많이 배울 수 있습니다. 만약 당신이 다수의 프로세스로부터 데이터베이스 연결을 한다면, 프로세스당 하나의 인스턴스를 생성해야 하며, 각각의 인스턴스는 최대 연결 풀 크기는 총 최대 크기를 준수해야 합니다. 예를들어, 만약 최대 커넥션이 90이고 3개의 프로세스를 가지고 있다면, Sequelize는 각 프로세스의 인스턴스는 최대 커넥션 풀 크기가 30입니다.</p>
+</div>
+<div class="section" id="id5">
+<h3>연결 테스트<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>당신은 <code class="docutils literal notranslate"><span class="pre">.authenticate()</span></code> 함수를 사용하여 옳바른 연결이 됬는지 테스트 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">sequelize</span>
+  <span class="p">.</span><span class="nx">authenticate</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;Connection has been established successfully.&#39;</span><span class="p">);</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">err</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="s1">&#39;Unable to connect to the database:&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+  <span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id6">
+<h3>연결 종료<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>Sequelize는 기본적으로 연결이 열린 상태를 유지하며, 쿼리를 위해 같은 커넥션을 사용합니다. 커넥션 종료가 필요하다면, <code class="docutils literal notranslate"><span class="pre">sequelize.close()</span></code>를 호출합니다 (비동기이며 Promise 반환).</p>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>모델 테이블<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>한 모델은 <code class="docutils literal notranslate"><span class="pre">Sequelize.Model</span></code> 확장하는 클랙스입니다. 모델은 두 가지 반법으로 정의될 수 있습니다. 첫 번째 방법은 <code class="docutils literal notranslate"><span class="pre">Sequelize.Model.init(attributes,</span> <span class="pre">options)</span></code>를 이용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Model</span> <span class="o">=</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">Model</span><span class="p">;</span>
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="c1">// 속성</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="p">},</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+    <span class="c1">// allowNull 기본값 true</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span>
+  <span class="c1">// 옵션들</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>두 번째 방법은 <code class="docutils literal notranslate"><span class="pre">sequelize.define</span></code>을 이용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">User</span> <span class="o">=</span> <span class="nx">sequelize</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="c1">// 속성</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="p">},</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+    <span class="c1">// allowNull 기본값 true</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="c1">// 옵션들</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>내부적으로 <code class="docutils literal notranslate"><span class="pre">sequelize.define</span></code>는 <code class="docutils literal notranslate"><span class="pre">Model.init</span></code>을 호출합니다.</p>
+<p>위의 코드는 Sequelize에게 <code class="docutils literal notranslate"><span class="pre">firstName</span></code> 및 <code class="docutils literal notranslate"><span class="pre">lastName</span></code> 필드를 가진 데이터베이스에서 <code class="docutils literal notranslate"><span class="pre">users</span></code> 이름을 가진 테이블을 바라보도록 합니다. 테이블 이름은 자동으로 복수형 형태로 생성하는게 기본값(복수 형태로 생성하기 위해 <a class="reference external" href="https://www.npmjs.com/package/inflection">inflection</a> 라이브러리가 후드 아래에서 사용)입니다. <code class="docutils literal notranslate"><span class="pre">freezeTableName:</span> <span class="pre">true</span></code> 옵션을 사용하여 특정 모델은 이 행위를 중단할 수 있으며, <a class="reference external" href="https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-constructor-constructor">Sequelize 생성자</a> 옵션 <code class="docutils literal notranslate"><span class="pre">define</span></code>을 사용하여 모든 모델에 대해 이 행위를 중단할 수 있습니다.</p>
+<p>Sequelize는 <code class="docutils literal notranslate"><span class="pre">id</span></code>(primary key), <code class="docutils literal notranslate"><span class="pre">createdAt</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">updatedAt</span></code> 필드를 기본값으로 가진 모델을 정의합니다. 이 행위는 바꿀 수 있습니다 (사용 가능한 옵션을 더 배우기 위해 API 레퍼런스를 확인하세요).</p>
+<div class="section" id="id8">
+<h3>모델 기본옵션 변경<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<p>Sequelize 생성자는 정의된 모든 모델의 기본 옵션을 변경하는 <code class="docutils literal notranslate"><span class="pre">define</span></code> 옵션을 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="nx">connectionURI</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">define</span><span class="o">:</span> <span class="p">{</span>
+    <span class="c1">// `timestamps` 필드는 createdAt, updatedAt 필드 사용을 하지않습니다.</span>
+    <span class="c1">// 이 필드의 기본값은 true이며, 지금은 사용하지 않습니다.</span>
+    <span class="nx">timestamps</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="c1">// 여기는 timestamps가 false 이며, `createdAt`과 `updatedAt`를 생성하지 않습니다. </span>
+<span class="kr">class</span> <span class="nx">Foo</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* ... */</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+
+<span class="c1">// 여기는 timestamps가 false 이며, `createdAt`과 `updatedAt`를 생성하지 않습니다. </span>
+<span class="kr">class</span> <span class="nx">Bar</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Bar</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* ... */</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">timestamps</span><span class="o">:</span> <span class="kc">true</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>당신은 <a class="reference external" href="https://sequelize.org/master/class/lib/model.js~Model.html#static-method-init">model.init API 레퍼런스</a> 또는 <a class="reference external" href="https://sequelize.org/master/class/lib/sequelize.js~Sequelize.html#instance-method-define">sequelize.define API 레퍼런스</a>에서 모델생성 방법을 더 배울 수 있습니다.</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>데이터베이스와 모델 동기화<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>모델 정의에 따라 자동으로 테이블이 생성되기 원한다면, 다음과 같이 <code class="docutils literal notranslate"><span class="pre">sync</span></code> 메소드를 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// 참고: `force: true`를 사용하는 것은 이미 테이블이 존재한다면 드랍시킵니다.</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">sync</span><span class="p">({</span> <span class="nx">force</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// 데이터베이스의 `users` 테이블은 모델 정의에 해당합니다. </span>
+  <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+    <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span>
+    <span class="nx">lastName</span><span class="o">:</span> <span class="s1">&#39;Hancock&#39;</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<div class="section" id="id10">
+<h3>한 번에 모든 모델 동기화<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>모든 모델을 위해 <code class="docutils literal notranslate"><span class="pre">sync()</span></code> 호출 대신 각 모델들마다 sync를 호출하는 함수 <code class="docutils literal notranslate"><span class="pre">sequelize.sync()</span></code>를 호출합니다.</p>
+</div>
+<div class="section" id="id11">
+<h3>프로덕션을 위함 참고사항<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>프로덕션 환경에서 <code class="docutils literal notranslate"><span class="pre">sync()</span></code> 호출 대신 마이그레이션(복제)을 사용하는 것이 좋습니다. <a class="reference external" href="https://sequelize.org/master/manual/migrations.html">마이그레이션</a> 가이드에서 더 배울 수 있습니다.</p>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>쿼리(조회)<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p>아래는 간단한 조회 예제입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// 모든 유저 조회</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;All users:&quot;</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">users</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="mi">4</span><span class="p">));</span>
+<span class="p">});</span>
+
+<span class="c1">// 새로운 유저 생성</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">firstName</span><span class="o">:</span> <span class="s2">&quot;Jane&quot;</span><span class="p">,</span> <span class="nx">lastName</span><span class="o">:</span> <span class="s2">&quot;Doe&quot;</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">jane</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Jane&#39;s auto-generated ID:&quot;</span><span class="p">,</span> <span class="nx">jane</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Jane 이름 모두 삭제</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">firstName</span><span class="o">:</span> <span class="s2">&quot;Jane&quot;</span>
+  <span class="p">}</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// 빈 값lastName을 가진 모든 필드를 Doe로 변경</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span> <span class="nx">lastName</span><span class="o">:</span> <span class="s2">&quot;Doe&quot;</span> <span class="p">},</span> <span class="p">{</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">lastName</span><span class="o">:</span> <span class="kc">null</span>
+  <span class="p">}</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">&quot;Done&quot;</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>sequelize는 쿼리를 위해 많은 옵션을 가지고 있습니다. 다음 튜토리얼에서 이것들을 배울 수 있습니다. 만약 당신이 필요하다면, 이 것은 저수준의 SQL 쿼리를 만들 수 있습니다.</p>
+</div>
+<div class="section" id="promises-async-await">
+<h2>Promises와 async/await<a class="headerlink" href="#promises-async-await" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize <code class="docutils literal notranslate"><span class="pre">.than</span></code>을 사용하여 Promise를 사용합니다. 이것은 노드 버전이 제공한다면 ES2017의 <code class="docutils literal notranslate"><span class="pre">async/await</span></code> 문법을 사용할 수 있습니다.</p>
+<p>또한, 모든 Sequelize 프로미스는 <a class="reference external" href="http://bluebirdjs.com/docs/getting-started.html">Bluebird</a> 프로미스이며, Bluebird의 다양한 API(예를들어, <code class="docutils literal notranslate"><span class="pre">finally</span></code>, <code class="docutils literal notranslate"><span class="pre">tap</span></code>, <code class="docutils literal notranslate"><span class="pre">tapCatch</span></code>, <code class="docutils literal notranslate"><span class="pre">map</span></code>, <code class="docutils literal notranslate"><span class="pre">mapSeries</span></code>, <code class="docutils literal notranslate"><span class="pre">etc</span></code>)를 사용할 수 있습니다. 만약 Bluebird의 특정 옵션을 설정하기를 원한다면, <code class="docutils literal notranslate"><span class="pre">Sequelize.Promise</span></code>와 함께 Sequelize에 의해 내부에서 사용된 Bluebird 생성자에 접근할 수 있습니다.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Dialects.html" class="btn btn-neutral float-right" title="Dialects" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../Home.html" class="btn btn-neutral float-left" title="Home" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, pjt3591oo
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
