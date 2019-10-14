@@ -175,6 +175,370 @@
             
   <div class="section" id="id1">
 <h1>인스턴스<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="id2">
+<h2>비 영구적인 인스턴스 작성<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>정의된 클래스의 인스턴스를 만들려면 다음과 같이 할 수 있습니다. 인식할 수 있습니다. 만약 과거에 <strong><code class="docutils literal notranslate"><span class="pre">Ruby</span></code></strong> 언어를 했다면 알 수 있습니다. <code class="docutils literal notranslate"><span class="pre">build</span></code> 메서드를 사용하는 것은 저장되지 않은 객체를 반환하며, 이 객체는 명시적으로 저장해야 합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="nx">Project</span><span class="p">.</span><span class="nx">build</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;my awesome project&#39;</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;woot woot. this will make me a rich man&#39;</span>
+<span class="p">})</span>
+
+<span class="kr">const</span> <span class="nx">task</span> <span class="o">=</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">build</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;specify the project idea&#39;</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;bla&#39;</span><span class="p">,</span>
+  <span class="nx">deadline</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>생성된 인스턴스들은 정의될 때 자동으로 기본값을 가져옵니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// first define the model</span>
+<span class="kr">class</span> <span class="nx">Task</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">rating</span><span class="o">:</span> <span class="p">{</span> <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TINYINT</span><span class="p">,</span> <span class="nx">defaultValue</span><span class="o">:</span> <span class="mi">3</span> <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span> <span class="p">});</span>
+
+<span class="c1">// now instantiate an object</span>
+<span class="kr">const</span> <span class="nx">task</span> <span class="o">=</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">build</span><span class="p">({</span><span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;very important task&#39;</span><span class="p">})</span>
+
+<span class="nx">task</span><span class="p">.</span><span class="nx">title</span>  <span class="c1">// ==&gt; &#39;very important task&#39;</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">rating</span> <span class="c1">// ==&gt; 3</span>
+</pre></div>
+</div>
+<p>데이터베이스에 저장하려면 <code class="docutils literal notranslate"><span class="pre">save</span></code> 메서드를 사용하고 필요한 경우 이벤트를 이용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">project</span><span class="p">.</span><span class="nx">save</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// my nice callback stuff</span>
+<span class="p">})</span>
+
+<span class="nx">task</span><span class="p">.</span><span class="nx">save</span><span class="p">().</span><span class="k">catch</span><span class="p">(</span><span class="nx">error</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// mhhh, wth!</span>
+<span class="p">})</span>
+
+<span class="c1">// you can also build, save and access the object with chaining:</span>
+<span class="nx">Task</span>
+  <span class="p">.</span><span class="nx">build</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">deadline</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span> <span class="p">})</span>
+  <span class="p">.</span><span class="nx">save</span><span class="p">()</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">anotherTask</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// you can now access the currently saved task with the variable anotherTask... nice!</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="k">catch</span><span class="p">(</span><span class="nx">error</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// Ooops, do some error-handling</span>
+  <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>영구적인 인스턴스 생성<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">.build()</span></code>로 생성된 인스턴스는 데이터베이스에 저장하기 위해 <code class="docutils literal notranslate"><span class="pre">.save()</span></code> 호출을 명시해야 하지만, <code class="docutils literal notranslate"><span class="pre">.create()</span></code>는해당 요구 사항을 모두 생략하고 일단 호출되면 인스턴스의 데이터를 자동으로 저장합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">deadline</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">task</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// you can now access the newly created task via the variable task</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">create()</span></code> 메소드를 통해 설정할 수 있는 속성을 정의할 수 있습니다. 이것은 사용자가 채울 수 있는 양식 기반으로 데이터베이스 항목을 작성하는 경우에 매우 유용합니다. 예를들어 <code class="docutils literal notranslate"><span class="pre">User</span></code> 모델을 사용하여 사용자 이름과 주소만 설정하고 관리자 플래그는 설정하지 못하도록 제한할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;barfooz&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;username&#39;</span> <span class="p">]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// let&#39;s assume the default of isAdmin is false:</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">user</span><span class="p">.</span><span class="nx">get</span><span class="p">({</span>
+    <span class="nx">plain</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}))</span> <span class="c1">// =&gt; { username: &#39;barfooz&#39;, isAdmin: false }</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>인스턴스의 업데이트 / 저장 / 지속<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>이제 일부 값을 업데이트하고 데이터 베이스에 변경사항을 저장하겠습니다. 두 가지 방법이 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// way 1</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">title</span> <span class="o">=</span> <span class="s1">&#39;a very different title now&#39;</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">save</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{})</span>
+
+<span class="c1">// way 2</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;a very different title now&#39;</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">save</span></code>가 호출될 때 컬럼 이름을 배열로 전달함으로 써 저장할 속성을 정의할 수 있습니다. 이것은 이전에 정의 된 객체 기반으로  속성을 설정할 때 유용합니다. 예를들면 웹 앱 형식을 통해 객체의 값을 얻는 경우 유용합니다. 또한. 이것은 <code class="docutils literal notranslate"><span class="pre">update</span></code>를 위해 다음과 같이 내부적으로도 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">task</span><span class="p">.</span><span class="nx">title</span> <span class="o">=</span> <span class="s1">&#39;foooo&#39;</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">description</span> <span class="o">=</span> <span class="s1">&#39;baaaaaar&#39;</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">save</span><span class="p">({</span><span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+ <span class="c1">// title will now be &#39;foooo&#39; but description is the very same as before</span>
+<span class="p">})</span>
+
+<span class="c1">// The equivalent call using update looks like this:</span>
+<span class="nx">task</span><span class="p">.</span><span class="nx">update</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;foooo&#39;</span><span class="p">,</span> <span class="nx">description</span><span class="o">:</span> <span class="s1">&#39;baaaaaar&#39;</span><span class="p">},</span> <span class="p">{</span><span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+ <span class="c1">// title will now be &#39;foooo&#39; but description is the very same as before</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">save</span></code>를 호출할 때 바뀔 속성이 없을 경우, 이 메서드는 실행하지 않습니다.</p>
+</div>
+<div class="section" id="id5">
+<h2>파괴 / 삭제 인스턴스<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<p>객체를 생성하고 참조하면, 데이터베이스로부터 그것을 제거할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">destroy</span></code>가 관련된 메서드입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;a task&#39;</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">task</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// now you see me...</span>
+  <span class="k">return</span> <span class="nx">task</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+ <span class="c1">// now i&#39;m gone :)</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">paranoid</span></code> 옵션이 true라면, 이 객체는 삭제되지 않습니다. 대신에 <code class="docutils literal notranslate"><span class="pre">deletedAt</span></code> 컬럼이 현재의 타임스탬프로 설정됩니다. 강제로 삭제하기 위해 <code class="docutils literal notranslate"><span class="pre">destroy</span></code> 호출시 <code class="docutils literal notranslate"><span class="pre">force:true</span></code>를 전달하면 됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">task</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span> <span class="nx">force</span><span class="o">:</span> <span class="kc">true</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">paranoid</span></code> 모드에서 객체 삭제(soft delete) 후, 같은 PK를 가진 새로운 인스턴스를 기존의 인스턴스를 삭제하기 전까지 생성할 수 없습니다.</p>
+<blockquote>
+<div><p>참고: soft delete란, 데이터를 완전히 지우는 것이 아닌 deletedAt 컬럼을 이용하여 데이터는 남겨두되 언제 삭제됬는지 명시하는 것, hard delete란 데이터를 완전히 제거하여 데이터베이스에 남아있지 않도록 하는 방법.</p>
+<p>데이터의 역사성을 위해 soft delete를 사용하는 방법을 권장한다.</p>
+</div></blockquote>
+</div>
+<div class="section" id="id6">
+<h2>소프트 삭제 인스턴스 재정장<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>만약, <code class="docutils literal notranslate"><span class="pre">paranoid:</span> <span class="pre">true</span></code>로 soft 삭제 된 인스턴스를 다시 저장하고 싶다면 <code class="docutils literal notranslate"><span class="pre">restore</span></code>  메서드를 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;a task&#39;</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">task</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// now you see me...</span>
+  <span class="k">return</span> <span class="nx">task</span><span class="p">.</span><span class="nx">destroy</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">((</span><span class="nx">task</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// now i&#39;m gone, but wait...</span>
+  <span class="k">return</span> <span class="nx">task</span><span class="p">.</span><span class="nx">restore</span><span class="p">();</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>여러작업 (하나의 호출로 여러 로우에 대한 생성, 업데이트 그리고 삭제)<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h2>
+<p>단일 인스턴스 업데이트 외에 여러 인스턴스를 한 번에 생성, 업데이트 및 삭제할 수 있습니다. 그 함수는 다음과 같습니다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Model.bulkCreate</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Model.update</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Model.destroy</span></code></p></li>
+</ul>
+<p>여러 인스턴스로 작업하는 동안, <code class="docutils literal notranslate"><span class="pre">DAO</span></code> 인스턴스를 반환하지 않습니다. bulkCreate는 모델/DAO를 배열형태로 반환합니다. 그것들은 <code class="docutils literal notranslate"><span class="pre">create</span></code>와 다르게 <strong><code class="docutils literal notranslate"><span class="pre">auto</span> <span class="pre">increment</span></code></strong> 속성을 가지고 있지 않습니다. <code class="docutils literal notranslate"><span class="pre">update</span></code>와 <code class="docutils literal notranslate"><span class="pre">destory</span></code>는 영향을 받은 행을 반환합니다.</p>
+<p>먼저, bulkCreate를 봅시다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;barfooz&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">false</span> <span class="p">}</span>
+<span class="p">]).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span> <span class="c1">// Notice: There are no arguments here, as of right now you&#39;ll have to...</span>
+  <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">users</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">users</span><span class="p">)</span> <span class="c1">// ... in order to get the array of user objects</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>여러 행을 삽입하고 모든 컬럼 반환 (오직 postges만)</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;barfooz&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">false</span> <span class="p">}</span>
+<span class="p">],</span> <span class="p">{</span> <span class="nx">returning</span><span class="o">:</span> <span class="kc">true</span> <span class="p">})</span> <span class="c1">// will return all columns for each row inserted</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>여러 행을 삽입하고 특정 컬럼들만 반환 (오직 postgres만)</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;barfooz&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">true</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">isAdmin</span><span class="o">:</span> <span class="kc">false</span> <span class="p">}</span>
+<span class="p">],</span> <span class="p">{</span> <span class="nx">returning</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="p">})</span> <span class="c1">// will return only the specified columns for each row inserted</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">((</span><span class="nx">result</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">result</span><span class="p">);</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>한번에 다수의 행 업데이터</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;executing&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;reading&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;executing&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;finished&#39;</span><span class="p">}</span>
+<span class="p">]).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span>
+    <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;inactive&#39;</span> <span class="p">},</span> <span class="cm">/* set attributes&#39; value */</span>
+    <span class="p">{</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span> <span class="p">}}</span> <span class="cm">/* where criteria */</span>
+  <span class="p">);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(([</span><span class="nx">affectedCount</span><span class="p">,</span> <span class="nx">affectedRows</span><span class="p">])</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// Notice that affectedRows will only be defined in dialects which support returning: true</span>
+
+  <span class="c1">// affectedCount will be 2</span>
+  <span class="k">return</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">tasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tasks</span><span class="p">)</span> <span class="c1">// the &#39;programming&#39; tasks will both have a status of &#39;inactive&#39;</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>그리고 조건에 따라 그들을 삭제…</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;executing&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;reading&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;executing&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span><span class="p">,</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;finished&#39;</span><span class="p">}</span>
+<span class="p">]).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">destroy</span><span class="p">({</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">subject</span><span class="o">:</span> <span class="s1">&#39;programming&#39;</span>
+    <span class="p">},</span>
+    <span class="nx">truncate</span><span class="o">:</span> <span class="kc">true</span> <span class="cm">/* this will ignore where and truncate the table instead */</span>
+  <span class="p">});</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">affectedRows</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// affectedRows will be 2</span>
+  <span class="k">return</span> <span class="nx">Task</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">tasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">tasks</span><span class="p">)</span> <span class="c1">// no programming, just reading :(</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>사용자로부터 직접적으로 값의 접근을 허용하는 경우 실제로 삽입하려는 컬럼을 제한하는 것이 좋습니다. <code class="docutils literal notranslate"><span class="pre">bulkCreate()</span></code>는 두 번째 인자로 옵션객체를 받습니다. 이 객체는 <code class="docutils literal notranslate"><span class="pre">fields</span></code> 인자(배열)를 사용하여 명시적으로 만드려는 필드를 알 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span> <span class="p">},</span>
+  <span class="p">{</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">admin</span><span class="o">:</span> <span class="kc">true</span><span class="p">}</span>
+<span class="p">],</span> <span class="p">{</span> <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// nope bar, you can&#39;t be admin!</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">bulkCreate</span></code>는 레코드를 삽입하는 빠른 방법으로 만들어 졌지만, 한번에 여러 행을 추가할 때 <code class="docutils literal notranslate"><span class="pre">validate:</span> <span class="pre">true</span></code>를 이용하여 각 컬럼마다 정의된 유효셩 검사를 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Tasks</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Tasks</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">notNull</span><span class="o">:</span> <span class="p">{</span> <span class="nx">args</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">msg</span><span class="o">:</span> <span class="s1">&#39;name cannot be null&#39;</span> <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">code</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">validate</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">len</span><span class="o">:</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;tasks&#39;</span> <span class="p">})</span>
+
+<span class="nx">Tasks</span><span class="p">.</span><span class="nx">bulkCreate</span><span class="p">([</span>
+  <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;foo&#39;</span><span class="p">,</span> <span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;123&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;1234&#39;</span><span class="p">},</span>
+  <span class="p">{</span><span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;bar&#39;</span><span class="p">,</span> <span class="nx">code</span><span class="o">:</span> <span class="s1">&#39;1&#39;</span><span class="p">}</span>
+<span class="p">],</span> <span class="p">{</span> <span class="nx">validate</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}).</span><span class="k">catch</span><span class="p">(</span><span class="nx">errors</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="cm">/* console.log(errors) would look like:</span>
+<span class="cm">  [</span>
+<span class="cm">    { record:</span>
+<span class="cm">    ...</span>
+<span class="cm">    name: &#39;SequelizeBulkRecordError&#39;,</span>
+<span class="cm">    message: &#39;Validation error&#39;,</span>
+<span class="cm">    errors:</span>
+<span class="cm">      { name: &#39;SequelizeValidationError&#39;,</span>
+<span class="cm">        message: &#39;Validation error&#39;,</span>
+<span class="cm">        errors: [Object] } },</span>
+<span class="cm">    { record:</span>
+<span class="cm">      ...</span>
+<span class="cm">      name: &#39;SequelizeBulkRecordError&#39;,</span>
+<span class="cm">      message: &#39;Validation error&#39;,</span>
+<span class="cm">      errors:</span>
+<span class="cm">        { name: &#39;SequelizeValidationError&#39;,</span>
+<span class="cm">        message: &#39;Validation error&#39;,</span>
+<span class="cm">        errors: [Object] } }</span>
+<span class="cm">  ]</span>
+<span class="cm">  */</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h2>인스턴스의 값<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p>인스턴스를 가져오면, 추가항목이 많이 있습니다. 그러한 것들을 숨기고 원하는 정보만 가져오기 위해 <code class="docutils literal notranslate"><span class="pre">plain:</span> <span class="pre">true</span></code>를 이용하여 오직 값만 가져올 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Person</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Rambow&#39;</span><span class="p">,</span>
+  <span class="nx">firstname</span><span class="o">:</span> <span class="s1">&#39;John&#39;</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">john</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">john</span><span class="p">.</span><span class="nx">get</span><span class="p">({</span>
+    <span class="nx">plain</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}))</span>
+<span class="p">})</span>
+
+<span class="c1">// result:</span>
+
+<span class="c1">// { name: &#39;Rambow&#39;,</span>
+<span class="c1">//   firstname: &#39;John&#39;,</span>
+<span class="c1">//   id: 1,</span>
+<span class="c1">//   createdAt: Tue, 01 May 2012 19:12:16 GMT,</span>
+<span class="c1">//   updatedAt: Tue, 01 May 2012 19:12:16 GMT</span>
+<span class="c1">// }</span>
+</pre></div>
+</div>
+<p><strong>힌트</strong>: <code class="docutils literal notranslate"><span class="pre">JSON.stringify(instance)</span></code>를 이용하여 JSON으로 변환할 수 있습니다. 이것은 기본적으로 값과 매우 유사한 값을 반환합니다.</p>
+</div>
+<div class="section" id="id9">
+<h2>인스턴스 리로딩<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>인스턴스를 동기화 해야하는 경우, <code class="docutils literal notranslate"><span class="pre">reloac</span></code> 메서드를 사용할 수 있습니다. 데이터베이스에서 현재 데이터를 가져와 메소드가 호출 된 모델의 속성을 겹쳐 씁니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Person</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;john&#39;</span> <span class="p">}</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">person</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="nx">person</span><span class="p">.</span><span class="nx">name</span> <span class="o">=</span> <span class="s1">&#39;jane&#39;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">person</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="c1">// &#39;jane&#39;</span>
+
+  <span class="nx">person</span><span class="p">.</span><span class="nx">reload</span><span class="p">().</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">person</span><span class="p">.</span><span class="nx">name</span><span class="p">)</span> <span class="c1">// &#39;john&#39;</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id10">
+<h2>증가<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h2>
+<p>동시성 문제가 발생하지 않고 인스턴스 값을 늘리려면 <code class="docutils literal notranslate"><span class="pre">increment</span></code>를 사용할 수 있습니다.</p>
+<p>먼저 필드와 추가 할 값을 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">increment</span><span class="p">(</span><span class="s1">&#39;my-integer-field&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">by</span><span class="o">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// Postgres will return the updated user by default (unless disabled by setting { returning: false })</span>
+  <span class="c1">// In other dialects, you&#39;ll want to call user.reload() to get the updated instance...</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>다음으로 추가할 값을 여러 필드로 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">increment</span><span class="p">([</span> <span class="s1">&#39;my-integer-field&#39;</span><span class="p">,</span> <span class="s1">&#39;my-very-other-field&#39;</span> <span class="p">],</span> <span class="p">{</span><span class="nx">by</span><span class="o">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>마지막으로 필드와 증감을 포함하여 객체를 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">increment</span><span class="p">({</span>
+    <span class="s1">&#39;my-integer-field&#39;</span><span class="o">:</span>    <span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;my-very-other-field&#39;</span><span class="o">:</span> <span class="mi">3</span>
+  <span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id11">
+<h2>감소<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p>동시성 문제가 발생하지 않고 인스턴스 값을 줄이려면 <code class="docutils literal notranslate"><span class="pre">decrement</span></code>를 사용할 수 있습니다.</p>
+<p>먼저 필드와 추가 할 값을 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">decrement</span><span class="p">(</span><span class="s1">&#39;my-integer-field&#39;</span><span class="p">,</span> <span class="p">{</span><span class="nx">by</span><span class="o">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// Postgres will return the updated user by default (unless disabled by setting { returning: false })</span>
+  <span class="c1">// In other dialects, you&#39;ll want to call user.reload() to get the updated instance...</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>다음으로 추가할 값을 여러 필드로 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">decrement</span><span class="p">([</span> <span class="s1">&#39;my-integer-field&#39;</span><span class="p">,</span> <span class="s1">&#39;my-very-other-field&#39;</span> <span class="p">],</span> <span class="p">{</span><span class="nx">by</span><span class="o">:</span> <span class="mi">2</span><span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>마지막으로 필드와 증감을 포함하여 객체를 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">user</span><span class="p">.</span><span class="nx">decrement</span><span class="p">({</span>
+    <span class="s1">&#39;my-integer-field&#39;</span><span class="o">:</span>    <span class="mi">2</span><span class="p">,</span>
+    <span class="s1">&#39;my-very-other-field&#39;</span><span class="o">:</span> <span class="mi">3</span>
+  <span class="p">})</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="cm">/* ... */</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
