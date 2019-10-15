@@ -175,6 +175,1042 @@
             
   <div class="section" id="id1">
 <h1>관계<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>이 섹션에서는 관계타입에 대해서 설명합니다. sequelize는 관계를 사용하기 위해 4개의 타입이 있습니다.</p>
+<ol class="simple">
+<li><p>BelongsTo</p></li>
+<li><p>HasOne</p></li>
+<li><p>HasMany</p></li>
+<li><p>BelongsToMany</p></li>
+</ol>
+<div class="section" id="id2">
+<h2>기본컨셉<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>소스 &amp; 타겟<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<p>먼저, 대부분의 관계인 <strong>소스</strong>와 <strong>타겟</strong> 모델에서 사용하는 기본 컨셉으로 시작합니다. 두 모델의 관계를 추가하기 위한 사용을 가정합니다. 여기서 <code class="docutils literal notranslate"><span class="pre">User</span></code>와 <code class="docutils literal notranslate"><span class="pre">Project</span></code> 사이의 관계를 추가합니다</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">email</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span>
+<span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Project</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">User</span></code> 모델(함수가 호출되는 모델)은 <strong>소스</strong> 입니다. <code class="docutils literal notranslate"><span class="pre">Project</span></code> 모델(인자로 전달되는 모델)은 <strong>타켓</strong>입니다.</p>
+</div>
+<div class="section" id="foreign-keys">
+<h3>외래키(Foreign Keys)<a class="headerlink" href="#foreign-keys" title="Permalink to this headline">¶</a></h3>
+<p>sequelize에서 모델들 사이에 관계를 생성할 때, 제약을 가진 외래 참조키는 자동으로 생성됩니다. 아래 설정:</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Task</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">username</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Task</span><span class="p">);</span> <span class="c1">// Will add userId to Task model</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">);</span> <span class="c1">// Will also add userId to Task model</span>
+</pre></div>
+</div>
+<p>다음과 같이 SQL을 생성합니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;users&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;username&quot;</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+  <span class="ss">&quot;createdAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updatedAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;tasks&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;title&quot;</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+  <span class="ss">&quot;createdAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updatedAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;userId&quot;</span> <span class="nb">INTEGER</span> <span class="k">REFERENCES</span> <span class="ss">&quot;users&quot;</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span>
+  <span class="k">SET</span>
+    <span class="k">NULL</span> <span class="k">ON</span> <span class="k">UPDATE</span> <span class="k">CASCADE</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">tasks</span></code> 테이블에 <code class="docutils literal notranslate"><span class="pre">userId</span></code> 외래키를 삽입하여 <code class="docutils literal notranslate"><span class="pre">tasks</span></code> 테이블과 <code class="docutils literal notranslate"><span class="pre">users</span></code> 테이블 사이에 관계를 형성하고, <code class="docutils literal notranslate"><span class="pre">users</span></code> 테이블에 대한 참조를 표시합니다. 참조된 사용자가 삭제되면 기본적으로 <code class="docutils literal notranslate"><span class="pre">userId</span></code>는<code class="docutils literal notranslate"><span class="pre">NULL</span></code>로 설정되며, <code class="docutils literal notranslate"><span class="pre">userId</span></code>가 업데이트 되면 업데이트 됩니다. onUpdate 및 onDelete 옵션을 연관 호출에 전달하여이 옵션을 재정의 할 수 있습니다. 유효성 검사 옵션은 <code class="docutils literal notranslate"><span class="pre">RESTRICT,</span> <span class="pre">CASCADE,</span> <span class="pre">NO</span> <span class="pre">ACTION,</span> <span class="pre">SET</span> <span class="pre">DEFAULT,</span> <span class="pre">SET</span> <span class="pre">NULL</span></code>입니다.</p>
+<p>1:1과 1:m 관계의 기본 옵션은 삭제를 위해 <code class="docutils literal notranslate"><span class="pre">SET</span> <span class="pre">NULL</span></code> 이고, 업데이트를 위해 <code class="docutils literal notranslate"><span class="pre">CASCADE</span></code> 입니다. n:m은 둘 다 기본값이 <code class="docutils literal notranslate"><span class="pre">CASCADE</span></code> 입니다. 즉, n : m 연결의 한 쪽에서 행을 삭제하거나 업데이트하면 해당 행을 참조하는 조인 테이블의 모든 행도 삭제되거나 업데이트됩니다.</p>
+<div class="section" id="underscored-option-snake-case">
+<h4>밑줄 옵션(underscored option): <strong>snake case</strong><a class="headerlink" href="#underscored-option-snake-case" title="Permalink to this headline">¶</a></h4>
+<p>sequelize는 모델을 위한 밑줄 옵션을 허용합니다. 옵션이 <code class="docutils literal notranslate"><span class="pre">true</span></code>일 때 이 옵션은 모든 속성의 필드 옵션을 밑줄이 그어진 버전(snake case)의 이름으로 설정합니다. 이것은 관계에 의해 생성된 외래키에도 적용합니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">underscored</span></code> 옵셥을 사용하기 위해 마지막 예제를 수정해보자</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Task</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">underscored</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span>
+<span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">username</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">underscored</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span>
+<span class="p">});</span>
+
+<span class="c1">// Will add userId to Task model, but field will be set to `user_id`</span>
+<span class="c1">// This means column name will be `user_id`</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Task</span><span class="p">);</span>
+
+<span class="c1">// Will also add userId to Task model, but field will be set to `user_id`</span>
+<span class="c1">// This means column name will be `user_id`</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>다음과 같이 SQL을 만듭니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;users&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;username&quot;</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+  <span class="ss">&quot;created_at&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updated_at&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;tasks&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;title&quot;</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+  <span class="ss">&quot;created_at&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updated_at&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;user_id&quot;</span> <span class="nb">INTEGER</span> <span class="k">REFERENCES</span> <span class="ss">&quot;users&quot;</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span>
+  <span class="k">SET</span>
+    <span class="k">NULL</span> <span class="k">ON</span> <span class="k">UPDATE</span> <span class="k">CASCADE</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+<p>밑줄 옵션은 속성을 카멜 케이스에서 스네이크 케이스로 변경합니다.</p>
+</div>
+<div class="section" id="id4">
+<h4>순환 의존성 및 비 활성화 제약조건<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h4>
+<p>테이블 사이에 제약조건을 추가하면 <code class="docutils literal notranslate"><span class="pre">sequelize.sync</span></code>를 사용할 때 특정 순서로 데이터베이스에 테이블을 작성해야 합니다. <code class="docutils literal notranslate"><span class="pre">Task</span></code>가 <code class="docutils literal notranslate"><span class="pre">User</span></code>를 참조한다면 <code class="docutils literal notranslate"><span class="pre">users</span></code> 테이블을 <code class="docutils literal notranslate"><span class="pre">tasks</span></code> 테이블이 생성되기 전에 생성해야 합니다. 이것은 종종  순환참조가 발생될 수 있으며, 이 경우 sequelize가 동기화 순서를 찾을 수 없습니다. 문서와 버전의 시나리오를 상상해보세요. 한 문서는 여러 버전을 가질 수 있습니다. 그리고 편의상 문서는 현재 버전에 대한 참조가 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Document</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Document</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">author</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;document&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Version</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Version</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">timestamp</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">DATE</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;version&#39;</span> <span class="p">});</span>
+
+<span class="nx">Document</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Version</span><span class="p">);</span> <span class="c1">// This adds documentId attribute to version</span>
+<span class="nx">Document</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Version</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Current&#39;</span><span class="p">,</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;currentVersionId&#39;</span>
+<span class="p">});</span> <span class="c1">// This adds currentVersionId attribute to document</span>
+</pre></div>
+</div>
+<p>그러나 앞의 코드는 에러를 발생합니다.: <code class="docutils literal notranslate"><span class="pre">Cyclic</span> <span class="pre">dependency</span> <span class="pre">found.</span> <span class="pre">documents</span> <span class="pre">is</span> <span class="pre">dependent</span> <span class="pre">of</span> <span class="pre">itself.</span> <span class="pre">Dependency</span> <span class="pre">chain:</span> <span class="pre">documents</span> <span class="pre">-&gt;</span> <span class="pre">versions</span> <span class="pre">=&gt;</span> <span class="pre">documents</span></code></p>
+<p>이를 완화하기 위해, 우리는 관계시 <code class="docutils literal notranslate"><span class="pre">constraints:</span> <span class="pre">false</span></code> 옵션을 전달할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Document</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Version</span><span class="p">);</span>
+<span class="nx">Document</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Version</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Current&#39;</span><span class="p">,</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;currentVersionId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>그러면 테이블은 옳바르게 동기화합니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;documents&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;author&quot;</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">255</span><span class="p">),</span>
+  <span class="ss">&quot;createdAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updatedAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;currentVersionId&quot;</span> <span class="nb">INTEGER</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="k">IF</span> <span class="k">NOT</span> <span class="k">EXISTS</span> <span class="ss">&quot;versions&quot;</span> <span class="p">(</span>
+  <span class="ss">&quot;id&quot;</span> <span class="nb">SERIAL</span><span class="p">,</span>
+  <span class="ss">&quot;timestamp&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span><span class="p">,</span>
+  <span class="ss">&quot;createdAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;updatedAt&quot;</span> <span class="k">TIMESTAMP</span> <span class="k">WITH</span> <span class="n">TIME</span> <span class="k">ZONE</span> <span class="k">NOT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="ss">&quot;documentId&quot;</span> <span class="nb">INTEGER</span> <span class="k">REFERENCES</span> <span class="ss">&quot;documents&quot;</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span> <span class="k">ON</span> <span class="k">DELETE</span>
+  <span class="k">SET</span>
+    <span class="k">NULL</span> <span class="k">ON</span> <span class="k">UPDATE</span> <span class="k">CASCADE</span><span class="p">,</span>
+    <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="ss">&quot;id&quot;</span><span class="p">)</span>
+<span class="p">);</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h4>제약없는 외래키 적용<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h4>
+<p>제한 조건이나 연관을 추가하지 않고 다른 테이블을 참조하려는 경우가 있습니다. 이 경우 참조 속성을 스키마 정의에 수동으로 추가하고 이들 사이의 관계를 표시 할 수 있습니다</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Trainer</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Trainer</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;trainer&#39;</span> <span class="p">});</span>
+
+<span class="c1">// Series will have a trainerId = Trainer.id foreign reference key</span>
+<span class="c1">// after we call Trainer.hasMany(series)</span>
+<span class="kr">class</span> <span class="nx">Series</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Series</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">subTitle</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span><span class="p">,</span>
+  <span class="c1">// Set FK relationship (hasMany) with `Trainer`</span>
+  <span class="nx">trainerId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">references</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="nx">Trainer</span><span class="p">,</span>
+      <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;series&#39;</span> <span class="p">});</span>
+
+<span class="c1">// Video will have seriesId = Series.id foreign reference key</span>
+<span class="c1">// after we call Series.hasOne(Video)</span>
+<span class="kr">class</span> <span class="nx">Video</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Video</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">sequence</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+  <span class="nx">description</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">TEXT</span><span class="p">,</span>
+  <span class="c1">// set relationship (hasOne) with `Series`</span>
+  <span class="nx">seriesId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">references</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="nx">Series</span><span class="p">,</span> <span class="c1">// Can be both a string representing the table name or a Sequelize model</span>
+      <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;video&#39;</span> <span class="p">});</span>
+
+<span class="nx">Series</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Video</span><span class="p">);</span>
+<span class="nx">Trainer</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Series</span><span class="p">);</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="id6">
+<h2>1:1 관계<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h2>
+<p>일대일 관계은 단일 외래 키로 연결된 정확히 두 모델 간의 연관입니다.</p>
+<div class="section" id="belongsto">
+<h3>BelongsTo<a class="headerlink" href="#belongsto" title="Permalink to this headline">¶</a></h3>
+<p>BelongsTo 관계은 소스 모델에 일대일 관계에 대한 외부 키가 존재하는 연관입니다.</p>
+<p>간단한 예는 플레이어에 <strong>Team</strong>의 외래키가 있는 일부 <strong>Player</strong>입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Player</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;player&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Team</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;team&#39;</span> <span class="p">});</span>
+
+<span class="nx">Player</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Team</span><span class="p">);</span> <span class="c1">// Will add a teamId attribute to Player to hold the primary key value for Team</span>
+</pre></div>
+</div>
+<div class="section" id="id7">
+<h4>외래키<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h4>
+<p>belongsTo 관계를 위한 외래키는 타켓 모델의 이름이나 타겟 모델 PK 이름으로부터 생성됩니다.</p>
+<p>기본 케스팅은 <code class="docutils literal notranslate"><span class="pre">camelCase</span></code> 입니다. 소스모델이 <code class="docutils literal notranslate"><span class="pre">underscored:</span> <span class="pre">true</span></code>로 설정되 있으면 외래키는 <code class="docutils literal notranslate"><span class="pre">snake_case</span></code>로 생성됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Company</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;company&#39;</span> <span class="p">});</span>
+
+<span class="c1">// will add companyId to user</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Company</span><span class="p">);</span>
+
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">underscored</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Company</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">uuid</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;company&#39;</span> <span class="p">});</span>
+
+<span class="c1">// will add companyUuid to user with field company_uuid</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Company</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">as</span></code>가 정의 된 경우 대상 모델 이름 대신 사용됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">UserRole</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">UserRole</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;userRole&#39;</span> <span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">UserRole</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;role&#39;</span><span class="p">});</span> <span class="c1">// Adds roleId to user rather than userRoleId</span>
+</pre></div>
+</div>
+<p>모든 경우에서 <code class="docutils literal notranslate"><span class="pre">foreignKey</span></code> 옵션을 이용하여 외래키를 재정의 할 수 있습니다. 외래키 옵션을 사용할 때 Sequelize는 그대로 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Company</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;company&#39;</span> <span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Company</span><span class="p">,</span> <span class="p">{</span><span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;fk_company&#39;</span><span class="p">});</span> <span class="c1">// Adds fk_company to User</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h4>타겟키<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h4>
+<p>타겟키는 소스 모델의 외래키 컬럼이 가리키는 타켓 모델의 열입니다. belongsTo 관계의 타겟키는 타겟 모델의 PK가 기본값 입니다. 사용자 정의 컬럼을 정의하기 위해, <code class="docutils literal notranslate"><span class="pre">targetKey</span></code> 옵션을 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Company</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;company&#39;</span> <span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Company</span><span class="p">,</span> <span class="p">{</span><span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;fk_companyname&#39;</span><span class="p">,</span> <span class="nx">targetKey</span><span class="o">:</span> <span class="s1">&#39;name&#39;</span><span class="p">});</span> <span class="c1">// Adds fk_companyname to User</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="hasone">
+<h3>HasOne<a class="headerlink" href="#hasone" title="Permalink to this headline">¶</a></h3>
+<p>HasOne 관계은 일대일 관계에 대한 외래 키가 대상 모델에 존재하는 관계입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* ... */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* ... */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span> <span class="p">})</span>
+
+<span class="c1">// One-way associations</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">User</span><span class="p">)</span>
+
+<span class="cm">/*</span>
+<span class="cm">  In this example hasOne will add an attribute projectId to the User model!</span>
+<span class="cm">  Furthermore, Project.prototype will gain the methods getUser and setUser according</span>
+<span class="cm">  to the first parameter passed to define. If you have underscore style</span>
+<span class="cm">  enabled, the added attribute will be project_id instead of projectId.</span>
+
+<span class="cm">  The foreign key will be placed on the users table.</span>
+
+<span class="cm">  You can also define the foreign key, e.g. if you already have an existing</span>
+<span class="cm">  database and want to work on it:</span>
+<span class="cm">*/</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;initiator_id&#39;</span> <span class="p">})</span>
+
+<span class="cm">/*</span>
+<span class="cm">  Because Sequelize will use the model&#39;s name (first parameter of define) for</span>
+<span class="cm">  the accessor methods, it is also possible to pass a special option to hasOne:</span>
+<span class="cm">*/</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Initiator&#39;</span> <span class="p">})</span>
+<span class="c1">// Now you will get Project.getInitiator and Project.setInitiator</span>
+
+<span class="c1">// Or let&#39;s define some self references</span>
+<span class="kr">class</span> <span class="nx">Person</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="cm">/* ... */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;person&#39;</span> <span class="p">})</span>
+
+<span class="nx">Person</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Person</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Father&#39;</span><span class="p">})</span>
+<span class="c1">// this will add the attribute FatherId to Person</span>
+
+<span class="c1">// also possible:</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Person</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Father&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;DadId&#39;</span><span class="p">})</span>
+<span class="c1">// this will add the attribute DadId to Person</span>
+
+<span class="c1">// In both cases you will be able to do:</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">setFather</span>
+<span class="nx">Person</span><span class="p">.</span><span class="nx">getFather</span>
+
+<span class="c1">// If you need to join a table twice you can double join the same table</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Game</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;HomeTeam&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span> <span class="o">:</span> <span class="s1">&#39;homeTeamId&#39;</span><span class="p">});</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Game</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;AwayTeam&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span> <span class="o">:</span> <span class="s1">&#39;awayTeamId&#39;</span><span class="p">});</span>
+
+<span class="nx">Game</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Team</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>HasOne 관계라고 하더라도, 대부분의 1 : 1 관계에서는 일반적으로 hasOne의 타겟모델이 belongssTo 관계를 웝합니다,</p>
+<div class="section" id="id9">
+<h4>소스키<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h4>
+<p>소스 키는 타겟모델의 외부 키 속성이 가리키는 소스모델의 속성이다. 기본적으로 haveOne 관계의 소스키는 소스모델의 기본 속성이 된다. 사용자 정의 속성을 사용하기 위해 <code class="docutils literal notranslate"><span class="pre">sourceKey</span></code> 옵션을 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Company</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;company&#39;</span> <span class="p">});</span>
+
+<span class="c1">// Adds companyName attribute to User</span>
+<span class="c1">// Use name attribute from Company as source attribute</span>
+<span class="nx">Company</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span><span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;companyName&#39;</span><span class="p">,</span> <span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;name&#39;</span><span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hasone-belongsto">
+<h4>HasOne과 BelongsTo의 차이<a class="headerlink" href="#hasone-belongsto" title="Permalink to this headline">¶</a></h4>
+<p>Sequelize에서 1:1 관계는 HasOne과 BelongsTo를 사용할 수 있습니다. 그들은 서로 다른 시나리오에서 적합합니다. 예시를 통해 배워봅니다.</p>
+<p>Player와 Team을 연결하는 두 개의 테이블이 있다고 가정합니다. 모델을 정의 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Player</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;player&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Team</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;team&#39;</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>Sequelize에서 두 개의 모델을 연결할 때, Sequelize에서 두 모델을 연결하면 소스와 대상 모델의 쌍으로 참조 할 수 있습니다.</p>
+<p><strong>Player</strong>는 소스, <strong>Team</strong> 타켓으로 가질 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Player</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Team</span><span class="p">);</span>
+<span class="c1">//Or</span>
+<span class="nx">Player</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Team</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><strong>Team</strong>는 소스, <strong>Player</strong> 타켓으로 가질 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Team</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Player</span><span class="p">);</span>
+<span class="c1">//Or</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Player</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>HasOne과 BelongsTo는 각각 다른 모델로 부터 관계키를 추가합니다. hasOne은 타겟모델에서 관계키를 추가하며 BelongsTo는 소스모델에서 관계키를 추가합니다.</p>
+<p>다음은 BelongsTo와 HasOne 사용하는 경우의 예시 입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Player</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Player</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;player&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Coach</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Coach</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;coach&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Team</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Team</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* attributes */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;team&#39;</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Player</span></code> 모델은 team 에 대한 정보를 <code class="docutils literal notranslate"><span class="pre">teamId</span></code> 컬럼으로 가지고 있다고 가정하자. 각의 팀의 <code class="docutils literal notranslate"><span class="pre">Coach</span></code>의 정보는 <code class="docutils literal notranslate"><span class="pre">Team</span></code> 안에 <code class="docutils literal notranslate"><span class="pre">coachId</span></code>가 저장된다. 이 두 시나리오는 각각 다른 모델에 외래키 관계가 존재하기 때문에 다른 종류의 1:1 관계를 요구한다.</p>
+<p><strong>소스</strong>모델에 관계에 대한 정보가 보여질 때 우리는 <code class="docutils literal notranslate"><span class="pre">hasOne</span></code>을 사용할 수 있습니다. 이 경우 <code class="docutils literal notranslate"><span class="pre">Team</span></code> 모델은 <code class="docutils literal notranslate"><span class="pre">Coach</span></code>에 대한 정보를 <code class="docutils literal notranslate"><span class="pre">coachId</span></code> 필드로 저장하므로 <code class="docutils literal notranslate"><span class="pre">Coach</span></code>는 <code class="docutils literal notranslate"><span class="pre">hasOne</span></code>에 적합합니다.</p>
+</div>
+</div>
+</div>
+<div class="section" id="one-to-many-1-m-hasmany">
+<h2>One-To-Many 관계(1:m, hasMany)<a class="headerlink" href="#one-to-many-1-m-hasmany" title="Permalink to this headline">¶</a></h2>
+<p>One-To-Many 관계는 하나의 소스를 여러 타겟과 연결합니다. 그러나 타겟들은 하나의 특정 소스와 정확하게 연결됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* ... */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span><span class="cm">/* ... */</span><span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span> <span class="p">})</span>
+
+<span class="c1">// OK. Now things get more complicated (not really visible to the user :)).</span>
+<span class="c1">// First let&#39;s define a hasMany association</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Workers&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">User</span></code>에 <code class="docutils literal notranslate"><span class="pre">projectId</span></code>를 추가합니다. 언더스코어 컬럼을위한 셋팅에 따라 테이블은 <code class="docutils literal notranslate"><span class="pre">projectId</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">project_id</span></code> 둘 중 하나로 저장합니다. 프로젣트의 인스턴스들은 <code class="docutils literal notranslate"><span class="pre">getWorkers</span></code>와 <code class="docutils literal notranslate"><span class="pre">setWorkers</span></code> 접근자를 가져올 수 있습니다.</p>
+<p>가끔 관계된 레코드를 다른 컬럼으로 사용하고 싶은 경우, <code class="docutils literal notranslate"><span class="pre">sourceKey</span></code> 옵션을 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">City</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">City</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">countryCode</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;city&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Country</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Country</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">isoCode</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;country&#39;</span> <span class="p">});</span>
+
+<span class="c1">// Here we can connect countries and cities base on country code</span>
+<span class="nx">Country</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">City</span><span class="p">,</span> <span class="p">{</span><span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;countryCode&#39;</span><span class="p">,</span> <span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;isoCode&#39;</span><span class="p">});</span>
+<span class="nx">City</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Country</span><span class="p">,</span> <span class="p">{</span><span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;countryCode&#39;</span><span class="p">,</span> <span class="nx">targetKey</span><span class="o">:</span> <span class="s1">&#39;isoCode&#39;</span><span class="p">});</span>
+</pre></div>
+</div>
+<p>지금까지 우리는 일반적인 관계에 대해 다뤄보았습니다. 그러나 우리는 더 많은 것을 원합니다. 다음 섹션에서는 다 대 다관계에 대해서 다뤄봅니다.</p>
+</div>
+<div class="section" id="belongs-to-many">
+<h2>Belongs-To-Many 관계<a class="headerlink" href="#belongs-to-many" title="Permalink to this headline">¶</a></h2>
+<p>Belongs-To-Many 관계는 소스를 다른 타겟들과 연결할 때 사용됩니다. 또한 타겟은 여러 소스들과 연결할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span><span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;UserProject&#39;</span><span class="p">});</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span><span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;UserProject&#39;</span><span class="p">});</span>
+</pre></div>
+</div>
+<p>이것은 <code class="docutils literal notranslate"><span class="pre">projectId</span></code>와 <code class="docutils literal notranslate"><span class="pre">userId</span></code>를 외래키로 가지고 있는 UserProject 모델을 새로 생성합니다. 속성이 camelcase 여부는 테이블에 의해 결합 된 두 가지 모델 (이 경우 User 및 Project)에 따라 다릅니다.</p>
+<p>through를 정의하는 것은 <strong>필수</strong>입니다. Sequelize는 이전에 이름을 자동으로 생성하려고 시도했지만 항상 가장 논리적으로 설정되는 것은 아닙니다.</p>
+<p>이것은 <code class="docutils literal notranslate"><span class="pre">getUsers</span></code>, <code class="docutils literal notranslate"><span class="pre">setUsers</span></code>, <code class="docutils literal notranslate"><span class="pre">addUser</span></code>, <code class="docutils literal notranslate"><span class="pre">addUsers</span></code> 메서드를 <code class="docutils literal notranslate"><span class="pre">Project</span></code>에 추가하고, <code class="docutils literal notranslate"><span class="pre">getProjects</span></code>, <code class="docutils literal notranslate"><span class="pre">setProjects</span></code>, <code class="docutils literal notranslate"><span class="pre">addProject</span></code>, <code class="docutils literal notranslate"><span class="pre">addProjects</span></code> 메서드를 <code class="docutils literal notranslate"><span class="pre">User</span></code>에 추가합니다.</p>
+<p>때때로 관계에서 사용할 때 모델의 이름을 바꾸고 싶을 수도 있습니다. 별명 (<code class="docutils literal notranslate"><span class="pre">as</span></code>) 옵션을 사용하여 사용자를 작업자 및 프로젝트로 작업으로 정의 해 봅시다. 사용할 외래키도 수동으로 정의합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Tasks&#39;</span><span class="p">,</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;worker_tasks&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;userId&#39;</span> <span class="p">})</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Workers&#39;</span><span class="p">,</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;worker_tasks&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;projectId&#39;</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">foreignKey</span></code>는 <strong>through</strong> 관계에서 소스모델 키 설정할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">otherKey</span></code>는<strong>through</strong> 관계에서 타겟모델 키 설정할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Tasks&#39;</span><span class="p">,</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;worker_tasks&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;userId&#39;</span><span class="p">,</span> <span class="nx">otherKey</span><span class="o">:</span> <span class="s1">&#39;projectId&#39;</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>물론 belongsToMany로 자기 참조를 정의 할 수도 있습니다 .</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Person</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Person</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;Children&#39;</span><span class="p">,</span> <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;PersonChildren&#39;</span> <span class="p">})</span>
+</pre></div>
+</div>
+<div class="section" id="id10">
+<h3>소스와 타겟키<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>PK를 사용하지 않는 많은 관계를 생성하고 싶다면 일부 설정 작업이 필요합니다. 두 개의 끝에 <code class="docutils literal notranslate"><span class="pre">sourceKey</span></code>(선택적으로 <code class="docutils literal notranslate"><span class="pre">targetKey</span></code>)를 적절하게 선택해야 합니다. 또한 관계에 대해 적절한 색인을 작성했는지 확인해야합니다. 다음은 예입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">User</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;User&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUIDV4</span><span class="p">,</span>
+    <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;user_id&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">userSecondId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUIDV4</span><span class="p">,</span>
+    <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;user_second_id&#39;</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;tbl_user&#39;</span><span class="p">,</span>
+  <span class="nx">indexes</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;user_second_id&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">});</span>
+
+<span class="kr">const</span> <span class="nx">Group</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;Group&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUIDV4</span><span class="p">,</span>
+    <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;group_id&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">groupSecondId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">defaultValue</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">UUIDV4</span><span class="p">,</span>
+    <span class="nx">field</span><span class="o">:</span> <span class="s1">&#39;group_second_id&#39;</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;tbl_group&#39;</span><span class="p">,</span>
+  <span class="nx">indexes</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+      <span class="nx">fields</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;group_second_id&#39;</span><span class="p">]</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Group</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;usergroups&#39;</span><span class="p">,</span>
+  <span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;userSecondId&#39;</span>
+<span class="p">});</span>
+<span class="nx">Group</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">through</span><span class="o">:</span> <span class="s1">&#39;usergroups&#39;</span><span class="p">,</span>
+  <span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;groupSecondId&#39;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>조인 테이블에 추가 속성을 원할 경우 관계을 정의하기 전에 순서에 따라 조인 테이블의 모델을 정의한 다음 새 모델을 만드는 대신 조인에 해당 모델을 사용해야한다고 sequelize에 알릴 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span> <span class="p">})</span>
+<span class="kr">class</span> <span class="nx">UserProjects</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">UserProjects</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">status</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;userProjects&#39;</span> <span class="p">})</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="nx">UserProjects</span> <span class="p">})</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="nx">UserProjects</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p>사용자에게 새로운 프로젝트를 추가하기 위해 조인 테이블을 위해 포함된 속성에 <code class="docutils literal notranslate"><span class="pre">options.through</span></code>를 전달할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">user</span><span class="p">.</span><span class="nx">addProject</span><span class="p">(</span><span class="nx">project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;started&#39;</span> <span class="p">}})</span>
+</pre></div>
+</div>
+<p>앞의 코드는 UserProjects 테이블에 projectId와 userId를 추가하고 이전에 정의 된 PK 속성을 제거합니다. 테이블은 두 테이블의 키 조합으로 고유하게 식별되며 다른 PK 컬럼을 가질 이유가 없습니다. <code class="docutils literal notranslate"><span class="pre">UserProjects</span></code> 모델에서 PK를 억지로 추가하기 위해 수동으로 추가할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">UserProjects</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">UserProjects</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">},</span>
+  <span class="nx">status</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;userProjects&#39;</span> <span class="p">})</span>
+</pre></div>
+</div>
+<p>Belongs-To-Many를 통해 관계를 기반으로 쿼리 할 수 있고 특정 속성을 지정할 수 있습니다. <strong>through</strong>와 <code class="docutils literal notranslate"><span class="pre">findAll</span></code>을 사용하는 예제입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="nx">Project</span><span class="p">,</span>
+    <span class="nx">through</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;createdAt&#39;</span><span class="p">,</span> <span class="s1">&#39;startedAt&#39;</span><span class="p">,</span> <span class="s1">&#39;finishedAt&#39;</span><span class="p">],</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span><span class="nx">completed</span><span class="o">:</span> <span class="kc">true</span><span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>Belongs-To-Many는 PK가 모델을 통해 존재하지 않을 때 유니크 한 키를 생성한다. 유니크키는 <strong>uniqueKey</strong> 옵션을 사용하여 재정의할 수 있습니다.</p>
+</div>
+</div>
+<div class="section" id="id11">
+<h2>네이밍 정략<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h2>
+<p>기본적으로 sequelize는 모델 이름 (<code class="docutils literal notranslate"><span class="pre">sequelize.define</span></code>에 전달 된 이름)을 사용하여 연결에 사용될 때 모델 이름을 알아냅니다. 예를 들어, 예를 들어, <code class="docutils literal notranslate"><span class="pre">user</span></code> 라는 모델은 관련 모델의 인스턴스에 <code class="docutils literal notranslate"><span class="pre">get/set/add</span></code> 기능을 추가하고, <code class="docutils literal notranslate"><span class="pre">User</span></code>라는 모델은 동일한 기능을 추가하지만 속성은 <code class="docutils literal notranslate"><span class="pre">.user</span></code>로 명명됩니다. <code class="docutils literal notranslate"><span class="pre">.User</span></code>(상위 사례 U에 주목)가 즉시 로드됩니다.</p>
+<p>이미 봤듯이, 관계에서 <code class="docutils literal notranslate"><span class="pre">a</span></code> 를 이용하여 별칭을 만들 수 있습니다. 단일 연관성(하나에 속하고 속함)에서는 별칭이 단수여야 하지만, 많은 연관성(많은 연관성)의 경우 복수여야 합니다. 그런 다음 Sequelize는 <a class="reference external" href="https://www.npmjs.com/package/inflection">inflection</a> 라이브러리를 사용하여 별칭을 단수 형태로 변환합니다. 그러나 이것은 불규칙하거나 비영어적인 단어에서 항상 효과가 있는 것은 아닙니다. 이 경우 별칭의 복수 형식과 단수 형식을 모두 제공할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="p">{</span> <span class="nx">singular</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span><span class="p">,</span> <span class="nx">plural</span><span class="o">:</span> <span class="s1">&#39;tasks&#39;</span> <span class="p">}})</span>
+<span class="c1">// Notice that inflection has no problem singularizing tasks, this is just for illustrative purposes.</span>
+</pre></div>
+</div>
+<p>모델이 항상 관계에서 동일한 별칭을 사용한다는 것을 알고 있는 경우 모델을 생성할 때 해당 별칭을 제공할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">attributes</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">singular</span><span class="o">:</span> <span class="s1">&#39;task&#39;</span><span class="p">,</span>
+    <span class="nx">plural</span><span class="o">:</span> <span class="s1">&#39;tasks&#39;</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span>
+<span class="p">})</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>유저 인스턴스에 <code class="docutils literal notranslate"><span class="pre">add/set/get</span></code> 함수를 추가합니다.</p>
+<p>기억하세요, 관계된 이름을 바꾸기 위해 <code class="docutils literal notranslate"><span class="pre">as</span></code>를 사용하는 것은 외래키 이름을 바꾸는 것 입니다. <code class="docutils literal notranslate"><span class="pre">as</span></code>를 사용할 때, 특정 외래키를 지정하는 것이 안전합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Invoice</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Subscription</span><span class="p">)</span>
+<span class="nx">Subscription</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Invoice</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">as</span></code> 없이, 정확하게 <code class="docutils literal notranslate"><span class="pre">subscriptionId</span></code>를 추가합니다. 그러나 <code class="docutils literal notranslate"><span class="pre">Invoice.belongsTo(Subscription,</span> <span class="pre">{</span> <span class="pre">as:</span> <span class="pre">'TheSubscription'</span> <span class="pre">})</span></code>를 호출한다면, <code class="docutils literal notranslate"><span class="pre">subscriptionsId</span></code>와 <code class="docutils literal notranslate"><span class="pre">theSubscriptionId</span></code>를 가질 수 있습니다. 왜냐하면 sequelize는 두개의 호출이 같은 관계를 가진다는 것을 알지 못합니다.  이를 해결할 수 있는 방법은 <code class="docutils literal notranslate"><span class="pre">foreignKey</span></code>를 사용합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Invoice</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Subscription</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;TheSubscription&#39;</span><span class="p">,</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;subscription_id&#39;</span> <span class="p">})</span>
+<span class="nx">Subscription</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Invoice</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;subscription_id&#39;</span> <span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h2>객체 연관<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize는 마법같은 많은 일들을 하기 때문에 관계설정을 한 후 <code class="docutils literal notranslate"><span class="pre">Sequelize.sync</span></code>를 호출할 수 있습니다. 다음을 따르면 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Task</span><span class="p">)</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Project</span><span class="p">)</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">create</span><span class="p">()...</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">create</span><span class="p">()...</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">create</span><span class="p">()...</span>
+
+<span class="c1">// save them... and then:</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">setTasks</span><span class="p">([</span><span class="nx">task1</span><span class="p">,</span> <span class="nx">task2</span><span class="p">]).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// saved!</span>
+<span class="p">})</span>
+
+<span class="c1">// ok, now they are saved... how do I get them later on?</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">getTasks</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">associatedTasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// associatedTasks is an array of tasks</span>
+<span class="p">})</span>
+
+<span class="c1">// You can also pass filters to the getter method.</span>
+<span class="c1">// They are equal to the options you can pass to a usual finder method.</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">getTasks</span><span class="p">({</span> <span class="nx">where</span><span class="o">:</span> <span class="s1">&#39;id &gt; 10&#39;</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">tasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// tasks with an id greater than 10 :)</span>
+<span class="p">})</span>
+
+<span class="c1">// You can also only retrieve certain fields of a associated object.</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">getTasks</span><span class="p">({</span><span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">]}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">tasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// retrieve tasks with the attributes &quot;title&quot; and &quot;id&quot;</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>생성된 관계를 삭제하기 위해 특정 Id 없이 설정 메서드를 호출할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// remove the association with task1</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">setTasks</span><span class="p">([</span><span class="nx">task2</span><span class="p">]).</span><span class="nx">then</span><span class="p">(</span><span class="nx">associatedTasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// you will get task2 only</span>
+<span class="p">})</span>
+
+<span class="c1">// remove &#39;em all</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">setTasks</span><span class="p">([]).</span><span class="nx">then</span><span class="p">(</span><span class="nx">associatedTasks</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// you will get an empty array</span>
+<span class="p">})</span>
+
+<span class="c1">// or remove &#39;em more directly</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">removeTask</span><span class="p">(</span><span class="nx">task1</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// it&#39;s gone</span>
+<span class="p">})</span>
+
+<span class="c1">// and add &#39;em again</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">addTask</span><span class="p">(</span><span class="nx">task1</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// it&#39;s back again</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>물론 그 반대의 경우도 가능합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// project is associated with task1 and task2</span>
+<span class="nx">task2</span><span class="p">.</span><span class="nx">setProject</span><span class="p">(</span><span class="kc">null</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// and it&#39;s gone</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>hasOne/belongsTo은 기본적으로 같습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Task</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span><span class="nx">as</span><span class="o">:</span> <span class="s2">&quot;Author&quot;</span><span class="p">})</span>
+<span class="nx">Task</span><span class="p">.</span><span class="nx">setAuthor</span><span class="p">(</span><span class="nx">anAuthor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>사용자 정의에 따른 테이블 조인과 함께 관계를 추가하는 것은 두 가지 방법으로 할 수 있습니다 (이전 장에서 정의 된 연관을 계속):</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// Either by adding a property with the name of the join table model to the object, before creating the association</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">UserProjects</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;active&#39;</span>
+<span class="p">}</span>
+<span class="nx">u</span><span class="p">.</span><span class="nx">addProject</span><span class="p">(</span><span class="nx">project</span><span class="p">)</span>
+
+<span class="c1">// Or by providing a second options.through argument when adding the association, containing the data that should go in the join table</span>
+<span class="nx">u</span><span class="p">.</span><span class="nx">addProject</span><span class="p">(</span><span class="nx">project</span><span class="p">,</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;active&#39;</span> <span class="p">}})</span>
+
+
+<span class="c1">// When associating multiple objects, you can combine the two options above. In this case the second argument</span>
+<span class="c1">// will be treated as a defaults object, that will be used if no data is provided</span>
+<span class="nx">project1</span><span class="p">.</span><span class="nx">UserProjects</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;inactive&#39;</span>
+<span class="p">}</span>
+
+<span class="nx">u</span><span class="p">.</span><span class="nx">setProjects</span><span class="p">([</span><span class="nx">project1</span><span class="p">,</span> <span class="nx">project2</span><span class="p">],</span> <span class="p">{</span> <span class="nx">through</span><span class="o">:</span> <span class="p">{</span> <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;active&#39;</span> <span class="p">}})</span>
+<span class="c1">// The code above will record inactive for project one, and active for project two in the join table</span>
+</pre></div>
+</div>
+<p>사용자 정의에 따라 조인 테이블을 가진 관계에서 데이터를 가져올 때, 조인 테이블에서 가져온 데이터는 DAO 인스턴스가 반환됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">u</span><span class="p">.</span><span class="nx">getProjects</span><span class="p">().</span><span class="nx">then</span><span class="p">(</span><span class="nx">projects</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="kr">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="nx">projects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+  <span class="k">if</span> <span class="p">(</span><span class="nx">project</span><span class="p">.</span><span class="nx">UserProjects</span><span class="p">.</span><span class="nx">status</span> <span class="o">===</span> <span class="s1">&#39;active&#39;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// .. do magic</span>
+
+    <span class="c1">// since this is a real DAO instance, you can save it directly after you are done doing magic</span>
+    <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">UserProjects</span><span class="p">.</span><span class="nx">save</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>조인 테이블에서 특정 속성이 필요하다면 배열 형태로 속성을 제공할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// This will select only name from the Projects table, and only status from the UserProjects table</span>
+<span class="nx">user</span><span class="p">.</span><span class="nx">getProjects</span><span class="p">({</span> <span class="nx">attributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span> <span class="nx">joinTableAttributes</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h2>관계 확인<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h2>
+<p>이미 다른 관계(오직 M:N)를 가졌는지 확인할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// check if an object is one of associated ones:</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="cm">/* */</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">project</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span> <span class="cm">/* */</span> <span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">user</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">hasUser</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+      <span class="c1">// result would be false</span>
+      <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">addUser</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">hasUser</span><span class="p">(</span><span class="nx">user</span><span class="p">).</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+          <span class="c1">// result would be true</span>
+        <span class="p">})</span>
+      <span class="p">})</span>
+    <span class="p">})</span>
+  <span class="p">})</span>
+<span class="p">})</span>
+
+<span class="c1">// check if all associated objects are as expected:</span>
+<span class="c1">// let&#39;s assume we have already a project and two users</span>
+<span class="nx">project</span><span class="p">.</span><span class="nx">setUsers</span><span class="p">([</span><span class="nx">user1</span><span class="p">,</span> <span class="nx">user2</span><span class="p">]).</span><span class="nx">then</span><span class="p">(()</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">hasUsers</span><span class="p">([</span><span class="nx">user1</span><span class="p">]);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// result would be true</span>
+  <span class="k">return</span> <span class="nx">project</span><span class="p">.</span><span class="nx">hasUsers</span><span class="p">([</span><span class="nx">user1</span><span class="p">,</span> <span class="nx">user2</span><span class="p">]);</span>
+<span class="p">}).</span><span class="nx">then</span><span class="p">(</span><span class="nx">result</span> <span class="p">=&gt;</span> <span class="p">{</span>
+  <span class="c1">// result would be true</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h2>고급개념<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id15">
+<h3>범위<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>이 섹션은 연결 범위와 관련이 있습니다. 관계 범위와 관련 모델의 범위에 대한 정의는 <a class="reference external" href="https://sequelize.org/master/manual/scopes.html">범위</a>를 참조하십시오.</p>
+<p>관계 범위를 사용하면 관계에 범위 (<code class="docutils literal notranslate"><span class="pre">get</span></code> 및 <code class="docutils literal notranslate"><span class="pre">create</span></code>을 위한 기본 속성 세트)를 배치 할 수 있습니다. 범위는 관계된 모델 (연결 타겟)과 n : m 관계에 대한 through 테이블에 둘 수 있습니다.</p>
+<div class="section" id="n">
+<h4>1:n<a class="headerlink" href="#n" title="Permalink to this headline">¶</a></h4>
+<p>우리는 Comment, Post, Image 모델을 가지고 있습니다. 댓글은 <code class="docutils literal notranslate"><span class="pre">commentableId</span></code>과 <code class="docutils literal notranslate"><span class="pre">commentable</span></code>을 포스트와 이미지와 관계를 가집니다. 우리는 Post와 Image는 <code class="docutils literal notranslate"><span class="pre">Commentable</span></code> 입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Post</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Post</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">text</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Image</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Image</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">link</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;image&#39;</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Comment</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="nx">getItem</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">this</span><span class="p">[</span>
+      <span class="s1">&#39;get&#39;</span> <span class="o">+</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;commentable&#39;</span><span class="p">)</span>
+          <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+          <span class="p">.</span><span class="nx">toUpperCase</span><span class="p">()</span> <span class="o">+</span>
+        <span class="k">this</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;commentable&#39;</span><span class="p">).</span><span class="nx">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">](</span><span class="nx">options</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nx">Comment</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">commentable</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">commentableId</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;comment&#39;</span> <span class="p">});</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Comment</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;commentableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">commentable</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">Comment</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Post</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;commentableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span>
+<span class="p">});</span>
+
+<span class="nx">Image</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Comment</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;commentableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">commentable</span><span class="o">:</span> <span class="s1">&#39;image&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="nx">Comment</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">Image</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;commentableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;image&#39;</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">constraints:</span> <span class="pre">false</span></code>는 <code class="docutils literal notranslate"><span class="pre">commentableId</span></code> 열이 여러 테이블을 참조하므로 REFERENCES 제약 조건을 추가 할 수 없으므로 참조 제약 조건을 비활성화합니다</p>
+<p>Image -&gt; Comment, Post -&gt; Comment 관계는 각각 <code class="docutils literal notranslate"><span class="pre">commentable:</span> <span class="pre">'img'</span></code> 와, <code class="docutils literal notranslate"><span class="pre">commentable:</span> <span class="pre">'post'</span></code>를 이용하여  범위(scope)를 지정합니다. 이 범위(scope)는 관계 함수를 사용할 때 자동으로 적용됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">image</span><span class="p">.</span><span class="nx">getComments</span><span class="p">()</span>
+<span class="c1">// SELECT &quot;id&quot;, &quot;title&quot;, &quot;commentable&quot;, &quot;commentableId&quot;, &quot;createdAt&quot;, &quot;updatedAt&quot; FROM &quot;comments&quot; AS</span>
+<span class="c1">// &quot;comment&quot; WHERE &quot;comment&quot;.&quot;commentable&quot; = &#39;image&#39; AND &quot;comment&quot;.&quot;commentableId&quot; = 1;</span>
+
+<span class="nx">image</span><span class="p">.</span><span class="nx">createComment</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Awesome!&#39;</span>
+<span class="p">})</span>
+<span class="c1">// INSERT INTO &quot;comments&quot; (&quot;id&quot;,&quot;title&quot;,&quot;commentable&quot;,&quot;commentableId&quot;,&quot;createdAt&quot;,&quot;updatedAt&quot;) VALUES</span>
+<span class="c1">// (DEFAULT,&#39;Awesome!&#39;,&#39;image&#39;,1,&#39;2018-04-17 05:36:40.454 +00:00&#39;,&#39;2018-04-17 05:36:40.454 +00:00&#39;)</span>
+<span class="c1">// RETURNING *;</span>
+
+<span class="nx">image</span><span class="p">.</span><span class="nx">addComment</span><span class="p">(</span><span class="nx">comment</span><span class="p">);</span>
+<span class="c1">// UPDATE &quot;comments&quot; SET &quot;commentableId&quot;=1,&quot;commentable&quot;=&#39;image&#39;,&quot;updatedAt&quot;=&#39;2018-04-17 05:38:43.948</span>
+<span class="c1">// +00:00&#39; WHERE &quot;id&quot; IN (1)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Comment</span></code>의 <code class="docutils literal notranslate"><span class="pre">getItem</span></code> 함수는 완벽한 그림입니다. 댓글 가능한 문자열을 <code class="docutils literal notranslate"><span class="pre">getImage</span></code>,<code class="docutils literal notranslate"><span class="pre">getPost</span></code> 호출로 변환하여 댓글이 게시글(post)에 해당하는지 이미지(image)에 해당하는지 추상화합니다. <code class="docutils literal notranslate"><span class="pre">getItem(options)</span></code>에 일반적인 옵션 객체를 인자로 전달하여 위치 또는 조건을 지정할 수 있습니다.</p>
+</div>
+<div class="section" id="n-m">
+<h4>n:m<a class="headerlink" href="#n-m" title="Permalink to this headline">¶</a></h4>
+<p>다형성 모델의 아이디어를 계속하면서 태그 테이블을 고려하십시오. 항목에는 여러 개의 태그가있을 수 있으며 태그는 여러 개의 항목과 관련 될 수 있습니다.</p>
+<p>간결하게하기 위해 이 예제는 Post 모델 만 표시하지만 실제로 Tag는 다른 여러 모델과 관련이 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">ItemTag</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">ItemTag</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">},</span>
+  <span class="nx">tagId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="s1">&#39;item_tag_taggable&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">taggable</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="s1">&#39;item_tag_taggable&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">taggableId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="s1">&#39;item_tag_taggable&#39;</span><span class="p">,</span>
+    <span class="nx">references</span><span class="o">:</span> <span class="kc">null</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;item_tag&#39;</span> <span class="p">});</span>
+
+<span class="kr">class</span> <span class="nx">Tag</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Tag</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">status</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;tag&#39;</span> <span class="p">});</span>
+
+<span class="nx">Post</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Tag</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">through</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="nx">ItemTag</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">taggable</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;taggableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">});</span>
+
+<span class="nx">Tag</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Post</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">through</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="nx">ItemTag</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="kc">false</span>
+  <span class="p">},</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;tagId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>범위가 지정된 열 (<code class="docutils literal notranslate"><span class="pre">taggable</span></code>)이 이제 through 모델 (ItemTag)에 있습니다.</p>
+<p>예를 들어 through 모델 (ItemTag)과 타겟모델 (Tag)의 범위를 적용하여 게시물에 대해 보류중인 모든 태그를 가져 오기 위해 보다 제한적인 관계를 정의 할 수도 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Post</span><span class="p">.</span><span class="nx">belongsToMany</span><span class="p">(</span><span class="nx">Tag</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">through</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="nx">ItemTag</span><span class="p">,</span>
+    <span class="nx">unique</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">taggable</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">status</span><span class="o">:</span> <span class="s1">&#39;pending&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;pendingTags&#39;</span><span class="p">,</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;taggableId&#39;</span><span class="p">,</span>
+  <span class="nx">constraints</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">});</span>
+
+<span class="nx">post</span><span class="p">.</span><span class="nx">getPendingTags</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span>
+  <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;name&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;status&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;createdAt&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;updatedAt&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.id&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;tagId&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.tagId&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;taggable&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.taggable&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;taggableId&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.taggableId&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;createdAt&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.createdAt&quot;</span><span class="p">,</span>
+  <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;updatedAt&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag.updatedAt&quot;</span>
+<span class="k">FROM</span>
+  <span class="ss">&quot;tags&quot;</span> <span class="k">AS</span> <span class="ss">&quot;tag&quot;</span>
+  <span class="k">INNER</span> <span class="k">JOIN</span> <span class="ss">&quot;item_tags&quot;</span> <span class="k">AS</span> <span class="ss">&quot;item_tag&quot;</span> <span class="k">ON</span> <span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;id&quot;</span> <span class="o">=</span> <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;tagId&quot;</span>
+  <span class="k">AND</span> <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;taggableId&quot;</span> <span class="o">=</span> <span class="mi">1</span>
+  <span class="k">AND</span> <span class="ss">&quot;item_tag&quot;</span><span class="p">.</span><span class="ss">&quot;taggable&quot;</span> <span class="o">=</span> <span class="s1">&#39;post&#39;</span>
+<span class="k">WHERE</span>
+  <span class="p">(</span><span class="ss">&quot;tag&quot;</span><span class="p">.</span><span class="ss">&quot;status&quot;</span> <span class="o">=</span> <span class="s1">&#39;pending&#39;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">constraints:</span> <span class="pre">false</span></code> 는 <code class="docutils literal notranslate"><span class="pre">taggableId</span></code> 열에 대한 참조 제약 조건을 비활성화합니다. 열은 다형성이기 때문에 특정 테이블을 <code class="docutils literal notranslate"><span class="pre">참조</span></code>한다고 말할 수 없습니다.</p>
+</div>
+</div>
+<div class="section" id="id16">
+<h3>관계들의 생성<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>모든 요소가 새로운 경우 한 단계로 중첩 된 연관으로 인스턴스를 작성할 수 있습니다.</p>
+<div class="section" id="belongsto-hasmany-hasone">
+<h4>BelongsTo / HasMany / HasOne 관계<a class="headerlink" href="#belongsto-hasmany-hasone" title="Permalink to this headline">¶</a></h4>
+<p>다음 모델을 고려하세요.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Product</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Product</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;product&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">firstName</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">lastName</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;user&#39;</span> <span class="p">});</span>
+<span class="kr">class</span> <span class="nx">Address</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Address</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">line1</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">line2</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">city</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">state</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+  <span class="nx">zip</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;address&#39;</span> <span class="p">});</span>
+
+<span class="nx">Product</span><span class="p">.</span><span class="nx">User</span> <span class="o">=</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">);</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">Addresses</span> <span class="o">=</span> <span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Address</span><span class="p">);</span>
+<span class="c1">// Also works for `hasOne`</span>
+</pre></div>
+</div>
+<p>다음과 같은 방법으로 새로운 <code class="docutils literal notranslate"><span class="pre">Project</span></code>, <code class="docutils literal notranslate"><span class="pre">User</span></code> 및 하나 이상의 <code class="docutils literal notranslate"><span class="pre">Address</span></code> 를 한 단계로 만들 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">return</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Chair&#39;</span><span class="p">,</span>
+  <span class="nx">user</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;Mick&#39;</span><span class="p">,</span>
+    <span class="nx">lastName</span><span class="o">:</span> <span class="s1">&#39;Broadstone&#39;</span><span class="p">,</span>
+    <span class="nx">addresses</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;home&#39;</span><span class="p">,</span>
+      <span class="nx">line1</span><span class="o">:</span> <span class="s1">&#39;100 Main St.&#39;</span><span class="p">,</span>
+      <span class="nx">city</span><span class="o">:</span> <span class="s1">&#39;Austin&#39;</span><span class="p">,</span>
+      <span class="nx">state</span><span class="o">:</span> <span class="s1">&#39;TX&#39;</span><span class="p">,</span>
+      <span class="nx">zip</span><span class="o">:</span> <span class="s1">&#39;78704&#39;</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+    <span class="nx">association</span><span class="o">:</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">User</span><span class="p">,</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">User</span><span class="p">.</span><span class="nx">Addresses</span> <span class="p">]</span>
+  <span class="p">}]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>여기서 우리의 사용자 모델은 소문자 u를 가진 <code class="docutils literal notranslate"><span class="pre">user</span></code>라고 불립니다. 이것은 객체의 속성도 <code class="docutils literal notranslate"><span class="pre">user</span></code> 여야 함을 의미합니다. <code class="docutils literal notranslate"><span class="pre">sequelize.define</span></code>에 지정된 이름이<code class="docutils literal notranslate"> <span class="pre">User</span></code> 인 경우 개체의 키도 <code class="docutils literal notranslate"><span class="pre">User</span></code> 여야합니다. 다수의 hasMany 연관을 제외하고는 주소에 대해서도 마찬가지입니다.</p>
+</div>
+<div class="section" id="belongsto-association-with-an-alias">
+<h4>BelongsTo association with an alias<a class="headerlink" href="#belongsto-association-with-an-alias" title="Permalink to this headline">¶</a></h4>
+<p>이전 예는 연관 별명을 지원하도록 확장 될 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Creator</span> <span class="o">=</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;creator&#39;</span> <span class="p">});</span>
+
+<span class="k">return</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Chair&#39;</span><span class="p">,</span>
+  <span class="nx">creator</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;Matt&#39;</span><span class="p">,</span>
+    <span class="nx">lastName</span><span class="o">:</span> <span class="s1">&#39;Hansen&#39;</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Creator</span> <span class="p">]</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="hasmany-belongstomany-association">
+<h4>HasMany / BelongsToMany association<a class="headerlink" href="#hasmany-belongstomany-association" title="Permalink to this headline">¶</a></h4>
+<p>제품을 여러 태그와 연결하는 기능을 소개하겠습니다. 모델 설정은 다음과 같습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Tag</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Tag</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+<span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;tag&#39;</span> <span class="p">});</span>
+
+<span class="nx">Product</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Tag</span><span class="p">);</span>
+<span class="c1">// Also works for `belongsToMany`.</span>
+</pre></div>
+</div>
+<p>여러 태그와 함께 제품을 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Product</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Chair&#39;</span><span class="p">,</span>
+  <span class="nx">tags</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Alpha&#39;</span><span class="p">},</span>
+    <span class="p">{</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Beta&#39;</span><span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span> <span class="nx">Tag</span> <span class="p">]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>그리고, as를 사용하는 형태로 예시를 수정할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">Categories</span> <span class="o">=</span> <span class="nx">Product</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Tag</span><span class="p">,</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;categories&#39;</span> <span class="p">});</span>
+
+<span class="nx">Product</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nx">title</span><span class="o">:</span> <span class="s1">&#39;Chair&#39;</span><span class="p">,</span>
+  <span class="nx">categories</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Alpha&#39;</span> <span class="p">},</span>
+    <span class="p">{</span> <span class="nx">id</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Beta&#39;</span> <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+    <span class="nx">association</span><span class="o">:</span> <span class="nx">Categories</span><span class="p">,</span>
+    <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;categories&#39;</span>
+  <span class="p">}]</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
 </div>
 
 
