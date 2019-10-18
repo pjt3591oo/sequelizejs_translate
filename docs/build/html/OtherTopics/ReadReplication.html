@@ -175,6 +175,28 @@
             
   <div class="section" id="id1">
 <h1>대체 읽기<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Sequelize는 읽기 복제, 즉 SELECT 쿼리를 수행 할 때 연결할 수있는 여러 서버가있는 읽기 복제를 지원합니다. 읽기 복제를 수행 할 때는 하나 이상의 서버를 읽기 전용 복제본으로, 하나의 서버를 쓰기 마스터로 지정하여 모든 쓰기 및 업데이트를 처리하고이를 복제본으로 전파합니다 (실제 복제 프로세스는 <code class="docutils literal notranslate"><span class="pre">not</span></code>라는 점에 유의하십시오) Sequelize에서 처리하지만 데이터베이스 백엔드에서 설정해야합니다).</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span><span class="p">,</span>
+  <span class="nx">port</span><span class="o">:</span> <span class="mi">3306</span>
+  <span class="nx">replication</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">read</span><span class="o">:</span> <span class="p">[</span>
+      <span class="p">{</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;8.8.8.8&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;read-username&#39;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;some-password&#39;</span> <span class="p">},</span>
+      <span class="p">{</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;9.9.9.9&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;another-username&#39;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="kc">null</span> <span class="p">}</span>
+    <span class="p">],</span>
+    <span class="nx">write</span><span class="o">:</span> <span class="p">{</span> <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;1.1.1.1&#39;</span><span class="p">,</span> <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;write-username&#39;</span><span class="p">,</span> <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;any-password&#39;</span> <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">pool</span><span class="o">:</span> <span class="p">{</span> <span class="c1">// If you want to override the options used for the read/write pool you can do so here</span>
+    <span class="nx">max</span><span class="o">:</span> <span class="mi">20</span><span class="p">,</span>
+    <span class="nx">idle</span><span class="o">:</span> <span class="mi">30000</span>
+  <span class="p">},</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<p>모든 복제본에 적용되는 일반 설정이 있으면 각 인스턴스에 해당 설정을 제공 할 필요가 없습니다. 앞의 코드에서 데이터베이스 이름과 포트는 모든 복제본으로 전파됩니다. 복제본에 대해 사용자 및 비밀번호를 제외하면 동일한 결과가 발생합니다. 각 봅제본에는 다음과 같은 옵션이 있습니다: <code class="docutils literal notranslate"><span class="pre">host</span></code>, <code class="docutils literal notranslate"><span class="pre">port</span></code>, <code class="docutils literal notranslate"><span class="pre">username</span></code>, <code class="docutils literal notranslate"><span class="pre">passwordd</span></code>, <code class="docutils literal notranslate"><span class="pre">database</span></code>.</p>
+<p>Sequelize는 풀을 사용하여 복제본에 대한 연결을 관리합니다. 내부적으로 Sequelize는 <code class="docutils literal notranslate"><span class="pre">pool</span></code> 설정을 사용하여 생성 된 두 개의 풀을 유지 관리합니다.</p>
+<p>이를 수정하려면 위와 같이 Sequelize를 인스턴스화 할 때 풀을 옵션으로 전달할 수 있습니다.</p>
+<p>각 <code class="docutils literal notranslate"><span class="pre">write</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">useMaster:</span> <span class="pre">true</span></code> 쿼리는 쓰기 풀을 사용합니다. <code class="docutils literal notranslate"><span class="pre">SELECT</span></code>에는 읽기 풀이 사용됩니다. 읽기 전용 복제본은 기본 라운드 로빈 일정을 사용하여 전환됩니다.</p>
 </div>
 
 
