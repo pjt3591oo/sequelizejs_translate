@@ -57,3 +57,4 @@
     OtherTopics/TypeScript.md
     OtherTopics/UpgradeToV5.md
     OtherTopics/WorkingWithLegacyTables.md
+    OtherTopics/LegalNotice.md
