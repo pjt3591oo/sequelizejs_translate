@@ -176,6 +176,186 @@
             
   <div class="section" id="id1">
 <h1>타입스크립트<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>v5부터 Sequelize는 고유 한 TypeScript 정의를 제공합니다. TS&gt; = 3.1 만 지원됩니다.</p>
+<p>Sequelize는 런타임 속성 할당에 크게 의존하므로 TypeScript는 즉시 유용하지 않습니다. 모델을 실행 가능하게하려면 적절한 양의 수동 형식 선언이 필요합니다.</p>
+<div class="section" id="id2">
+<h2>설치<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>다음 유형 패키지를 수동으로 설치해야합니다.</p>
+<ul class="simple">
+<li><p>&#64;types/node (this is universally required)</p></li>
+<li><p>&#64;types/validator</p></li>
+<li><p>&#64;types/bluebird</p></li>
+</ul>
+</div>
+<div class="section" id="id3">
+<h2>사용법<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>간단한 타입스크립트 예제</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">import</span> <span class="p">{</span> <span class="nx">Sequelize</span><span class="p">,</span> <span class="nx">Model</span><span class="p">,</span> <span class="nx">DataTypes</span><span class="p">,</span> <span class="nx">BuildOptions</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;sequelize&#39;</span><span class="p">;</span>
+<span class="kr">import</span> <span class="p">{</span> <span class="nx">HasManyGetAssociationsMixin</span><span class="p">,</span> <span class="nx">HasManyAddAssociationMixin</span><span class="p">,</span> <span class="nx">HasManyHasAssociationMixin</span><span class="p">,</span> <span class="nx">Association</span><span class="p">,</span> <span class="nx">HasManyCountAssociationsMixin</span><span class="p">,</span> <span class="nx">HasManyCreateAssociationMixin</span> <span class="p">}</span> <span class="nx">from</span> <span class="s1">&#39;sequelize&#39;</span><span class="p">;</span>
+
+<span class="kr">class</span> <span class="nx">User</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="kr">public</span> <span class="nx">id</span><span class="o">!:</span> <span class="nx">number</span><span class="p">;</span> <span class="c1">// Note that the `null assertion` `!` is required in strict mode.</span>
+  <span class="kr">public</span> <span class="nx">name</span><span class="o">!:</span> <span class="nx">string</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">preferredName</span><span class="o">!:</span> <span class="nx">string</span> <span class="o">|</span> <span class="kc">null</span><span class="p">;</span> <span class="c1">// for nullable fields</span>
+
+  <span class="c1">// timestamps!</span>
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">createdAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">updatedAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+
+  <span class="c1">// Since TS cannot determine model association at compile time</span>
+  <span class="c1">// we have to declare them here purely virtually</span>
+  <span class="c1">// these will not exist until `Model.init` was called.</span>
+
+  <span class="kr">public</span> <span class="nx">getProjects</span><span class="o">!:</span> <span class="nx">HasManyGetAssociationsMixin</span><span class="o">&lt;</span><span class="nx">Project</span><span class="o">&gt;</span><span class="p">;</span> <span class="c1">// Note the null assertions!</span>
+  <span class="kr">public</span> <span class="nx">addProject</span><span class="o">!:</span> <span class="nx">HasManyAddAssociationMixin</span><span class="o">&lt;</span><span class="nx">Project</span><span class="p">,</span> <span class="nx">number</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">hasProject</span><span class="o">!:</span> <span class="nx">HasManyHasAssociationMixin</span><span class="o">&lt;</span><span class="nx">Project</span><span class="p">,</span> <span class="nx">number</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">countProjects</span><span class="o">!:</span> <span class="nx">HasManyCountAssociationsMixin</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">createProject</span><span class="o">!:</span> <span class="nx">HasManyCreateAssociationMixin</span><span class="o">&lt;</span><span class="nx">Project</span><span class="o">&gt;</span><span class="p">;</span>
+
+  <span class="c1">// You can also pre-declare possible inclusions, these will only be populated if you</span>
+  <span class="c1">// actively include a relation.</span>
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">projects</span><span class="o">?:</span> <span class="nx">Project</span><span class="p">[];</span> <span class="c1">// Note this is optional since it&#39;s only populated when explicitly requested in code</span>
+
+  <span class="kr">public</span> <span class="kr">static</span> <span class="nx">associations</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">projects</span><span class="o">:</span> <span class="nx">Association</span><span class="o">&lt;</span><span class="nx">User</span><span class="p">,</span> <span class="nx">Project</span><span class="o">&gt;</span><span class="p">;</span>
+  <span class="p">};</span>
+<span class="p">}</span>
+
+<span class="kr">const</span> <span class="nx">sequelize</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Sequelize</span><span class="p">(</span><span class="s1">&#39;mysql://root:asd123@localhost:3306/mydb&#39;</span><span class="p">);</span>
+
+<span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="kr">public</span> <span class="nx">id</span><span class="o">!:</span> <span class="nx">number</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">ownerId</span><span class="o">!:</span> <span class="nx">number</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">name</span><span class="o">!:</span> <span class="nx">string</span><span class="p">;</span>
+
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">createdAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">updatedAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kr">class</span> <span class="nx">Address</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="kr">public</span> <span class="nx">userId</span><span class="o">!:</span> <span class="nx">number</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">address</span><span class="o">!:</span> <span class="nx">string</span><span class="p">;</span>
+
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">createdAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+  <span class="kr">public</span> <span class="nx">readonly</span> <span class="nx">updatedAt</span><span class="o">!:</span> <span class="nb">Date</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span><span class="p">,</span> <span class="c1">// you can omit the `new` but this is discouraged</span>
+    <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">ownerId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span><span class="p">,</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;projects&#39;</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span><span class="p">,</span>
+    <span class="nx">autoIncrement</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">preferredName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span>
+  <span class="nx">sequelize</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="c1">// this bit is important</span>
+<span class="p">});</span>
+
+<span class="nx">Address</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="nx">userId</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span><span class="p">,</span>
+  <span class="p">},</span>
+  <span class="nx">address</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="k">new</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">STRING</span><span class="p">(</span><span class="mi">128</span><span class="p">),</span>
+    <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;address&#39;</span><span class="p">,</span>
+  <span class="nx">sequelize</span><span class="o">:</span> <span class="nx">sequelize</span><span class="p">,</span> <span class="c1">// this bit is important</span>
+<span class="p">});</span>
+
+<span class="c1">// Here we associate which actually populates out pre-declared `association` static and other methods.</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Project</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;ownerId&#39;</span><span class="p">,</span>
+  <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;projects&#39;</span> <span class="c1">// this determines the name in `associations`!</span>
+<span class="p">});</span>
+
+<span class="nx">Address</span><span class="p">.</span><span class="nx">belongsTo</span><span class="p">(</span><span class="nx">User</span><span class="p">,</span> <span class="p">{</span><span class="nx">targetKey</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">});</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasOne</span><span class="p">(</span><span class="nx">Address</span><span class="p">,{</span><span class="nx">sourceKey</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span><span class="p">});</span>
+
+<span class="nx">async</span> <span class="kd">function</span> <span class="nx">stuff</span><span class="p">()</span> <span class="p">{</span>
+  <span class="c1">// Please note that when using async/await you lose the `bluebird` promise context</span>
+  <span class="c1">// and you fall back to native</span>
+  <span class="kr">const</span> <span class="nx">newUser</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">create</span><span class="p">({</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;Johnny&#39;</span><span class="p">,</span>
+    <span class="nx">preferredName</span><span class="o">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span>
+  <span class="p">});</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">newUser</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nx">newUser</span><span class="p">.</span><span class="nx">name</span><span class="p">,</span> <span class="nx">newUser</span><span class="p">.</span><span class="nx">preferredName</span><span class="p">);</span>
+
+  <span class="kr">const</span> <span class="nx">project</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">newUser</span><span class="p">.</span><span class="nx">createProject</span><span class="p">({</span>
+    <span class="nx">name</span><span class="o">:</span> <span class="s1">&#39;first!&#39;</span><span class="p">,</span>
+  <span class="p">});</span>
+
+  <span class="kr">const</span> <span class="nx">ourUser</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">User</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[</span><span class="nx">User</span><span class="p">.</span><span class="nx">associations</span><span class="p">.</span><span class="nx">projects</span><span class="p">],</span>
+    <span class="nx">rejectOnEmpty</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span> <span class="c1">// Specifying true here removes `null` from the return type!</span>
+  <span class="p">});</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">ourUser</span><span class="p">.</span><span class="nx">projects</span><span class="o">!</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">name</span><span class="p">);</span> <span class="c1">// Note the `!` null assertion since TS can&#39;t know if we included</span>
+                                          <span class="c1">// the model or not</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sequelize-define">
+<h2>sequelize.define 사용법<a class="headerlink" href="#sequelize-define" title="Permalink to this headline">¶</a></h2>
+<p>TypeScript는 <code class="docutils literal notranslate"><span class="pre">sequelize.define</span></code> 메서드를 사용하여 모델을 정의 할 때 <code class="docutils literal notranslate"><span class="pre">class</span></code> 정의를 생성하는 방법을 모릅니다. 따라서 수동 작업을 수행하고 인터페이스와 형식을 선언하고 결국 <code class="docutils literal notranslate"><span class="pre">.define</span></code> 결과를 정적 형식으로 캐스팅해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// We need to declare an interface for our model that is basically what our class would be</span>
+<span class="kr">interface</span> <span class="nx">MyModel</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{</span>
+  <span class="nx">readonly</span> <span class="nx">id</span><span class="o">:</span> <span class="nx">number</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Need to declare the static model so `findOne` etc. use correct types.</span>
+<span class="nx">type</span> <span class="nx">MyModelStatic</span> <span class="o">=</span> <span class="k">typeof</span> <span class="nx">Model</span> <span class="o">&amp;</span> <span class="p">{</span>
+  <span class="k">new</span> <span class="p">(</span><span class="nx">values</span><span class="o">?:</span> <span class="nx">object</span><span class="p">,</span> <span class="nx">options</span><span class="o">?:</span> <span class="nx">BuildOptions</span><span class="p">)</span><span class="o">:</span> <span class="nx">MyModel</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// TS can&#39;t derive a proper class definition from a `.define` call, therefor we need to cast here.</span>
+<span class="kr">const</span> <span class="nx">MyDefineModel</span> <span class="o">=</span> <span class="o">&lt;</span><span class="nx">MyModelStatic</span><span class="o">&gt;</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">define</span><span class="p">(</span><span class="s1">&#39;MyDefineModel&#39;</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">id</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">primaryKey</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="nx">DataTypes</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">.</span><span class="nx">UNSIGNED</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="kd">function</span> <span class="nx">stuffTwo</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">MyDefineModel</span><span class="p">.</span><span class="nx">findByPk</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">{</span>
+    <span class="nx">rejectOnEmpty</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+  <span class="p">})</span>
+  <span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">myModel</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">myModel</span><span class="p">.</span><span class="nx">id</span><span class="p">);</span>
+  <span class="p">});</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
