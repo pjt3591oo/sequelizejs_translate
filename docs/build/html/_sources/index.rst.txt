@@ -53,8 +53,6 @@
     OtherTopics/Scopes.md
     OtherTopics/ReadReplication.md
     OtherTopics/Migrations.md
-    OtherTopics/Resources.md
     OtherTopics/TypeScript.md
-    OtherTopics/UpgradeToV5.md
     OtherTopics/WorkingWithLegacyTables.md
     OtherTopics/LegalNotice.md

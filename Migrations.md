@@ -46,7 +46,7 @@ OPTIONS
     --env           The environment to run the command in. Default: development
     --options-path  The path to a JSON file with additional options. Default: none
     --coffee        Enables coffee script support. Default: false
-    --config        The path to the config file. Default: config/config.json
+    --config        The path to the config file. Default: config/configjson
 ```
 
 
@@ -54,7 +54,7 @@ OPTIONS
 
 다음은 일반적인 마이그레이션 파일을 보여준다. 모든 마이그레이션은 프로젝트 맨 위에있는 마이그레이션이라는 폴더에 있어야 한다. 마이그레이션 바이너리는 마이그레이션 스켈레톤을 생성 할 수 있다. 자세한 내용은 위 내용을 확인 하세요.
 
-```.js
+```js
 module.exports = {
   up: function(queryInterface, Sequelize) {
     // 새로운 상태로 변환 하기위한 로닉
@@ -68,7 +68,7 @@ module.exports = {
 
 `queryInterface` 객체는 데이터를 수정하기 위해 사용 할 수 있습니다. `Sequelize`객체는 `STRING` 또는 `INTEGET`와 같은 사용가능 한 데이터 타입을 저장한다. `up` 또는 `down` 함수는 `Promise`를 반환해야 한다. 다음은 몇 가지 코드입니다.
 
-```.js
+```js
 module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.dropAllTables();
@@ -88,7 +88,7 @@ queryInterface객체의 사용 가능 한 함수는 다음과 같이 있다.
 
 이 함수는 새로운 테이블을 생성한다. 이것은 복잡한 속성 또는 간단한 속성을 가지고 정의할 수 있습니다. 여러분은 테이블의 인코딩과 옵션을 통해 테이블 엔진을 정의 할 수 있습니다.
 
-```.js
+```js
 queryInterface.createTable(
   'nameOfTheNewTable',
   {
@@ -133,7 +133,7 @@ queryInterface.createTable(
 
 이 함수는 이미 존재하는 테이블을 제거 할 수 있다.
 
-```.js
+```js
 queryInterface.dropTable('nameOfTheExistingTable')
 ```
 
@@ -142,7 +142,7 @@ queryInterface.dropTable('nameOfTheExistingTable')
 
 이 함수는 데이터베이스에 존재하는 모든 테이블을 제거 할 수 있다.
 
-```.js
+```js
 queryInterface.dropAllTables()
 ```
 
@@ -151,7 +151,7 @@ queryInterface.dropAllTables()
 
 이 함수는 이미 존재하는 테이블의 이름을 바꿀 수 있다.
 
-```.js
+```js
 queryInterface.renameTable('Person', 'User')
 ```
 
@@ -160,7 +160,7 @@ queryInterface.renameTable('Person', 'User')
 
 이 함수는 데이터베이스에서 존재하는 테이블의 이름을 반환해 준다.
 
-```.js
+```js
 queryInterface.showAllTables().then(function(tableNames) {})
 ```
 
@@ -169,7 +169,7 @@ queryInterface.showAllTables().then(function(tableNames) {})
 
 이 함수는 테이블에서 모든 속성에 대한 정보를 포함하여 해시배열로 반환한다.
 
-```.js
+```js
 queryInterface.describeTable('Person').then(function(attributes) {
   /*
     속성은 다음과 같습니다.
@@ -195,7 +195,7 @@ queryInterface.describeTable('Person').then(function(attributes) {
 
 이 함수는 이미 존재하는 테이블에 컬럼을 더해준다. 해당 데이터 타입은 간단하거나 복잡 할 수 있다.
 
-```.js
+```js
 queryInterface.addColumn(
   'nameOfAnExistingTable',
   'nameOfTheNewAttribute',
@@ -218,7 +218,7 @@ queryInterface.addColumn(
 
 이 함수는 이미 존재하는 테이블의 특정 컬럼을 제거 할 수 있다.
 
-```.js
+```js
 queryInterface.removeColumn('Person', 'signature')
 ```
 
@@ -227,7 +227,7 @@ queryInterface.removeColumn('Person', 'signature')
 
 이 함수는 속성의 메타 데이터를 바꿀 수 있다. 그것은 기본 값을 바꾸거나, null또는 해당 데이터 타입으로 허용할 수있다. 여러분들은 새로운 데이터 타입이 완벽하게 설명하고 있는지 확인을 하세요
 
-```.js
+```js
 queryInterface.changeColumn(
   'nameOfAnExistingTable',
   'nameOfAnExistingAttribute',
@@ -244,7 +244,7 @@ queryInterface.changeColumn(
 
 이 함수는 속성의 이름을 바꿀 수 있다.
 
-```.js
+```js
 queryInterface.renameColumn('Person', 'signature', 'sig')
 ```
 
@@ -253,7 +253,7 @@ queryInterface.renameColumn('Person', 'signature', 'sig')
 
 이 함수는 테이블에서 특정 속성을 인덱스로 생성 할 수 있다. 해당 인덱스 이름은 아래에 보이는 옵션처럼 전달 되지 않는다면 자동적으로 생성이 될 것이다.
 
-```.js
+```js
 // This example will create the index person_firstname_lastname
 queryInterface.addIndex('Person', ['firstname', 'lastname'])
 
@@ -279,7 +279,7 @@ queryInterface.addIndex(
 
 이 함수는 이미 존재하는 테이블의 인덱스를 제거 할 수 있다.
 
-```.js
+```js
 queryInterface.removeIndex('Person', 'SuperDuperIndex')
 
 // or
