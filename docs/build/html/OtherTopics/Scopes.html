@@ -175,6 +175,292 @@
             
   <div class="section" id="id1">
 <h1>범위<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>범위를 지정하면 나중에 쉽게 사용할 수있는 일반적으로 사용되는 쿼리를 정의 할 수 있습니다. 범위에는 일반 파인더와 동일한 속성 (<code class="docutils literal notranslate"><span class="pre">where</span></code>, <code class="docutils literal notranslate"><span class="pre">include</span></code>, <code class="docutils literal notranslate"><span class="pre">limit</span></code> 등)이 모두 포함될 수 있습니다.</p>
+<div class="section" id="id2">
+<h2>정의<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>범위는 모델 정의에 정의하고 파인더 오브젝트일 수 있으며, 파인더 객체를 반환하는 함수일 수 있습니다. 기본 범위를 제외하고 오브젝트만 가능.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Project</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span>
+  <span class="c1">// Attributes</span>
+<span class="p">},</span> <span class="p">{</span>
+  <span class="nx">defaultScope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">active</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">scopes</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">deleted</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">deleted</span><span class="o">:</span> <span class="kc">true</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">activeUsers</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">include</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">User</span><span class="p">,</span> <span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">active</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}}</span>
+      <span class="p">]</span>
+    <span class="p">},</span>
+    <span class="nx">random</span> <span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">someNumber</span><span class="o">:</span> <span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">()</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">accessLevel</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="p">{</span>
+        <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">accessLevel</span><span class="o">:</span> <span class="p">{</span>
+            <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gte</span><span class="p">]</span><span class="o">:</span> <span class="nx">value</span>
+          <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nx">sequelize</span><span class="p">,</span>
+    <span class="nx">modelName</span><span class="o">:</span> <span class="s1">&#39;project&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">addScope</span></code> 호출에 의해 모델을 정의한 후 스코프를 추가할 수 있습니다. 이는 포함이있는 범위에 특히 유용합니다. 포함의 모델은 다른 모델을 정의 할 때 정의되지 않을 수 있습니다.</p>
+<p>기본 범위는 항상 적용됩니다. 앞의 코드에서 <code class="docutils literal notranslate"><span class="pre">Project.findAll()</span></code>은 다음과 같은 쿼리를 생성할 수 있습니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">projects</span> <span class="k">WHERE</span> <span class="n">active</span> <span class="o">=</span> <span class="k">true</span>
+</pre></div>
+</div>
+<p>기본 범위는 <code class="docutils literal notranslate"><span class="pre">.unscoped()</span></code>와 <code class="docutils literal notranslate"><span class="pre">.scope(null)</span></code> 호출 또는 다른 범위를 호출하여 지울 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;deleted&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">();</span> <span class="c1">// Removes the default scope</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">projects</span> <span class="k">WHERE</span> <span class="n">deleted</span> <span class="o">=</span> <span class="k">true</span>
+</pre></div>
+</div>
+<p>스코프가 정의된 모델에 범위를 추가하는 것이 가능합니다. 이를 통해 include, <code class="docutils literal notranslate"><span class="pre">attributes</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">where</span></code> 정의가 중복되는 것을 피할 수 있습니다. 앞의 예를 사용하면, User 모델에 포함된 <code class="docutils literal notranslate"><span class="pre">active</span></code> 범위를 호출 (include 객체에 조건을 직접 지정하지 않습니다)</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">activeUsers</span><span class="o">:</span> <span class="p">{</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">[</span>
+    <span class="p">{</span> <span class="nx">model</span><span class="o">:</span> <span class="nx">User</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;active&#39;</span><span class="p">)}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h2>사용법<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>범위는 모델 정의에서 <code class="docutils literal notranslate"><span class="pre">.scope</span></code>를 호출하여 적용되며, 하나 이상의 범위 이름을 전달합니다. <code class="docutils literal notranslate"><span class="pre">.scope</span></code>는 <code class="docutils literal notranslate"><span class="pre">.findAll</span></code>, <code class="docutils literal notranslate"><span class="pre">.update</span></code>, <code class="docutils literal notranslate"><span class="pre">.count</span></code>, <code class="docutils literal notranslate"><span class="pre">destory</span></code> 등 일반적인 메소드를 포함한 모델 객체를 반환합니다. 이 모델 인스턴스를 저장하고 나중에 다시 사용할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">DeletedProjects</span> <span class="o">=</span> <span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;deleted&#39;</span><span class="p">);</span>
+
+<span class="nx">DeletedProjects</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="c1">// some time passes</span>
+
+<span class="c1">// let&#39;s look for deleted projects again!</span>
+<span class="nx">DeletedProjects</span><span class="p">.</span><span class="nx">findAll</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>범위는 <code class="docutils literal notranslate"><span class="pre">.find</span></code>, <code class="docutils literal notranslate"><span class="pre">.findAll</span></code>, <code class="docutils literal notranslate"><span class="pre">.count</span></code>, <code class="docutils literal notranslate"><span class="pre">.update</span></code>, <code class="docutils literal notranslate"><span class="pre">.increment</span></code> 및 <code class="docutils literal notranslate"><span class="pre">.destroy</span></code>에 적용됩니다.</p>
+<p>함수인 범위는 두가지 방법으로 호출할 수 있습니다. 범위가 인수를 취하지 않으면 정상적으로 호출 될 수 있습니다. 범위가 인수를 사용하는 경우 객체를 전달하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;random&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">method</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;accessLevel&#39;</span><span class="p">,</span> <span class="mi">19</span><span class="p">]}).</span><span class="nx">findAll</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">projects</span> <span class="k">WHERE</span> <span class="n">someNumber</span> <span class="o">=</span> <span class="mi">42</span> <span class="k">AND</span> <span class="n">accessLevel</span> <span class="o">&gt;=</span> <span class="mi">19</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>병합<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<p>범위 배열을 <code class="docutils literal notranslate"><span class="pre">.scope</span></code>에 전달하거나 범위를 연속 인수로 전달하여 여러 범위를 동시에 적용 할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// These two are equivalent</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;deleted&#39;</span><span class="p">,</span> <span class="s1">&#39;activeUsers&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">();</span>
+<span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">([</span><span class="s1">&#39;deleted&#39;</span><span class="p">,</span> <span class="s1">&#39;activeUsers&#39;</span><span class="p">]).</span><span class="nx">findAll</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">projects</span>
+<span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">users</span> <span class="k">ON</span> <span class="n">projects</span><span class="p">.</span><span class="n">userId</span> <span class="o">=</span> <span class="n">users</span><span class="p">.</span><span class="n">id</span>
+<span class="k">WHERE</span> <span class="n">projects</span><span class="p">.</span><span class="n">deleted</span> <span class="o">=</span> <span class="k">true</span>
+<span class="k">AND</span> <span class="n">users</span><span class="p">.</span><span class="n">active</span> <span class="o">=</span> <span class="k">true</span>
+</pre></div>
+</div>
+<p>기본 범위와 함께 다른 범위를 적용하려면 <code class="docutils literal notranslate"><span class="pre">defaultScope</span></code> 키를 <code class="docutils literal notranslate"><span class="pre">.scope</span></code>에 전달하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;defaultScope&#39;</span><span class="p">,</span> <span class="s1">&#39;deleted&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">projects</span> <span class="k">WHERE</span> <span class="n">active</span> <span class="o">=</span> <span class="k">true</span> <span class="k">AND</span> <span class="n">deleted</span> <span class="o">=</span> <span class="k">true</span>
+</pre></div>
+</div>
+<p>여러 범위를 호출 할 때 후속 범위의 키는 병합 될 <code class="docutils literal notranslate"><span class="pre">where</span></code> 및 <code class="docutils literal notranslate"><span class="pre">include</span></code>을 제외하고 이전 범위 (<a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign">Object.assign</a>과 유사)를 덮어 씁니다. 두 가지 범위를 고려하세요.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nx">scope1</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;bob&#39;</span><span class="p">,</span>
+      <span class="nx">age</span><span class="o">:</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">20</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span>
+  <span class="p">},</span>
+  <span class="nx">scope2</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">age</span><span class="o">:</span> <span class="p">{</span>
+        <span class="p">[</span><span class="nx">Op</span><span class="p">.</span><span class="nx">gt</span><span class="p">]</span><span class="o">:</span> <span class="mi">30</span>
+      <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nx">limit</span><span class="o">:</span> <span class="mi">10</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">.scope('scope1',</span> <span class="pre">'scope2')</span></code>를 호출하는 것은 다음과 같이 쿼리를 생성합니다.</p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WHERE</span> <span class="n">firstName</span> <span class="o">=</span> <span class="s1">&#39;bob&#39;</span> <span class="k">AND</span> <span class="n">age</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="k">LIMIT</span> <span class="mi">10</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">scope2</span></code>가<code class="docutils literal notranslate"><span class="pre">limit</span></code>와<code class="docutils literal notranslate"><span class="pre">age</span></code>를 어떻게 덮어 쓰는 반면<code class="docutils literal notranslate"><span class="pre">firstName</span></code>은 유지됩니다. <code class="docutils literal notranslate"><span class="pre">limit</span></code>,<code class="docutils literal notranslate"><span class="pre">offset</span></code>,<code class="docutils literal notranslate"><span class="pre">order</span></code>,<code class="docutils literal notranslate"><span class="pre">paranoid</span></code>,<code class="docutils literal notranslate"><span class="pre">lock</span></code> 및<code class="docutils literal notranslate"><span class="pre">raw</span></code> 필드는 덮어 쓰여지고<code class="docutils literal notranslate"><span class="pre">where</span></code>는 얕게 병합됩니다 (동일한 키가 덮어 쓰기 됨). <code class="docutils literal notranslate"><span class="pre">include</span></code>의 병합 전략은 나중에 논의 될 것이다.</p>
+<p>여러 적용된 범위의 속성 키는 <code class="docutils literal notranslate"><span class="pre">attributes.exclude</span></code>가 항상 유지되는 방식으로 병합됩니다. 이를 통해 여러 범위를 병합하고 최종 범위에서 민감한 필드를 유출하지 않습니다.</p>
+<p>범위가 지정된 모델의 <code class="docutils literal notranslate"><span class="pre">findAll</span></code> (및 유사한 파인더)에 찾기 오브젝트를 직접 전달할 때 동일한 병합 논리가 적용됩니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Project</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;deleted&#39;</span><span class="p">).</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;john&#39;</span>
+  <span class="p">}</span>
+<span class="p">})</span>
+</pre></div>
+</div>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="k">WHERE</span> <span class="n">deleted</span> <span class="o">=</span> <span class="k">true</span> <span class="k">AND</span> <span class="n">firstName</span> <span class="o">=</span> <span class="s1">&#39;john&#39;</span>
+</pre></div>
+</div>
+<p>여기서 ‘삭제 된’범위는 파인더와 병합됩니다. <code class="docutils literal notranslate"><span class="pre">where</span> <span class="pre">:</span> <span class="pre">{firstName</span> <span class="pre">:</span> <span class="pre">'john',</span> <span class="pre">deleted</span> <span class="pre">:</span> <span class="pre">false}</span></code>를 파인더에게 전달하면<code class="docutils literal notranslate"><span class="pre">deleted</span></code> 범위가 덮어 쓰기됩니다.</p>
+<div class="section" id="merging-includes">
+<h3>Merging includes(병합 포함)<a class="headerlink" href="#merging-includes" title="Permalink to this headline">¶</a></h3>
+<p>포함되는 모델에 따라 포함이 재귀 적으로 병합됩니다. 이것은 v5에 추가 된 매우 강력한 병합이며 예제로 더 잘 이해됩니다.</p>
+<p>Foo, Bar, Baz 및 Qux의 네 가지 모델을 고려하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Foo</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="kr">class</span> <span class="nx">Bar</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="kr">class</span> <span class="nx">Baz</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="kr">class</span> <span class="nx">Qux</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="nx">Bar</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="nx">Baz</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="nx">Qux</span><span class="p">.</span><span class="nx">init</span><span class="p">({</span> <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span> <span class="p">},</span> <span class="p">{</span> <span class="nx">sequelize</span> <span class="p">});</span>
+<span class="nx">Foo</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Bar</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;fooId&#39;</span> <span class="p">});</span>
+<span class="nx">Bar</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Baz</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;barId&#39;</span> <span class="p">});</span>
+<span class="nx">Baz</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Qux</span><span class="p">,</span> <span class="p">{</span> <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;bazId&#39;</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>이제 Foo에 정의 된 다음 네 가지 범위를 고려하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nx">includeEverything</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bar</span><span class="p">,</span>
+      <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Baz</span><span class="p">,</span>
+        <span class="nx">include</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Qux</span>
+      <span class="p">}]</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">limitedBars</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bar</span><span class="p">,</span>
+      <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">limitedBazs</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bar</span><span class="p">,</span>
+      <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Baz</span><span class="p">,</span>
+        <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span>
+      <span class="p">}]</span>
+    <span class="p">}]</span>
+  <span class="p">},</span>
+  <span class="nx">excludeBazName</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bar</span><span class="p">,</span>
+      <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+        <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Baz</span><span class="p">,</span>
+        <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">exclude</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">}]</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 네 가지 범위는 <code class="docutils literal notranslate"><span class="pre">Foo.scope('includeEverything',</span> <span class="pre">'limitedBars',</span> <span class="pre">'limitedBazs',</span> <span class="pre">'excludeBazName').findAll()</span></code>을 호출하여 쉽게 병합 할 수 있습니다. 이는 다음을 호출하는 것과 완전히 같습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">Foo</span><span class="p">.</span><span class="nx">findAll</span><span class="p">({</span>
+  <span class="nx">include</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bar</span><span class="p">,</span>
+    <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nx">include</span><span class="o">:</span> <span class="p">[{</span>
+      <span class="nx">model</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Baz</span><span class="p">,</span>
+      <span class="nx">limit</span><span class="o">:</span> <span class="mi">2</span><span class="p">,</span>
+      <span class="nx">attributes</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">exclude</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span>
+      <span class="p">},</span>
+      <span class="nx">include</span><span class="o">:</span> <span class="k">this</span><span class="p">.</span><span class="nx">Qux</span>
+    <span class="p">}]</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p>네 가지 스코프가 어떻게 하나로 통합되었는지 관찰하십시오. 범위 포함은 포함되는 모델을 기반으로 병합됩니다. 한 범위에 모델 A가 포함되고 다른 범위에 모델 B가 포함 된 경우 병합 된 결과에는 모델 A와 B가 모두 포함됩니다. 반면에, 두 범위 모두 동일한 모델 A를 포함하지만 다른 옵션 (예 : 중첩 포함 또는 다른 속성)을 포함하는 경우 위에 표시된대로 재귀 적으로 병합됩니다.</p>
+<p>위에 설명 된 병합은 범위에 적용되는 순서에 관계없이 동일한 방식으로 작동합니다. 특정 옵션이 두 가지 다른 범위로 설정된 경우에만 순서가 달라집니다. 각 범위가 다른 일을하기 때문에 위의 예에서는 그렇지 않습니다.</p>
+<p>병합 전략은 <code class="docutils literal notranslate"><span class="pre">.findAll</span></code>, <code class="docutils literal notranslate"><span class="pre">.findOne</span></code>등에 전달된 옵션과 같은 방식으로 동작합니다.</p>
+</div>
+</div>
+<div class="section" id="associations">
+<h2>Associations(관계)<a class="headerlink" href="#associations" title="Permalink to this headline">¶</a></h2>
+<p>Sequelize에는 관계와 관련하여 서로 다른 두 가지 범위 개념이 있습니다. 차이점은 미묘하지만 중요합니다.</p>
+<ul class="simple">
+<li><p><strong>Association scopes</strong> 관계에서 getting, setting할 때 기본 속성을 지정할 수있습니다. - 다형성 관계을 구현할 때 유용합니다. 이 범위는 연관된 모델 함수 <code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">set</span></code>, <code class="docutils literal notranslate"><span class="pre">add</span></code> 및 <code class="docutils literal notranslate"><span class="pre">create</span></code>을 사용할 때 두 모델 간의 연관에서만 호출됩니다.</p></li>
+<li><p><strong>Scopes on associated models</strong> 연관을 페치 할 때 기본 및 기타 범위를 적용하고 연관을 작성할 때 범위가 지정된 모델을 전달할 수 있습니다. 이 범위는 모델의 정규 찾기 및 연관을 통한 찾기에 모두 적용됩니다.연관을 페치 할 때 기본 및 기타 범위를 적용하고 연관을 작성할 때 범위가 지정된 모델을 전달할 수 있습니다. 이 범위는 모델의 정규 찾기 및 연관을 통한 찾기에 모두 적용됩니다.</p></li>
+</ul>
+<p>예를 들어, Post 및 Comment 모델을 고려하십시오. 댓글은 여러 다른 모델 (이미지, 비디오 등)과 연관되어 있으며 댓글과 다른 모델 간의 연관은 다형성입니다. 즉, 댓글은 외래 키 commentable_id 외에도 ‘commentable’열을 저장합니다.</p>
+<p>다형성 연관은 연관 범위로 구현 될 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="k">this</span><span class="p">.</span><span class="nx">Post</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">Comment</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">foreignKey</span><span class="o">:</span> <span class="s1">&#39;commentable_id&#39;</span><span class="p">,</span>
+  <span class="nx">scope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">commentable</span><span class="o">:</span> <span class="s1">&#39;post&#39;</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">post.getComments()</span></code>를 호출할 때, <code class="docutils literal notranslate"><span class="pre">WHERE</span> <span class="pre">commentable</span> <span class="pre">=</span> <span class="pre">'post'</span></code>를 자동으로 호출합니다. 마찬가지로 게시물에 새 댓글을 추가 할 때 댓글 작성 기능은 자동으로 <code class="docutils literal notranslate"><span class="pre">post</span></code>로 설정됩니다. 연결 범위는 프로그래머가 걱정할 필요없이 백그라운드에서 살아야하기 때문에 비활성화 할 수 없습니다. 보다 완전한 다형성 예제는 <a class="reference external" href="https://sequelize.org/master/manual/associations.html#scopes">Association scopes</a>를 참조하십시오.</p>
+<p>그런 다음 게시물에는 활성 게시물 만 표시하는 기본 범위가 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">where</span><span class="o">:</span> <span class="p">{</span> <span class="nx">active</span><span class="o">:</span> <span class="kc">true</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>이 범위는 관련 모델 (포스트)에 있으며 주석 처리 가능한 범위와 같은 연결에는 없습니다. <code class="docutils literal notranslate"><span class="pre">Post.findAll()</span></code>을 호출 할 때 기본 범위가 적용되는 것과 마찬가지로 <code class="docutils literal notranslate"><span class="pre">User.getPosts()</span></code>를 호출 할 때도 적용됩니다. 그러면 해당 사용자의 활성 게시물 만 반환됩니다.</p>
+<p>기본 범위를 비 활성화하기 위해, <code class="docutils literal notranslate"><span class="pre">scope:</span> <span class="pre">null</span></code>을 getter에 전달합니다</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">getPosts</span><span class="p">({</span><span class="nx">scope</span><span class="o">:</span> <span class="kc">null</span><span class="p">})</span>
+</pre></div>
+</div>
+<p>마찬가지로 다른 범위의 적용을 원한다면, <code class="docutils literal notranslate"><span class="pre">.scope</span></code>에 다음과 같이 배열을 전달합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">getPosts</span><span class="p">({</span> <span class="nx">scope</span><span class="o">:</span> <span class="p">[</span><span class="s1">&#39;scope1&#39;</span><span class="p">,</span> <span class="s1">&#39;scope2&#39;</span><span class="p">]});</span>
+</pre></div>
+</div>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">class</span> <span class="nx">Post</span> <span class="kr">extends</span> <span class="nx">Model</span> <span class="p">{}</span>
+<span class="nx">Post</span><span class="p">.</span><span class="nx">init</span><span class="p">(</span><span class="nx">attributes</span><span class="p">,</span> <span class="p">{</span>
+  <span class="nx">defaultScope</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">active</span><span class="o">:</span> <span class="kc">true</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">scopes</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">deleted</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">where</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">deleted</span><span class="o">:</span> <span class="kc">true</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="nx">sequelize</span><span class="p">,</span>
+<span class="p">});</span>
+
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Post</span><span class="p">);</span> <span class="c1">// regular getPosts association</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">hasMany</span><span class="p">(</span><span class="nx">Post</span><span class="p">.</span><span class="nx">scope</span><span class="p">(</span><span class="s1">&#39;deleted&#39;</span><span class="p">),</span> <span class="p">{</span> <span class="nx">as</span><span class="o">:</span> <span class="s1">&#39;deletedPosts&#39;</span> <span class="p">});</span>
+</pre></div>
+</div>
+<p>연관된 모델의 범위에 대한 바로 가기 메소드를 작성하려는 경우 범위가 지정된 모델을 연관에 전달할 수 있습니다. 사용자에 대해 삭제 된 모든 게시물을 가져 오는 바로 가기를 고려하십시오.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">User</span><span class="p">.</span><span class="nx">getPosts</span><span class="p">();</span> <span class="c1">// WHERE active = true</span>
+<span class="nx">User</span><span class="p">.</span><span class="nx">getDeletedPosts</span><span class="p">();</span> <span class="c1">// WHERE deleted = true</span>
+</pre></div>
+</div>
+</div>
 </div>
 
 
