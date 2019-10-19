@@ -174,6 +174,581 @@
             
   <div class="section" id="id1">
 <h1>마이그레이션<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>소스코드 변경사항 관리를 위해 git/svn을 사용하는 것처럼, 데이터베이스의 변경사항을 추적하기 위해 마이그레이션을 사용할 수 있습니다. 마이그레이션을 통해 기존 데이터베이스를 다른 상태로 또는 그 반대로 전송할 수 있습니다. 이러한 상태 전환은 마이그레이션 파일에 저장됩니다. 마이그레이션 파일은 새 상태로 이동하는 방법과 이전 상태로 돌아 가기 위해 변경 사항을 되 돌리는 방법을 설명합니다.</p>
+<p><a class="reference external" href="https://github.com/sequelize/cli">Sequelize CLI</a>가 필요합니다. CLI는 마이그레이션과 프로젝트 부트스트랩 지원을 제공합니다.</p>
+<div class="section" id="the-cli">
+<h2>The CLI<a class="headerlink" href="#the-cli" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cli">
+<h3>CLI 설치<a class="headerlink" href="#cli" title="Permalink to this headline">¶</a></h3>
+<p>CLI 설치부터 시작하겠습니다. <a class="reference external" href="https://github.com/sequelize/cli">여기서</a> 지침을 찾을 수 있습니다. 가장 선호되는 방법은 다음과 같이 로컬로 설치하는 것입니다</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm install --save sequelize-cli
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h3>부트스트랩핑<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<p>빈 프로젝트를 생성하기 위해 <code class="docutils literal notranslate"><span class="pre">init</span></code> 명령어를 사용할 수 있습니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli init
+</pre></div>
+</div>
+<p>이것은 다음과 같은 폴더를 생성합니다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">config</span></code>, CLI에 데이터베이스 연결 방법을 알려주는 설정 파일 포함</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code>, 프로젝트를 위한 모든 모델 파일들 포함</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">migrations</span></code>, 모든 마이그레이션 파일들 포함</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seeders</span></code>, 모든 시드 파일들 포함</p></li>
+</ul>
+<div class="section" id="id3">
+<h4>설정<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h4>
+<p>계속 진행하기 전에 CLI에 데이터베이스 연결 방법을 알려야합니다. 이를 위해 설정 구성 파일 <code class="docutils literal notranslate"><span class="pre">config/config.json</span></code>을 엽니다. 설정파일은 다음과 같습니다.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;development&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;database&quot;</span><span class="p">:</span> <span class="s2">&quot;database_development&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;dialect&quot;</span><span class="p">:</span> <span class="s2">&quot;mysql&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;test&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;database&quot;</span><span class="p">:</span> <span class="s2">&quot;database_test&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;dialect&quot;</span><span class="p">:</span> <span class="s2">&quot;mysql&quot;</span>
+  <span class="p">},</span>
+  <span class="nt">&quot;production&quot;</span><span class="p">:</span> <span class="p">{</span>
+    <span class="nt">&quot;username&quot;</span><span class="p">:</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;password&quot;</span><span class="p">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nt">&quot;database&quot;</span><span class="p">:</span> <span class="s2">&quot;database_production&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;dialect&quot;</span><span class="p">:</span> <span class="s2">&quot;mysql&quot;</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제이 파일을 편집하고 올바른 데이터베이스 정보 및 방언(dialect)을 설정하십시오. 객체의 키 (예 : “development”)는 <code class="docutils literal notranslate"><span class="pre">model.index.js</span></code>에서 <code class="docutils literal notranslate"><span class="pre">process.env.NODE_ENV</span></code>와 일치시키기 위해 사용됩니다 (정의되지 않은 경우 “development”가 기본값).</p>
+<p><strong>참고</strong> : 데이터베이스가 아직 없으면 <strong>db:create</strong> 명령을 호출하면됩니다. 적절한 액세스 권한이 있으면 해당 데이터베이스가 작성됩니다.</p>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>첫 번쨰 모델 생성(그리고 마이그레이션)<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p>CLI 설정파일을 올바르게 구성했으면 첫 번째 마이그레이션을 작성할 준비가되었습니다. 이것은 매우 간단한 명령어로 실행하 수 있습니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">model:generate</span></code> 명령어를 사용할 것 입니다. 두 가지 옵션을 반드시 포함해야 합니다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>, 모델의 이름</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">attributes</span></code>, 모델의 속성 리스트</p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">User</span></code> 모델을 생성해봅시다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli model:generate --name User --attributes firstName:string,lastName:string,email:string
+</pre></div>
+</div>
+<p>이것은 다음을 따릅니다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">models</span></code> 디렉터리(폴더)에 <code class="docutils literal notranslate"><span class="pre">user</span></code> 파일을 생성합니다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">migrations</span></code> 디렉터리(폴더)에 <code class="docutils literal notranslate"><span class="pre">XXXXXXXXXXXXXX-create-user.js</span></code>와 같은 이름을 가진 파일을 생성합니다.</p></li>
+</ul>
+<p><strong>참고</strong>: Sequelize는 모델 파일 만 사용하며 테이블 표현입니다. 반면, 마이그레이션 파일은 CLI에서 사용되는 해당 모델 또는 보다 구체적으로 해당 테이블의 변경입니다. 데이터베이스의 일부 변경에 대한 커밋 또는 로그처럼 마이그레이션을 처리하십시오.</p>
+</div>
+<div class="section" id="id5">
+<h3>마이그레이션 동작<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<p>이 단계까지는 데이터베이스에 아무것도 삽입하지 않았습니다. 첫 번째 모델 사용자에 필요한 모델 및 마이그레이션 파일을 만들었습니다. 이제 데이터베이스에서 해당 테이블을 실제로 만들려면 <code class="docutils literal notranslate"><span class="pre">db:migrate</span></code> 명령을 실행해야합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:migrate
+</pre></div>
+</div>
+<p>이것은 다음 스탭을 실행합니다.</p>
+<ul class="simple">
+<li><p>데이터베이스에서 <code class="docutils literal notranslate"><span class="pre">SequelizeMeta</span></code>로 불리는 테이블을 안전하게 합니다. 이 테이블은 현재 데이터베이스에서 실행 된 마이그레이션을 기록하는 데 사용됩니다.</p></li>
+<li><p>아직 실행되지 않은 마이그레이션 파일을 찾기 시작하십시오. <code class="docutils literal notranslate"><span class="pre">SequelizeMeta</span></code> 테이블을 확인하면 가능합니다. 이 경우 마지막 단계에서 생성한 <code class="docutils literal notranslate"><span class="pre">XXXXXXXXXXXXXX-create-user.js</span></code> 마이그레이션을 실행합니다.</p></li>
+<li><p>마이그레이션 파일에 지정된대로 모든 열이있는 <code class="docutils literal notranslate"><span class="pre">Users</span></code>라는 테이블을 작성합니다.</p></li>
+</ul>
+</div>
+<div class="section" id="id6">
+<h3>마이그레이션 취소<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>이제 테이블이 생성되어 데이터베이스에 저장되었습니다. 마이그레이션을 사용하면 명령을 실행하여 이전 상태로 되돌릴 수 있습니다.</p>
+<p>가장 최근의 마이그레이션을 되돌리기 위해 <code class="docutils literal notranslate"><span class="pre">dv:migrate:undo</span></code>를 사용할 수 있습니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:migrate:undo
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">db:migrate:undo:all</span></code> 명령으로 모든 마이그레이션을 실행 취소하여 초기 상태로 되돌릴 수 있습니다. <code class="docutils literal notranslate"><span class="pre">--to</span></code> 옵션에 이름을 전달하여 특정 마이그레이션으로 되돌릴 수도 있습니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:migrate:undo:all --to XXXXXXXXXXXXXX-create-posts.js
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h3>첫 번째 피드 생성<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<p>일부 데이터를 몇 개의 테이블에 삽입하려고한다고 가정합니다. 이전 예제를 따라 가면 <code class="docutils literal notranslate"><span class="pre">User</span></code> 테이블에 대한 데모 사용자를 만들 수 있습니다.</p>
+<p>모든 데이터 마이그레이션을 관리하기 위해 파종기(씨앗뿌리기)를 사용할 수 있습니다. 시드 파일은 데이터베이스 테이블을 샘플 데이터 또는 테스트 데이터로 채우는 데 사용할 수있는 일부 데이터 변경입니다.</p>
+<p><code class="docutils literal notranslate"><span class="pre">User</span></code> 테이블에 데모 사용자를 추가 할 seed 파일을 만들어 봅시다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli seed:generate --name demo-user
+</pre></div>
+</div>
+<p>이 명령어는 <code class="docutils literal notranslate"><span class="pre">seeder</span></code> 디렉터리(폴더)에 씨드 파일을 생성합니다. 파일 이름은 <code class="docutils literal notranslate"><span class="pre">XXXXXXXXXXXXXX-demo-user.js</span></code>와 같습니다. 마이그레이션 파일과 동일한 <code class="docutils literal notranslate"><span class="pre">up/down</span></code> 시맨틱을 따릅니다.</p>
+<p>이제이 파일을 편집하여 데모 사용자를 사용자 테이블에 삽입해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;use strict&#39;</span><span class="p">;</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">up</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">bulkInsert</span><span class="p">(</span><span class="s1">&#39;Users&#39;</span><span class="p">,</span> <span class="p">[{</span>
+        <span class="nx">firstName</span><span class="o">:</span> <span class="s1">&#39;John&#39;</span><span class="p">,</span>
+        <span class="nx">lastName</span><span class="o">:</span> <span class="s1">&#39;Doe&#39;</span><span class="p">,</span>
+        <span class="nx">email</span><span class="o">:</span> <span class="s1">&#39;demo@demo.com&#39;</span><span class="p">,</span>
+        <span class="nx">createdAt</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">(),</span>
+        <span class="nx">updatedAt</span><span class="o">:</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+      <span class="p">}],</span> <span class="p">{});</span>
+  <span class="p">},</span>
+
+  <span class="nx">down</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">bulkDelete</span><span class="p">(</span><span class="s1">&#39;Users&#39;</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="p">{});</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id8">
+<h2>씨드 실행<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h2>
+<p>마지막 스탭에서 씨드를 생성했습니다. 여전히 데이터베이스에 커밋되지 않았습니다. 커밋을 위해 간단한 명령을 실행해야합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:seed:all
+</pre></div>
+</div>
+<p>이것은 씨드파일을 실행하고 <code class="docutils literal notranslate"><span class="pre">User</span></code> 테이블에 데모 유저 데이터를 추가합니다.</p>
+<p><strong>참고</strong>: 시더 실행은 <code class="docutils literal notranslate"><span class="pre">SequelizeMeta</span></code> 테이블을 사용하는 마이그레이션과 달리 어디에도 저장되지 않습니다. 이것을 무시하려면 저장 섹션을 읽으십시오</p>
+</div>
+<div class="section" id="id9">
+<h2>씨드 취소<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h2>
+<p>시더는 스토리지를 사용하는 경우 취소 할 수 있습니다. 사용할 수있는 두 가지 명령이 있습니다.</p>
+<p>가장 최신의 시드를 취소하고 싶다면</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:seed:undo
+</pre></div>
+</div>
+<p>특정 요소의 시드를 취소하고 싶다면</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:seed:undo --seed name-of-seed-as-in-data
+</pre></div>
+</div>
+<p>모든 시드를 취소하고 싶다면</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:seed:undo:all
+</pre></div>
+</div>
+</div>
+<div class="section" id="advance-topics">
+<h2>Advance Topics<a class="headerlink" href="#advance-topics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id10">
+<h3>마이그레이션 스켈레톤<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<p>다음 스켈레톤은 일반적인 마이그레이션 파일을 보여줍니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">up</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// logic for transforming into the new state</span>
+  <span class="p">},</span>
+
+  <span class="nx">down</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="c1">// logic for reverting the changes</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">migration:generate</span></code>를 사용하여이 파일을 생성 할 수 있습니다. 마이그레이션 디렉터리(폴더)에 <code class="docutils literal notranslate"><span class="pre">xxx-migration-skeleton.js</span></code> 파일을 생성합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli migration:generate --name migration-skeleton
+</pre></div>
+</div>
+<p>전달 된 <code class="docutils literal notranslate"><span class="pre">queryInterface</span></code> 오브젝트를 사용하여 데이터베이스를 수정할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">Sequelize</span></code>는 <code class="docutils literal notranslate"><span class="pre">STRING</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">INTEGER</span></code>와 같이 사용가능한 데이터 타입을 저장합니다. <code class="docutils literal notranslate"><span class="pre">up</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">down</span></code> 함수는 <code class="docutils literal notranslate"><span class="pre">Promise</span></code>를 반환합니다. 예제를 살펴 보십쇼.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">up</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">createTable</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+        <span class="nx">isBetaMember</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BOOLEAN</span><span class="p">,</span>
+          <span class="nx">defaultValue</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+          <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span>
+        <span class="p">}</span>
+      <span class="p">});</span>
+  <span class="p">},</span>
+  <span class="nx">down</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">dropTable</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>다음은 트랜잭션을 사용하여 데이터베이스에서 두 가지 변경을 수행하여 실패시 모든 명령이 성공적으로 실행 또는 롤백되도록하는 마이그레이션의 예입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="nx">up</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">transaction</span><span class="p">((</span><span class="nx">t</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+                <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">addColumn</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;petName&#39;</span><span class="p">,</span> <span class="p">{</span>
+                    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span>
+                <span class="p">},</span> <span class="p">{</span> <span class="nx">transaction</span><span class="o">:</span> <span class="nx">t</span> <span class="p">}),</span>
+                <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">addColumn</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;favoriteColor&#39;</span><span class="p">,</span> <span class="p">{</span>
+                    <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+                <span class="p">},</span> <span class="p">{</span> <span class="nx">transaction</span><span class="o">:</span> <span class="nx">t</span> <span class="p">})</span>
+            <span class="p">])</span>
+        <span class="p">})</span>
+    <span class="p">},</span>
+
+    <span class="nx">down</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">transaction</span><span class="p">((</span><span class="nx">t</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="nb">Promise</span><span class="p">.</span><span class="nx">all</span><span class="p">([</span>
+                <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">removeColumn</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;petName&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">transaction</span><span class="o">:</span> <span class="nx">t</span> <span class="p">}),</span>
+                <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">removeColumn</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;favoriteColor&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">transaction</span><span class="o">:</span> <span class="nx">t</span> <span class="p">})</span>
+            <span class="p">])</span>
+        <span class="p">})</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>외래키를 가지고 있는 마이그레이션의 다음예입니다. 참조를 사용하여 외래키를 지정할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">up</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">createTable</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="p">{</span>
+      <span class="nx">name</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+      <span class="nx">isBetaMember</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">BOOLEAN</span><span class="p">,</span>
+        <span class="nx">defaultValue</span><span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
+        <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span>
+      <span class="p">},</span>
+      <span class="nx">userId</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">INTEGER</span><span class="p">,</span>
+        <span class="nx">references</span><span class="o">:</span> <span class="p">{</span>
+          <span class="nx">model</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">tableName</span><span class="o">:</span> <span class="s1">&#39;users&#39;</span><span class="p">,</span>
+            <span class="nx">schema</span><span class="o">:</span> <span class="s1">&#39;schema&#39;</span>
+          <span class="p">}</span>
+          <span class="nx">key</span><span class="o">:</span> <span class="s1">&#39;id&#39;</span>
+        <span class="p">},</span>
+        <span class="nx">allowNull</span><span class="o">:</span> <span class="kc">false</span>
+      <span class="p">},</span>
+    <span class="p">});</span>
+  <span class="p">},</span>
+
+  <span class="nx">down</span><span class="o">:</span> <span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">dropTable</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>다음은 async / await를 사용하여 새 열에 고유 인덱스를 생성하는 마이그레이션의 예입니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">async</span> <span class="nx">up</span><span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">transaction</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">transaction</span><span class="p">();</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="nx">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">addColumn</span><span class="p">(</span>
+        <span class="s1">&#39;Person&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;petName&#39;</span><span class="p">,</span>
+        <span class="p">{</span>
+          <span class="nx">type</span><span class="o">:</span> <span class="nx">Sequelize</span><span class="p">.</span><span class="nx">STRING</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">transaction</span> <span class="p">}</span>
+      <span class="p">);</span>
+      <span class="nx">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">addIndex</span><span class="p">(</span>
+        <span class="s1">&#39;Person&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;petName&#39;</span><span class="p">,</span>
+        <span class="p">{</span>
+          <span class="nx">fields</span><span class="o">:</span> <span class="s1">&#39;petName&#39;</span><span class="p">,</span>
+          <span class="nx">unique</span><span class="o">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span> <span class="nx">transaction</span> <span class="p">}</span>
+      <span class="p">);</span>
+      <span class="nx">await</span> <span class="nx">transaction</span><span class="p">.</span><span class="nx">commit</span><span class="p">();</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">await</span> <span class="nx">transaction</span><span class="p">.</span><span class="nx">rollback</span><span class="p">();</span>
+      <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+
+  <span class="nx">async</span> <span class="nx">down</span><span class="p">(</span><span class="nx">queryInterface</span><span class="p">,</span> <span class="nx">Sequelize</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kr">const</span> <span class="nx">transaction</span> <span class="o">=</span> <span class="nx">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">sequelize</span><span class="p">.</span><span class="nx">transaction</span><span class="p">();</span>
+    <span class="k">try</span> <span class="p">{</span>
+      <span class="nx">await</span> <span class="nx">queryInterface</span><span class="p">.</span><span class="nx">removeColumn</span><span class="p">(</span><span class="s1">&#39;Person&#39;</span><span class="p">,</span> <span class="s1">&#39;petName&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">transaction</span> <span class="p">});</span>
+      <span class="nx">await</span> <span class="nx">transaction</span><span class="p">.</span><span class="nx">commit</span><span class="p">();</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">await</span> <span class="nx">transaction</span><span class="p">.</span><span class="nx">rollback</span><span class="p">();</span>
+      <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+    <span class="p">}</span>
+  <span class="p">},</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="sequelizerc">
+<h3>.sequelizerc 파일<a class="headerlink" href="#sequelizerc" title="Permalink to this headline">¶</a></h3>
+<p>이것은 특수 설정 파일입니다. 일반적으로 CLI에 인수로 전달할 다음 옵션을 지정할 수 있습니다.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">env</span></code>: 명령을 실행할 환경</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config</span></code>: 설정파일 경로</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">options-path</span></code>: 추가 옵션이있는 JSON 파일의 경로</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">migrations-path</span></code>: 마이그레이션 디렉터리(폴더) 경로</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">seeders-path</span></code>: seeder 디렉터리(폴더) 경로</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">models-path</span></code>: models 디렉터리(폴더) 경로</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">url</span></code>: 사용할 데이터베이스 연결 문자열입니다. –config 파일 사용의 대안</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">debug</span></code>: 사용 가능한 경우 다양한 디버그 정보 표시</p></li>
+</ul>
+<p>사용할 수있는 일부 시나리오.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">migrations</span></code>, <code class="docutils literal notranslate"><span class="pre">models</span></code>, <code class="docutils literal notranslate"><span class="pre">seeders</span></code> 또는 <code class="docutils literal notranslate"><span class="pre">config</span></code> 디렉터리(폴더) 기본경로 재정의를 원할 때</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">config.json</span></code>의 이름을 <code class="docutils literal notranslate"><span class="pre">database.json</span></code>과 같은 다른 이름으로 바꾸고 싶을 때</p></li>
+</ul>
+<p>그리고 훨씬 더. 이 파일을 사용자 정의 구성에 사용하는 방법을 살펴 보겠습니다.</p>
+<p>우선, 프로젝트의 루트 디렉토리에 빈 파일을 만들어 봅시다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;config&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;database.json&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;models-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;db&#39;</span><span class="p">,</span> <span class="s1">&#39;models&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;seeders-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;db&#39;</span><span class="p">,</span> <span class="s1">&#39;seeders&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;migrations-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;db&#39;</span><span class="p">,</span> <span class="s1">&#39;migrations&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이 구성을 사용하면 CLI에</p>
+<ul class="simple">
+<li><p>설정 구성을 위한 <code class="docutils literal notranslate"><span class="pre">config/database.json</span></code> 사용</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">db/models</span></code>를 모델 폴더로 사용</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">db/seeders</span></code>를 모델 폴더로 사용</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">db/migrations</span></code>를 모델 폴더로 사용</p></li>
+</ul>
+</div>
+<div class="section" id="id11">
+<h3>동적 설정<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>설정 파일은 기본적으로 <code class="docutils literal notranslate"><span class="pre">config.json</span></code>이라는 JSON 파일입니다. 그러나 때로는 JSON 파일에서는 불가능한 일부 코드를 실행하거나 환경 변수에 액세스하려고합니다.</p>
+<p>Sequelize CLI는 <code class="docutils literal notranslate"><span class="pre">JSON</span></code>과 <code class="docutils literal notranslate"><span class="pre">JS</span></code> 파일에서 읽을 수 있습니다. 이것은 <code class="docutils literal notranslate"><span class="pre">.sequelizerc</span></code> 파일과 함께 설정하 수 있습니다.</p>
+<p>첫 번째로 프로젝트 루트 경로에 <code class="docutils literal notranslate"><span class="pre">.sequelizerc</span></code> 파일을 생성합니다. 이 파일은 JS 파일의 구성 경로를 대체해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;config&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;config.js&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Sequelize CLI는 설정 옵션을 가져오기 위해 <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code>를 읽을 수 있습니다. 이 파일은 JS 파일이므로 모든 코드를 실행하고 최종 동적 구성 파일을 내보낼 수 있습니다.</p>
+<p>예시 <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code>파일</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">development</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">test</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;database_test&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;database_test&#39;</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">production</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_USERNAME</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_PASSWORD</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_NAME</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_HOSTNAME</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span><span class="p">,</span>
+    <span class="nx">dialectOptions</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">ssl</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">ca</span><span class="o">:</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/mysql-ca-master.crt&#39;</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id12">
+<h3>바벨 사용<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<p>이제 <code class="docutils literal notranslate"><span class="pre">.sequelizerc</span></code> 파일 사용법을 알았습니다. 이제 <code class="docutils literal notranslate"> </code> 설정에서 babel을 사용하기 위해이 파일을 사용하는 방법을 살펴 보겠습니다. 이를 통해 ES6/ES7 구문으로 마이그레이션 및 시드를 작성할 수 있습니다.</p>
+<p>첫 번째로 <code class="docutils literal notranslate"><span class="pre">babel-register</span></code>를 설치합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npm i --save-dev babel-register
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">.sequelizerc</span></code> 파일을 실행해라. 여기에는 sequelize-cli를 위해 변경하려는 구성이 포함될 수 있지만 코드베이스에 babel을 등록하기를 원합니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ touch .sequelizerc <span class="c1"># Create rc file</span>
+</pre></div>
+</div>
+<p>이 파일에 <code class="docutils literal notranslate"><span class="pre">babel-register</span></code> 추가하라</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">require</span><span class="p">(</span><span class="s2">&quot;babel-register&quot;</span><span class="p">);</span>
+
+<span class="kr">const</span> <span class="nx">path</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;path&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;config&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;config&#39;</span><span class="p">,</span> <span class="s1">&#39;config.json&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;models-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;models&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;seeders-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;seeders&#39;</span><span class="p">),</span>
+  <span class="s1">&#39;migrations-path&#39;</span><span class="o">:</span> <span class="nx">path</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="s1">&#39;migrations&#39;</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>이제 CLI는 마이그레이션/시더 등에서 ES6/ES7 코드를 실행할 수 있습니다. 이는 <code class="docutils literal notranslate"><span class="pre">.babelrc</span></code> 구성에 따라 다릅니다. <a class="reference external" href="https://babeljs.io/">babeljs.io</a>에서 자세한 내용을 읽으십시오.</p>
+</div>
+<div class="section" id="id13">
+<h3>환경 변수 사용<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<p>CLI를 사용하여 <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code>에 있는 환경 변수를 직접적으로 접근할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">.sequelizerc</span></code>를 사용하여 구성에 <code class="docutils literal notranslate"><span class="pre">config/config.js</span></code>를 사용하도록 CLI에 지시 할 수 있습니다. 이 것은 마지막 세션에서 설명합니다.</p>
+<p>환경 변수 속성을 노출할 수 있습니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">development</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">test</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CI_DB_USERNAME</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CI_DB_PASSWORD</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">CI_DB_NAME</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">production</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PROD_DB_USERNAME</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PROD_DB_PASSWORD</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PROD_DB_NAME</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PROD_DB_HOSTNAME</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="dialect">
+<h3>dialect 옵션 선택<a class="headerlink" href="#dialect" title="Permalink to this headline">¶</a></h3>
+<p>dialectOption을 지정하고 싶을 때, 일반적인 설정이라면 <code class="docutils literal notranslate"><span class="pre">config/config.json</span></code>에 추가하면됩니다. 때로는 dialectOptions를 얻기 위해 일부 코드를 실행하려는 경우 이러한 경우 동적 구성 파일을 사용해야합니다.</p>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;production&quot;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s2">&quot;dialect&quot;</span><span class="o">:</span><span class="s2">&quot;mysql&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;dialectOptions&quot;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="s2">&quot;bigNumberStrings&quot;</span><span class="o">:</span> <span class="kc">true</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h3>프로덕션 사용<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<p>프로덕션 환경에서 CLI 및 마이그레이션 설정 사용에 대한 팁.</p>
+<ol class="simple">
+<li><p>구성 설정에 환경 변수를 사용합니다. 이것은 동적구성으로 더 좋은 수행결과를 얻습니다. 샘플 프로덕션 안전 구성은 다음과 같습니다.</p></li>
+</ol>
+<div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="kr">const</span> <span class="nx">fs</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;fs&#39;</span><span class="p">);</span>
+
+<span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">development</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;database_dev&#39;</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">test</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="s1">&#39;database_test&#39;</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="s1">&#39;database_test&#39;</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span>
+  <span class="p">},</span>
+  <span class="nx">production</span><span class="o">:</span> <span class="p">{</span>
+    <span class="nx">username</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_USERNAME</span><span class="p">,</span>
+    <span class="nx">password</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_PASSWORD</span><span class="p">,</span>
+    <span class="nx">database</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_NAME</span><span class="p">,</span>
+    <span class="nx">host</span><span class="o">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">DB_HOSTNAME</span><span class="p">,</span>
+    <span class="nx">dialect</span><span class="o">:</span> <span class="s1">&#39;mysql&#39;</span><span class="p">,</span>
+    <span class="nx">dialectOptions</span><span class="o">:</span> <span class="p">{</span>
+      <span class="nx">ssl</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">ca</span><span class="o">:</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">readFileSync</span><span class="p">(</span><span class="nx">__dirname</span> <span class="o">+</span> <span class="s1">&#39;/mysql-ca-master.crt&#39;</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>우리의 목표는 다양한 데이터베이스 비밀에 환경 변수를 사용하고 실수로 소스 제어에 체크인하지 않는 것입니다.</p>
+</div>
+<div class="section" id="id15">
+<h3>저장소<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>사용할 수있는 세 가지 유형의 저장소가 있습니다: <code class="docutils literal notranslate"><span class="pre">sequelize</span></code>, <code class="docutils literal notranslate"><span class="pre">json</span></code> 그리고 <code class="docutils literal notranslate"><span class="pre">none</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sequelize</span></code>: sequelize 데이터베이스의 테이블에 마이그레이션 및 시드를 저장합니다.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">json</span></code>: json 파일에 마이그레이션 및 시드 저장</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">none</span></code>: 마이그레이션/시드를 저장하지 않습니다</p></li>
+</ul>
+<div class="section" id="id16">
+<h4>마이그레이션 저장소<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h4>
+<p>기본적으로 CLI는 실행 된 각 마이그레이션에 대한 항목을 포함하는 <code class="docutils literal notranslate"><span class="pre">SequelizeMeta</span></code>라는 테이블을 데이터베이스에 작성합니다. 이 동작을 변경하기 위해 구성 파일에 추가 할 수있는 세 가지 옵션이 있습니다. <code class="docutils literal notranslate"><span class="pre">migrationStorage</span></code>를 사용하여 마이그레이션에 사용할 스토리지 유형을 선택할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">json</span></code>을 선택하면 <code class="docutils literal notranslate"><span class="pre">migrationStoragePath</span></code>를 사용하여 파일의 경로를 지정할 수 있습니다. 그렇지 않으면 CLI가 파일 <code class="docutils literal notranslate"><span class="pre">sequelize-meta.json</span></code>에 씁니다. <code class="docutils literal notranslate"><span class="pre">sequelize</span></code>를 사용하여 데이터베이스에 정보를 유지하지만 다른 테이블을 사용하려는 경우 <code class="docutils literal notranslate"><span class="pre">migrationStorageTableName</span></code>을 사용하여 테이블 이름을 변경할 수 있습니다. 또한 <code class="docutils literal notranslate"><span class="pre">migrationStorageTableSchema</span></code> 속성을 제공하여 <code class="docutils literal notranslate"><span class="pre">SequelizeMeta</span></code> 테이블에 대해 다른 스키마를 정의 할 수 있습니다.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  &quot;development&quot;: {
+    &quot;username&quot;: &quot;root&quot;,
+    &quot;password&quot;: null,
+    &quot;database&quot;: &quot;database_development&quot;,
+    &quot;host&quot;: &quot;127.0.0.1&quot;,
+    &quot;dialect&quot;: &quot;mysql&quot;,
+
+    // Use a different storage type. Default: sequelize
+    &quot;migrationStorage&quot;: &quot;json&quot;,
+
+    // Use a different file name. Default: sequelize-meta.json
+    &quot;migrationStoragePath&quot;: &quot;sequelizeMeta.json&quot;,
+
+    // Use a different table name. Default: SequelizeMeta
+    &quot;migrationStorageTableName&quot;: &quot;sequelize_meta&quot;,
+
+    // Use a different schema for the SequelizeMeta table
+    &quot;migrationStorageTableSchema&quot;: &quot;custom_schema&quot;
+  }
+}
+</pre></div>
+</div>
+<p><strong>참고</strong>: <strong>nonce</strong> 저장소는 추천하지 않습니다. 이를 사용하기로 결정한 경우 마이그레이션이 수행하거나 수행하지 않은 작업에 대한 기록이 없다는 의미에 유의하십시오.</p>
+</div>
+<div class="section" id="id17">
+<h4>시드 저장소<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h4>
+<p>기본적으로 CLI는 실행 된 시드를 저장하지 않습니다. 이 동작을 변경하기로 선택한 경우 구성 파일에서 <code class="docutils literal notranslate"><span class="pre">seederStorage</span></code>를 사용하여 스토리지 타입을 변경할 수 있습니다. <code class="docutils literal notranslate"><span class="pre">json</span></code>을 선택하면 <code class="docutils literal notranslate"><span class="pre">seederStoragePath</span></code>를 사용하여 파일 경로를 지정하거나 CLI가 <code class="docutils literal notranslate"><span class="pre">sequelize-data.json</span></code> 파일에 기록합니다. sequelize를 사용하여 데이터베이스에 정보를 유지하려는 경우 <code class="docutils literal notranslate"><span class="pre">seederStorageTableName</span></code>을 사용하여 테이블 이름을 지정하거나 기본적으로 <code class="docutils literal notranslate"><span class="pre">SequelizeData</span></code>가 됩니다.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+  &quot;development&quot;: {
+    &quot;username&quot;: &quot;root&quot;,
+    &quot;password&quot;: null,
+    &quot;database&quot;: &quot;database_development&quot;,
+    &quot;host&quot;: &quot;127.0.0.1&quot;,
+    &quot;dialect&quot;: &quot;mysql&quot;,
+    // Use a different storage. Default: none
+    &quot;seederStorage&quot;: &quot;json&quot;,
+    // Use a different file name. Default: sequelize-data.json
+    &quot;seederStoragePath&quot;: &quot;sequelizeData.json&quot;,
+    // Use a different table name. Default: SequelizeData
+    &quot;seederStorageTableName&quot;: &quot;sequelize_data&quot;
+  }
+}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="id18">
+<h3>연결정보 문자열<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<p>데이터베이스를 정의하는 구성 파일이있는 <code class="docutils literal notranslate"><span class="pre">--config</span></code> 옵션의 대안으로 <code class="docutils literal notranslate"><span class="pre">--url</span></code> 옵션을 사용하여 연결 문자열을 전달할 수 있습니다. 예를 들면 다음과 같습니다.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ npx sequelize-cli db:migrate --url <span class="s1">&#39;mysql://root:password@mysql_host.com/database_name&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h3>dialect 별 옵션 전달<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>{
+    &quot;production&quot;: {
+        &quot;dialect&quot;:&quot;postgres&quot;,
+        &quot;dialectOptions&quot;: {
+            // dialect options like SSL etc here
+        }
+    }
+}
+</pre></div>
+</div>
+</div>
+<div class="section" id="id20">
+<h3>프로그래밍 방식의 사용<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<p>sequelize는 프로그래밍 방식으로 실행 후 처리, 마이그레이션 작업을 로깅하기 위해 <a class="reference external" href="https://github.com/sequelize/umzug">sister library</a>을 가지고 있습니다.</p>
+</div>
+</div>
+<div class="section" id="id21">
+<h2>쿼리 인터페이스<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h2>
+<p>데이터베이스 스키마 변경하기 전에 설명된 <code class="docutils literal notranslate"><span class="pre">queryInterface</span></code> 객체를 사용하세요. 공개된 메소드의 전체 목록을 보려면 <a class="reference external" href="https://sequelize.org/v5/class/lib/query-interface.js~QueryInterface.html">CheckInterface API</a> 검사를 지원합니다.</p>
+</div>
 </div>
 
 
