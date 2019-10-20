@@ -319,7 +319,7 @@
 </div>
 <div class="section" id="id3">
 <h2>데이터 타입 확장<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
-<p>구현하려는 유형이 이미 <a class="reference external" href="https://sequelize.org/master/manual/data-types.html">DataTypes에</a> 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.</p>
+<p>구현하려는 유형이 이미 <a class="reference external" href="https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html">DataTypes</a>에 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.</p>
 <p>Sequelize는 데이터베이스에서 새로운 데이터 타입을 생성하지 않습니다. 이 튜토리얼은 새로운 데이터 타입을 인식하도록 하는 방법을 설명하고 해당 새 데이터 타입이 데이터베이스에 이미 생성되 있다고 가장합니다.</p>
 <p>데이터 타입을 확장하기 위해, 인스턴트를 생성하기 전에 해야합니다. 이 예시는 <code class="docutils literal notranslate"><span class="pre">Sequelize.INTEGER(11).ZEROFILL.UNSIGNED</span></code> 타입으로 빌드업 <code class="docutils literal notranslate"><span class="pre">NEWTYPE</span></code>을 생성합니다.</p>
 <div class="highlight-js notranslate"><div class="highlight"><pre><span></span><span class="c1">// myproject/lib/sequelize.js</span>

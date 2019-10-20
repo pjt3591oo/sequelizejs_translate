@@ -163,7 +163,7 @@ Timeline.create({ range: [-Infinity, new Date(Date.UTC(2016, 0, 1))] });
 ## 데이터 타입 확장
 
 
-구현하려는 유형이 이미 [DataTypes에](https://sequelize.org/master/manual/data-types.html) 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.
+구현하려는 유형이 이미 [DataTypes](https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html)에 포함되어있을 가능성이 큽니다. 새 데이터 유형이 포함되지 않은 경우이 매뉴얼은 직접 작성하는 방법을 보여줍니다.
 
 Sequelize는 데이터베이스에서 새로운 데이터 타입을 생성하지 않습니다. 이 튜토리얼은 새로운 데이터 타입을 인식하도록 하는 방법을 설명하고 해당 새 데이터 타입이 데이터베이스에 이미 생성되 있다고 가장합니다.
 

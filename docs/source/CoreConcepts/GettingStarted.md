@@ -183,7 +183,7 @@ User.sync({ force: true }).then(() => {
 
 ### 프로덕션을 위함 참고사항
 
-프로덕션 환경에서 `sync()` 호출 대신 마이그레이션(복제)을 사용하는 것이 좋습니다. [마이그레이션](https://sequelize.org/master/manual/migrations.html) 가이드에서 더 배울 수 있습니다.
+프로덕션 환경에서 `sync()` 호출 대신 마이그레이션(복제)을 사용하는 것이 좋습니다. [마이그레이션](https://pjt3591oo.github.io/sequelizejs_translate/build/html/OtherTopics/Migrations.html) 가이드에서 더 배울 수 있습니다.
 
 ## 쿼리(조회)
 

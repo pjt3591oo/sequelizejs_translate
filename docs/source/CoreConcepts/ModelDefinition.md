@@ -1,6 +1,6 @@
 # 모델정의
 
-모델과 테이블 맵핑을 정의하기 위해 `define` 메서드를 사용합니다. 각 컬럼은 데이터 타입을 가지고 있으며 [데이터 타입](https://sequelize.org/master/manual/data-types.html)에서 확인가능합니다.
+모델과 테이블 맵핑을 정의하기 위해 `define` 메서드를 사용합니다. 각 컬럼은 데이터 타입을 가지고 있으며 [데이터 타입](https://pjt3591oo.github.io/sequelizejs_translate/build/html/CoreConcepts/DateTypes.html)에서 확인가능합니다.
 
 ```js
 class Project extends Model {}
